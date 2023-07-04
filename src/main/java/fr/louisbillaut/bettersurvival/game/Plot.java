@@ -51,6 +51,7 @@ public class Plot {
     }
     private Location location1;
     private Location location2;
+    private int height;
     private String name;
     private final double sideLength = 41;
 
@@ -68,12 +69,48 @@ public class Plot {
 
     }
 
-    public Plot(Player player, Location location1, Location location2, String name) {
+    public Plot(Player player, Location location1, Location location2, int height, String name) {
         this.location1 = location1;
         this.location2 = location2;
         this.name = name;
+        this.height = height;
         successfulCreation(player);
     }
+
+    public static void showPlotHeightOptions(Player player) {
+        Inventory inventory = Bukkit.createInventory(null, 36, "Plots Options");
+
+        ItemStack glassPane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta glassMeta = glassPane.getItemMeta();
+        glassMeta.setDisplayName(" ");
+        glassPane.setItemMeta(glassMeta);
+
+        for (int i = 0; i < 9; i++) {
+            inventory.setItem(i, glassPane);
+            inventory.setItem(i + 27, glassPane);
+        }
+        for (int i = 1; i < 4; i++) {
+            inventory.setItem(i * 9, glassPane);
+            inventory.setItem(i * 9 + 8, glassPane);
+        }
+
+        String[] sizes = {"3", "5", "7", "10", "20", "30", "40", "50", "100", "infinite"};
+        for (int i = 0; i < sizes.length; i++) {
+            String size = sizes[i];
+            ItemStack soilBlock = new ItemStack(Material.GRASS_BLOCK);
+            ItemMeta soilMeta = soilBlock.getItemMeta();
+            soilMeta.setDisplayName(ChatColor.GREEN + "Height " + size);
+            soilBlock.setItemMeta(soilMeta);
+
+            int row = i / 7;
+            int column = i % 7;
+            int index = (row + 1) * 9 + column + 1;
+            inventory.setItem(index, soilBlock);
+        }
+
+        player.openInventory(inventory);
+    }
+
 
     private void successfulCreation(Player player) {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);

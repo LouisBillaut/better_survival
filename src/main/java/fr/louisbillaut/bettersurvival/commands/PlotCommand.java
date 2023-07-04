@@ -3,7 +3,6 @@ package fr.louisbillaut.bettersurvival.commands;
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.game.Plot;
-import fr.louisbillaut.bettersurvival.utils.Selector;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,9 +21,10 @@ public class PlotCommand implements CommandExecutor {
     }
 
     private void createPlot(Player player, String name) {
-        player.setMetadata("createPos1", new FixedMetadataValue(instance, true));
+        //player.setMetadata("createPos1", new FixedMetadataValue(instance, true));
         player.setMetadata("plotName", new FixedMetadataValue(instance, name));
-        Selector.appearArmorStand(instance, game, player);
+        //Selector.appearArmorStand(instance, game, player);
+        Plot.showPlotHeightOptions(player);
         /*
         Plot plot = new Plot(player.getLocation(), null, name);
 
@@ -82,7 +82,6 @@ public class PlotCommand implements CommandExecutor {
             boolean b = whitelistType.equals("buildWhitelist") || whitelistType.equals("enterWhitelist") || whitelistType.equals("interactWhitelist");
             if (action.equalsIgnoreCase("add")) {
                 if(b) {
-                    Bukkit.getLogger().info("action: " + whitelistType);
                     targetPlot.addPlayerToWhitelist(playerName, whitelistType);
                     player.sendMessage("Player " + playerName + " added to " + whitelistType + " !");
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_YES, 1.0f, 1.0f);
@@ -123,7 +122,7 @@ public class PlotCommand implements CommandExecutor {
                         player.sendMessage("Use : /plot new <name>");
                         return true;
                     }
-                    Selector.appearArmorStand(instance, game, player);
+                    Plot.showPlotHeightOptions(player);
                     return true;
                 }
                 case "new" -> {

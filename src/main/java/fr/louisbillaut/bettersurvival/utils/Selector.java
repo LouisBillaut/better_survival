@@ -5,7 +5,6 @@ import fr.louisbillaut.bettersurvival.game.Game;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,8 +13,6 @@ import org.bukkit.util.EulerAngle;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class Selector {
     private static final String arrowDownHead = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzkxMmQ0NWIxYzc4Y2MyMjQ1MjcyM2VlNjZiYTJkMTU3NzdjYzI4ODU2OGQ2YzFiNjJhNTQ1YjI5YzcxODcifX19";
@@ -44,7 +41,6 @@ public class Selector {
         } else {
             armorStands.get(player.getUniqueId()).add(armorStand);
         }
-        player.sendMessage(ChatColor.GREEN + "Armor Stand créé !");
 
         BukkitRunnable rotationTask = startRotationTask(instance, armorStand);
         if (!rotationTasks.containsKey(player.getUniqueId())) {

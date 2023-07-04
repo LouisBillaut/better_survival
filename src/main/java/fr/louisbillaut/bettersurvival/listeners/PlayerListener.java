@@ -5,10 +5,9 @@ import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.game.Player;
 import fr.louisbillaut.bettersurvival.game.Plot;
 import fr.louisbillaut.bettersurvival.utils.Selector;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -21,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,11 +64,19 @@ public class PlayerListener implements Listener {
                                 }
                             }
                             if (!name.equals("")) {
-                                player.removeMetadata("plotName", instance);
-                                Location pos1 = as.get(as.size() -2).getLocation();
-                                Location pos2 = as.get(as.size() -1).getLocation();
-                                Player playerIG = game.getPlayer(player);
-                                playerIG.addPlot(new Plot(player, pos1, pos2, name));
+                                if (player.hasMetadata("plotHeight")) {
+                                    for(MetadataValue md : player.getMetadata("plotHeight")) {
+                                        if (md.asInt() != 0) {
+                                            player.removeMetadata("plotName", instance);
+                                            player.removeMetadata("plotHeight", instance);
+                                            Location pos1 = as.get(as.size() -2).getLocation();
+                                            Location pos2 = as.get(as.size() -1).getLocation();
+                                            Player playerIG = game.getPlayer(player);
+                                            playerIG.addPlot(new Plot(player, pos1, pos2, md.asInt(), name));
+                                            player.spigot().sendMessage();
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -76,6 +84,51 @@ public class PlayerListener implements Listener {
                 }
             }
         }
+    }
+
+    private void sendActionBar(org.bukkit.entity.Player player, String message) {
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+    }
+
+    private void showNumberOfBlock(org.bukkit.entity.Player player) {
+        var armorStands = game.armorStands;
+        var as = armorStands.get(player.getUniqueId());
+        if (as.size() < 2) {
+            return;
+        }
+        Location pos1 = as.get(as.size() -2).getLocation();
+        Location pos2 = as.get(as.size() -1).getLocation();
+        if (player.hasMetadata("plotHeight")) {
+            for (MetadataValue md : player.getMetadata("plotHeight")) {
+                if (md.asInt() != 0) {
+                    int numberOfBlocks = computeNumberOfBlocks(pos1, pos2, md.asInt());
+                    sendActionBar(player, ChatColor.YELLOW + "Number of Blocks: " + ChatColor.BOLD + numberOfBlocks);
+                }
+            }
+        }
+    }
+
+    private int computeNumberOfBlocks(Location coin1, Location coin2, int height) {
+        int minX = Math.min(coin1.getBlockX(), coin2.getBlockX());
+        int minY = Math.min(coin1.getBlockY(), coin2.getBlockY());
+        int minZ = Math.min(coin1.getBlockZ(), coin2.getBlockZ());
+
+        int maxX = Math.max(coin1.getBlockX(), coin2.getBlockX());
+        int maxY = Math.max(coin1.getBlockY(), coin2.getBlockY());
+        int maxZ = Math.max(coin1.getBlockZ(), coin2.getBlockZ());
+
+        int numBlocks = 0;
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    if (y >= minY && y <= minY + height - 1) {
+                        numBlocks++;
+                    }
+                }
+            }
+        }
+
+        return numBlocks;
     }
 
     @EventHandler
@@ -88,6 +141,7 @@ public class PlayerListener implements Listener {
             Block targetBlock = player.getTargetBlock(null, 100);
             if (targetBlock.getType() != Material.AIR) {
                 armorStand.teleport(targetBlock.getLocation().add(0.5, 0.6, 0.5));
+                showNumberOfBlock(player);
             }
         }
     }
@@ -126,8 +180,7 @@ public class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
+    private void plotSettingClickEvent(InventoryClickEvent event) {
         if (event.getView().getTitle().equals("Plot Settings")) {
             ItemStack clickedItem = event.getCurrentItem();
             if (clickedItem != null) {
@@ -144,6 +197,33 @@ public class PlayerListener implements Listener {
                 }
             }
         }
+    }
+
+    private void plotHeightClickEvent(InventoryClickEvent event) {
+        if (event.getView().getTitle().equals("Plots Options")) {
+            event.setCancelled(true);
+
+            ItemStack clickedItem = event.getCurrentItem();
+            if (clickedItem != null && clickedItem.getType() == Material.GRASS_BLOCK) {
+                String displayName = clickedItem.getItemMeta().getDisplayName();
+                String sizeString = ChatColor.stripColor(displayName).replace("Height ", "");
+                int size = -1;
+                if (!sizeString.equals("infinite")){
+                    size = Integer.parseInt(sizeString);
+                }
+                org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                player.setMetadata("plotHeight", new FixedMetadataValue(instance, size));
+                player.setMetadata("createPos1", new FixedMetadataValue(instance, true));
+                player.closeInventory();
+                Selector.appearArmorStand(instance, game, player);
+            }
+        }
+    }
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        plotSettingClickEvent(event);
+        plotHeightClickEvent(event);
     }
 
     @EventHandler
