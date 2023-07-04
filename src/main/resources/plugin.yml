@@ -1,0 +1,22 @@
+name: betterSurvival
+version: 1.0
+author: Louis BILLAUT
+website: https://github.com/LouisBillaut
+main: fr.louisbillaut.bettersurvival.Main
+api-version: 1.20
+commands:
+  plot:
+    description: Create or list plots
+    usage: /plot <new|list> [name]
+    aliases: [parcel]
+
+command-description:
+  plot:
+    description: Create or list plots
+    subcommands:
+      new:
+        description: Create a new plot
+        usage: /plot new <name>
+      list:
+        description: List active plots
+        usage: /plot list
