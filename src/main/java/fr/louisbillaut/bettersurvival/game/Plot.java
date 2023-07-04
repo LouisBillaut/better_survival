@@ -250,11 +250,19 @@ public class Plot {
         if (config.contains("location1")) {
             location1 = config.getLocation("location1");
         }
+        if (config.contains("location2")) {
+            location2 = config.getLocation("location2");
+        }
+        if (config.contains("height")) {
+            height = config.getInt("height");
+        }
     }
 
     public void saveToConfig(ConfigurationSection config) {
         config.set("name", name);
         config.set("location1", location1);
+        config.set("location2", location2);
+        config.set("height", height);
     }
 
     private void showParticles(Player player) {

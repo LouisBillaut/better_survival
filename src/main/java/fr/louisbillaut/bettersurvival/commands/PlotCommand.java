@@ -21,20 +21,8 @@ public class PlotCommand implements CommandExecutor {
     }
 
     private void createPlot(Player player, String name) {
-        //player.setMetadata("createPos1", new FixedMetadataValue(instance, true));
         player.setMetadata("plotName", new FixedMetadataValue(instance, name));
-        //Selector.appearArmorStand(instance, game, player);
         Plot.showPlotHeightOptions(player);
-        /*
-        Plot plot = new Plot(player.getLocation(), null, name);
-
-        fr.louisbillaut.bettersurvival.game.Player gamePlayer = game.getPlayer(player);
-        if (gamePlayer != null) {
-            gamePlayer.addPlot(plot);
-            player.sendMessage("Plot '" + name + "' has been created !");
-        } else {
-            player.sendMessage("You must be connected to use this command.");
-        }*/
     }
 
     private void listPlots(Player player) {
