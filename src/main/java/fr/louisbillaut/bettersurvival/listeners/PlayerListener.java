@@ -17,6 +17,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -180,7 +181,7 @@ public class PlayerListener implements Listener {
     }
 
     private void plotSettingClickEvent(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals("Plot Settings")) {
+        if (event.getView().getTitle().contains("plot settings")) {
             ItemStack clickedItem = event.getCurrentItem();
             if (clickedItem != null) {
                 Player player = game.getPlayer((org.bukkit.entity.Player) event.getWhoClicked());
@@ -219,10 +220,38 @@ public class PlayerListener implements Listener {
             }
         }
     }
+
+    private void plotListClickEvent(InventoryClickEvent event) {
+        ItemStack clickedItem = event.getCurrentItem();
+
+        if (event.getView().getTitle().equals("Plots List")) {
+            event.setCancelled(true);
+
+            if (clickedItem.getType() == Material.GRASS_BLOCK) {
+                ItemMeta itemMeta = clickedItem.getItemMeta();
+                if (itemMeta != null && itemMeta.hasDisplayName()) {
+                    String displayName = itemMeta.getDisplayName();
+                    if (displayName != null && displayName.startsWith(ChatColor.GREEN + "Plot ")) {
+                        String plotName = ChatColor.stripColor(displayName).replace("Plot ", "");
+                        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+                        Plot plot = game.getPlayer(player).getPlot(plotName);
+                        if (plot == null) {
+                            player.sendMessage("Your don't have a plot named " + plotName);
+                            return;
+                        }
+                        player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                        plot.openSettingsInventory(instance, player);
+                    }
+                }
+            }
+        }
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         plotSettingClickEvent(event);
         plotHeightClickEvent(event);
+        plotListClickEvent(event);
     }
 
     @EventHandler

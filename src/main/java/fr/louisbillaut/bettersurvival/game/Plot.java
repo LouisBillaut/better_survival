@@ -148,6 +148,14 @@ public class Plot {
         return location1;
     }
 
+    public Location getLocation2() {
+        return location2;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
     public double getSideLength() {
         return sideLength;
     }
@@ -362,7 +370,7 @@ public class Plot {
 
     public void openSettingsInventory(Main instance, Player player) {
         player.setMetadata("setting", new FixedMetadataValue(instance, name));
-        Inventory inventory = instance.getServer().createInventory(null, 27, "Plot Settings");
+        Inventory inventory = instance.getServer().createInventory(null, 27, name + " plot settings");
 
         // Players Can Interact Option
         setInteractOption(inventory);
@@ -433,6 +441,7 @@ public class Plot {
                 player.setMetadata("whitelist", new FixedMetadataValue(instance, "enter"));
                 sendWhiteListSetting(player, "enter");
             }
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
         }
     }
 

@@ -1,7 +1,12 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,4 +97,47 @@ public class Player {
             plot.saveToConfig(config.createSection("plots." + i));
         }
     }
+
+    public void displayListPlotInventory() {
+        int inventorySize = Math.max(9, (int) Math.ceil(plots.size() / 9.0) * 9);
+        Inventory inventory = Bukkit.createInventory(null, inventorySize, "Plots List");
+
+        ItemStack glassPane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta glassPaneMeta = glassPane.getItemMeta();
+        glassPaneMeta.setDisplayName(" ");
+        glassPane.setItemMeta(glassPaneMeta);
+
+        for (int i = 0; i < 9; i++) {
+            inventory.setItem(i, glassPane);
+            inventory.setItem(inventorySize - 9 + i, glassPane);
+        }
+
+        for (int i = 0; i < plots.size(); i++) {
+            Plot plot = plots.get(i);
+
+            ItemStack grassBlock = new ItemStack(Material.GRASS_BLOCK);
+            ItemMeta grassBlockMeta = grassBlock.getItemMeta();
+            grassBlockMeta.setDisplayName(ChatColor.GREEN + "Plot " + plot.getName());
+
+            List<String> lore = new ArrayList<>();
+            lore.add(ChatColor.YELLOW + "Location1: X: " + plot.getLocation1().getX() +
+                    " Y: " + plot.getLocation1().getY() +
+                    " Z: " + plot.getLocation1().getZ());
+            lore.add(ChatColor.YELLOW + "Location2: X: " + plot.getLocation2().getX() +
+                    " Y: " + plot.getLocation2().getY() +
+                    " Z: " + plot.getLocation2().getZ());
+            lore.add(ChatColor.YELLOW + "Height: " + plot.getHeight());
+
+            grassBlockMeta.setLore(lore);
+            grassBlock.setItemMeta(grassBlockMeta);
+
+            int row = i / 9;
+            int column = i % 9;
+
+            inventory.setItem(row * 9 + column, grassBlock);
+        }
+
+        bukkitPlayer.openInventory(inventory);
+    }
+
 }

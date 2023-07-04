@@ -28,17 +28,7 @@ public class PlotCommand implements CommandExecutor {
     private void listPlots(Player player) {
         fr.louisbillaut.bettersurvival.game.Player gamePlayer = game.getPlayer(player);
         if (gamePlayer != null) {
-            List<Plot> plots = gamePlayer.getPlots();
-            if (!plots.isEmpty()) {
-                player.sendMessage("Your active plots :");
-                for (Plot plot : plots) {
-                    String plotName = plot.getName();
-                    Location plotLocation = plot.getLocation1();
-                    player.sendMessage("- " + plotName + " : " + plotLocation.getBlockX() + ", " + plotLocation.getBlockY() + ", " + plotLocation.getBlockZ());
-                }
-            } else {
-                player.sendMessage("You don't have any active plot.");
-            }
+            gamePlayer.displayListPlotInventory();
         } else {
             player.sendMessage("You must be connected to use this command.");
         }
