@@ -28,6 +28,10 @@ public class Game implements Serializable {
         return null;
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     public void loadFromConfig(ConfigurationSection config) {
         if (config.contains("players")) {
             ConfigurationSection playersSection = config.getConfigurationSection("players");

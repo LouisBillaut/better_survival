@@ -53,8 +53,6 @@ public class Plot {
     private Location location2;
     private int height;
     private String name;
-    private final double sideLength = 41;
-
     private PlotSetting playerInteract = PlotSetting.DEACTIVATED;
     private PlotSetting playerBuild = PlotSetting.DEACTIVATED;
     private PlotSetting playerEnter = PlotSetting.DEACTIVATED;
@@ -154,10 +152,6 @@ public class Plot {
 
     public int getHeight() {
         return height;
-    }
-
-    public double getSideLength() {
-        return sideLength;
     }
 
     public void setPlayerBuildWhitelist(ArrayList<String> playerBuildWhitelist) {
@@ -274,12 +268,28 @@ public class Plot {
     }
 
     private void showParticles(Player player) {
-        double width = sideLength;
+        int minX = (int) Math.floor(Math.min(location1.getX(), location2.getX()));
+        int minY = (int) Math.floor(Math.min(location1.getY(), location2.getY()));
+        int minZ = (int) Math.floor(Math.min(location1.getZ(), location2.getZ()));
+        int maxX = (int) Math.ceil(Math.max(location1.getX(), location2.getX()));
+        int maxZ = (int) Math.ceil(Math.max(location1.getZ(), location2.getZ()));
 
-        for (double x = -width / 2; x <= width / 2; x++) {
-            for (double z = -width / 2; z <= width / 2; z++) {
-                Location particleLocation = location1.clone().add(x, 0, z);
-                player.spawnParticle(Particle.FALLING_LAVA, particleLocation, 1, 0, 20, 0);
+        int width = Math.abs(maxX - minX) + 1;
+        int depth = Math.abs(maxZ - minZ) + 1;
+
+        int h = height;
+        if (height == -1) {
+            h = 200;
+        }
+        int startHeight = minY;
+        int endHeight = minY + h;
+
+        for (int x = 0; x < width; x++) {
+            for (int z = 0; z < depth; z++) {
+                for (int y = startHeight; y <= endHeight; y++) {
+                    Location particleLocation = new Location(location1.getWorld(), minX + x, y, minZ + z);
+                    player.spawnParticle(Particle.BUBBLE_COLUMN_UP, particleLocation, 1, 0, 0, 0);
+                }
             }
         }
     }
@@ -287,10 +297,10 @@ public class Plot {
         new BukkitRunnable() {
             @Override
             public void run() {
-                for(int i = 0; i < 8; i++) {
+                for(int i = 0; i < 80; i++) {
                     showParticles(player);
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(25);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

@@ -4,6 +4,7 @@ import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.game.Player;
 import fr.louisbillaut.bettersurvival.game.Plot;
+import fr.louisbillaut.bettersurvival.utils.Detector;
 import fr.louisbillaut.bettersurvival.utils.Selector;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -23,6 +24,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PlayerListener implements Listener {
@@ -33,8 +35,7 @@ public class PlayerListener implements Listener {
         this.instance = instance;
     }
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
+    private void armorStandSelector(PlayerInteractEvent event) {
         org.bukkit.entity.Player player = event.getPlayer();
 
         var armorStands = game.armorStands;
@@ -84,6 +85,108 @@ public class PlayerListener implements Listener {
                 }
             }
         }
+    }
+
+    private final List<Material> openableItems = Arrays.asList(
+            Material.CHEST,
+            Material.TRAPPED_CHEST,
+            Material.ENDER_CHEST,
+            Material.FURNACE,
+            Material.BLAST_FURNACE,
+            Material.SMOKER,
+            Material.ENCHANTING_TABLE,
+            Material.BARREL,
+            Material.DROPPER,
+            Material.HOPPER,
+            Material.BREWING_STAND,
+            Material.SHULKER_BOX,
+            Material.WHITE_SHULKER_BOX,
+            Material.BARREL
+    );
+
+    private final List<Material> redstoneActivatableBlocks = Arrays.asList(
+            Material.LEVER,
+            Material.STONE_BUTTON,
+            Material.OAK_BUTTON,
+            Material.SPRUCE_BUTTON,
+            Material.BIRCH_BUTTON,
+            Material.JUNGLE_BUTTON,
+            Material.ACACIA_BUTTON,
+            Material.DARK_OAK_BUTTON,
+            Material.OAK_PRESSURE_PLATE,
+            Material.SPRUCE_PRESSURE_PLATE,
+            Material.BIRCH_PRESSURE_PLATE,
+            Material.JUNGLE_PRESSURE_PLATE,
+            Material.ACACIA_PRESSURE_PLATE,
+            Material.DARK_OAK_PRESSURE_PLATE,
+            Material.STONE_PRESSURE_PLATE,
+            Material.LIGHT_WEIGHTED_PRESSURE_PLATE,
+            Material.HEAVY_WEIGHTED_PRESSURE_PLATE,
+            Material.DAYLIGHT_DETECTOR,
+            Material.TRIPWIRE,
+            Material.TRIPWIRE_HOOK,
+            Material.REDSTONE_TORCH,
+            Material.REDSTONE_WALL_TORCH,
+            Material.COMPARATOR,
+            Material.REDSTONE_WIRE,
+            Material.REPEATER,
+            Material.OBSERVER,
+            Material.DISPENSER,
+            Material.DROPPER,
+            Material.HOPPER,
+            Material.IRON_TRAPDOOR,
+            Material.ACACIA_TRAPDOOR,
+            Material.BIRCH_TRAPDOOR,
+            Material.DARK_OAK_TRAPDOOR,
+            Material.JUNGLE_TRAPDOOR,
+            Material.OAK_TRAPDOOR,
+            Material.SPRUCE_TRAPDOOR,
+            Material.END_GATEWAY,
+            Material.IRON_DOOR,
+            Material.ACACIA_DOOR,
+            Material.BIRCH_DOOR,
+            Material.DARK_OAK_DOOR,
+            Material.JUNGLE_DOOR,
+            Material.OAK_DOOR,
+            Material.SPRUCE_DOOR,
+            Material.TRAPPED_CHEST
+    );
+
+    private void interactWhitelistDetector(PlayerInteractEvent event) {
+        if(event.getClickedBlock() == null) return;
+        var playersInGame = game.getPlayers();
+        for(Player playerIG: playersInGame) {
+            if(event.getPlayer().getDisplayName().equals(playerIG.getBukkitPlayer().getDisplayName())) continue;
+            var plots = playerIG.getPlots();
+            for(Plot p: plots) {
+                if(p.getPlayerInteract().equals(Plot.PlotSetting.ACTIVATED)) {
+                    continue;
+                }
+
+                Location blockClickedLocation = event.getClickedBlock().getLocation();
+                if(Detector.isInZone(blockClickedLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && p.getPlayerInteract().equals(Plot.PlotSetting.DEACTIVATED)) {
+                    if (openableItems.contains(event.getClickedBlock().getType()) || redstoneActivatableBlocks.contains(event.getClickedBlock().getType())) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+                if(Detector.isInZone(blockClickedLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && p.getPlayerInteract().equals(Plot.PlotSetting.CUSTOM)
+                        && !Detector.isInWhiteList(event.getPlayer(), p.getPlayerInteractWhitelist())) {
+                    if (openableItems.contains(event.getClickedBlock().getType()) || redstoneActivatableBlocks.contains(event.getClickedBlock().getType())) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        armorStandSelector(event);
+        interactWhitelistDetector(event);
     }
 
     private void sendActionBar(org.bukkit.entity.Player player, String message) {
