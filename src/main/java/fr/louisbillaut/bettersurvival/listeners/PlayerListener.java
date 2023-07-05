@@ -15,6 +15,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
@@ -181,6 +183,84 @@ public class PlayerListener implements Listener {
                 }
             }
         }
+    }
+
+    private void buildPlaceWhitelistDetector(BlockPlaceEvent event) {
+        var playersInGame = game.getPlayers();
+        for(Player playerIG: playersInGame) {
+            if(event.getPlayer().getDisplayName().equals(playerIG.getBukkitPlayer().getDisplayName())) continue;
+            var plots = playerIG.getPlots();
+            for(Plot p: plots) {
+                if(p.getPlayerBuild().equals(Plot.PlotSetting.ACTIVATED)) {
+                    continue;
+                }
+
+                Location blockPlacedLocation = event.getBlockPlaced().getLocation();
+                if(Detector.isInZone(blockPlacedLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && p.getPlayerBuild().equals(Plot.PlotSetting.DEACTIVATED)) {
+                    event.setCancelled(true);
+                    return;
+                }
+                if(Detector.isInZone(blockPlacedLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && p.getPlayerBuild().equals(Plot.PlotSetting.CUSTOM)
+                        && !Detector.isInWhiteList(event.getPlayer(), p.getPlayerBuildWhitelist())) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void buildBreakWhitelistDetector(BlockBreakEvent event) {
+        var playersInGame = game.getPlayers();
+        for(Player playerIG: playersInGame) {
+            if(event.getPlayer().getDisplayName().equals(playerIG.getBukkitPlayer().getDisplayName())) continue;
+            var plots = playerIG.getPlots();
+            for(Plot p: plots) {
+                Location blockPlacedLocation = event.getBlock().getLocation();
+                // prevent player from destroying non-interactable items
+                if(Detector.isInZone(blockPlacedLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && p.getPlayerInteract().equals(Plot.PlotSetting.DEACTIVATED)) {
+                    if (openableItems.contains(event.getBlock().getType()) || redstoneActivatableBlocks.contains(event.getBlock().getType())) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+                if(Detector.isInZone(blockPlacedLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && p.getPlayerInteract().equals(Plot.PlotSetting.CUSTOM)
+                        && !Detector.isInWhiteList(event.getPlayer(), p.getPlayerInteractWhitelist())) {
+                    if (openableItems.contains(event.getBlock().getType()) || redstoneActivatableBlocks.contains(event.getBlock().getType())) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+                if(p.getPlayerBuild().equals(Plot.PlotSetting.ACTIVATED)) {
+                    continue;
+                }
+
+                if(Detector.isInZone(blockPlacedLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && p.getPlayerBuild().equals(Plot.PlotSetting.DEACTIVATED)) {
+                    event.setCancelled(true);
+                    return;
+                }
+                if(Detector.isInZone(blockPlacedLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && p.getPlayerBuild().equals(Plot.PlotSetting.CUSTOM)
+                        && !Detector.isInWhiteList(event.getPlayer(), p.getPlayerBuildWhitelist())) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        buildPlaceWhitelistDetector(event);
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        buildBreakWhitelistDetector(event);
     }
 
     @EventHandler
