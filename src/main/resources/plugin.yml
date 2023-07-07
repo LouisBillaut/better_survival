@@ -9,6 +9,9 @@ commands:
     description: Create or list plots
     usage: /plot <new|list> [name]
     aliases: [parcel]
+  stuck:
+    description: Unstuck you
+    usage: /stuck
 
 command-description:
   plot:

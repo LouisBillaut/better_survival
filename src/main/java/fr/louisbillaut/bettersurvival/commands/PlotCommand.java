@@ -78,7 +78,7 @@ public class PlotCommand implements CommandExecutor {
                 player.sendMessage("Invalid action type. Use 'add' or 'remove' as action.");
             }
         } else {
-            player.sendMessage("You don't have plot named " + plot + ".");
+            player.sendMessage(Main.sendLocalizedMessage("errPlotNamed") + plot + ".");
         }
     }
 

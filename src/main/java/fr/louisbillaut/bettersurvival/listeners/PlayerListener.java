@@ -12,6 +12,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -19,15 +20,18 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class PlayerListener implements Listener {
     private Game game;
@@ -158,7 +162,7 @@ public class PlayerListener implements Listener {
         if(event.getClickedBlock() == null) return;
         var playersInGame = game.getPlayers();
         for(Player playerIG: playersInGame) {
-            if(event.getPlayer().getDisplayName().equals(playerIG.getBukkitPlayer().getDisplayName())) continue;
+            if(event.getPlayer().getDisplayName().equals(playerIG.getPlayerName())) continue;
             var plots = playerIG.getPlots();
             for(Plot p: plots) {
                 if(p.getPlayerInteract().equals(Plot.PlotSetting.ACTIVATED)) {
@@ -188,7 +192,7 @@ public class PlayerListener implements Listener {
     private void buildPlaceWhitelistDetector(BlockPlaceEvent event) {
         var playersInGame = game.getPlayers();
         for(Player playerIG: playersInGame) {
-            if(event.getPlayer().getDisplayName().equals(playerIG.getBukkitPlayer().getDisplayName())) continue;
+            if(event.getPlayer().getDisplayName().equals(playerIG.getPlayerName())) continue;
             var plots = playerIG.getPlots();
             for(Plot p: plots) {
                 if(p.getPlayerBuild().equals(Plot.PlotSetting.ACTIVATED)) {
@@ -214,11 +218,10 @@ public class PlayerListener implements Listener {
     private void buildBreakWhitelistDetector(BlockBreakEvent event) {
         var playersInGame = game.getPlayers();
         for(Player playerIG: playersInGame) {
-            if(event.getPlayer().getDisplayName().equals(playerIG.getBukkitPlayer().getDisplayName())) continue;
+            if(event.getPlayer().getDisplayName().equals(playerIG.getPlayerName())) continue;
             var plots = playerIG.getPlots();
             for(Plot p: plots) {
                 Location blockPlacedLocation = event.getBlock().getLocation();
-                // prevent player from destroying non-interactable items
                 if(Detector.isInZone(blockPlacedLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
                         && p.getPlayerInteract().equals(Plot.PlotSetting.DEACTIVATED)) {
                     if (openableItems.contains(event.getBlock().getType()) || redstoneActivatableBlocks.contains(event.getBlock().getType())) {
@@ -253,6 +256,82 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private String getRandomMessage() {
+        List<String> messages = List.of(
+                Main.sendLocalizedMessage("privateAreaErr"),
+                Main.sendLocalizedMessage("privateAreaErr2"),
+                Main.sendLocalizedMessage("privateAreaErr3"),
+                Main.sendLocalizedMessage("privateAreaErr4"),
+                Main.sendLocalizedMessage("privateAreaErr5")
+        );
+
+        Random random = new Random();
+        int index = random.nextInt(messages.size());
+        return messages.get(index);
+    }
+
+    private void sendWelcomeTitle(org.bukkit.entity.Player player, String playerName, String plotName) {
+        String title = ChatColor.GREEN + Main.sendLocalizedMessage("welcome");
+        String subtitle = plotName + " " + Main.sendLocalizedMessage("of") + " " + playerName;
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+        player.sendTitle(title, subtitle, 10, 70, 20);
+    }
+    private void enterWhitelistDetector(PlayerMoveEvent event) {
+        var playersInGame = game.getPlayers();
+        for(Player playerIG: playersInGame) {
+            if(event.getPlayer().getDisplayName().equals(playerIG.getPlayerName())) continue;
+            var plots = playerIG.getPlots();
+            for(Plot p: plots) {
+                Location playerLocation = event.getPlayer().getLocation();
+                if(p.getPlayerEnter().equals(Plot.PlotSetting.ACTIVATED)) {
+                    if(Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight()) && !event.getPlayer().hasMetadata(p.getName())) {
+                        event.getPlayer().setMetadata(p.getName(), new FixedMetadataValue(instance, true));
+                        sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
+                    } else if (!Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight()) && event.getPlayer().hasMetadata(p.getName())){
+                        if(event.getPlayer().hasMetadata(p.getName())) {
+                            event.getPlayer().removeMetadata(p.getName(), instance);
+                        }
+                    }
+                    continue;
+                }
+                Entity vehicle = event.getPlayer().getVehicle();
+                if (vehicle != null) {
+                    playerLocation = vehicle.getLocation();
+                }
+                Vector direction = playerLocation.getDirection().multiply(-0.5);
+                if(Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && p.getPlayerEnter().equals(Plot.PlotSetting.DEACTIVATED)) {
+                    if(vehicle != null) {
+                        if (vehicle.getType().equals(EntityType.MINECART)) {
+                            vehicle.eject();
+                        }
+                        vehicle.setVelocity(direction);
+                    } else {
+                        event.getPlayer().setVelocity(direction);
+                    }
+                    event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    event.getPlayer().sendMessage(ChatColor.RED + getRandomMessage());
+                    return;
+                }
+                if(Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && p.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)
+                        && !Detector.isInWhiteList(event.getPlayer(), p.getPlayerEnterWhitelist())) {
+                    if(vehicle != null) {
+                        if (vehicle.getType().equals(EntityType.MINECART)) {
+                            vehicle.eject();
+                        }
+                        vehicle.setVelocity(direction);
+                    } else {
+                        event.getPlayer().setVelocity(direction);
+                    }
+                    event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    event.getPlayer().sendMessage(ChatColor.RED + getRandomMessage());
+                    return;
+                }
+            }
+        }
+    }
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         buildPlaceWhitelistDetector(event);
@@ -267,6 +346,42 @@ public class PlayerListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         armorStandSelector(event);
         interactWhitelistDetector(event);
+    }
+
+    @EventHandler
+    public void onVehicleMove(VehicleMoveEvent event) {
+        if(!event.getVehicle().getType().equals(EntityType.MINECART)) {
+            return;
+        }
+        for(Entity e : event.getVehicle().getPassengers()) {
+            if (!e.getType().equals(EntityType.PLAYER)) {
+                continue;
+            }
+            org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) e;
+            var playersInGame = game.getPlayers();
+            for(Player playerIG: playersInGame) {
+                if(bukkitPlayer.getDisplayName().equals(playerIG.getPlayerName())) continue;
+                var plots = playerIG.getPlots();
+                for(Plot p: plots) {
+                    if(p.getPlayerEnter().equals(Plot.PlotSetting.ACTIVATED)) {
+                        continue;
+                    }
+                    if(Detector.isInZone(event.getVehicle().getLocation(), p.getLocation1(), p.getLocation2(), p.getHeight())
+                            && p.getPlayerEnter().equals(Plot.PlotSetting.DEACTIVATED)) {
+                        event.getVehicle().eject();
+                        bukkitPlayer.playSound(bukkitPlayer.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                        bukkitPlayer.sendMessage(ChatColor.RED + getRandomMessage());
+                    }
+                    if(Detector.isInZone(bukkitPlayer.getLocation(), p.getLocation1(), p.getLocation2(), p.getHeight())
+                            && p.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)
+                            && !Detector.isInWhiteList(bukkitPlayer, p.getPlayerEnterWhitelist())) {
+                        event.getVehicle().eject();
+                        bukkitPlayer.playSound(bukkitPlayer.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                        bukkitPlayer.sendMessage(ChatColor.RED + getRandomMessage());
+                    }
+                }
+            }
+        }
     }
 
     private void sendActionBar(org.bukkit.entity.Player player, String message) {
@@ -327,6 +442,8 @@ public class PlayerListener implements Listener {
                 showNumberOfBlock(player);
             }
         }
+
+        enterWhitelistDetector(event);
     }
 
     private void removeAllArmorStandsAndTasks(org.bukkit.entity.Player player) {
