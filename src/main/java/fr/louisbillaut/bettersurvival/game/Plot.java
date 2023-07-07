@@ -258,6 +258,27 @@ public class Plot {
         if (config.contains("height")) {
             height = config.getInt("height");
         }
+        if (config.contains("playerBuildWhitelist")) {
+            playerBuildWhitelist = new ArrayList<>(config.getStringList("playerBuildWhitelist"));
+        }
+        if (config.contains("playerEnterWhitelist")) {
+            playerEnterWhitelist = new ArrayList<>(config.getStringList("playerEnterWhitelist"));
+        }
+        if (config.contains("playerInteractWhitelist")) {
+            playerInteractWhitelist = new ArrayList<>(config.getStringList("playerInteractWhitelist"));
+        }
+        if (config.contains("playerInteract")) {
+            String pi = config.getString("playerInteract");
+            playerInteract = PlotSetting.valueOf(pi);
+        }
+        if (config.contains("playerBuild")) {
+            String pb = config.getString("playerBuild");
+            playerBuild = PlotSetting.valueOf(pb);
+        }
+        if (config.contains("playerEnter")) {
+            String pe = config.getString("playerEnter");
+            playerEnter = PlotSetting.valueOf(pe);
+        }
     }
 
     public void saveToConfig(ConfigurationSection config) {
@@ -265,6 +286,12 @@ public class Plot {
         config.set("location1", location1);
         config.set("location2", location2);
         config.set("height", height);
+        config.set("playerBuildWhitelist", playerBuildWhitelist);
+        config.set("playerEnterWhitelist", playerEnterWhitelist);
+        config.set("playerInteractWhitelist", playerInteractWhitelist);
+        config.set("playerInteract", playerInteract.toString());
+        config.set("playerBuild", playerBuild.toString());
+        config.set("playerEnter", playerEnter.toString());
     }
 
     private void showParticles(Player player) {

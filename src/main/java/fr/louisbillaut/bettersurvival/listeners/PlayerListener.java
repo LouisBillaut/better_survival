@@ -328,6 +328,19 @@ public class PlayerListener implements Listener {
                     event.getPlayer().sendMessage(ChatColor.RED + getRandomMessage());
                     return;
                 }
+                if (Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && !event.getPlayer().hasMetadata(p.getName())
+                        && p.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)
+                        && Detector.isInWhiteList(event.getPlayer(), p.getPlayerEnterWhitelist())) {
+                    event.getPlayer().setMetadata(p.getName(), new FixedMetadataValue(instance, true));
+                    sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
+                }
+                if (!Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                        && event.getPlayer().hasMetadata(p.getName())
+                        && p.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)
+                        && Detector.isInWhiteList(event.getPlayer(), p.getPlayerEnterWhitelist())){
+                    event.getPlayer().removeMetadata(p.getName(), instance);
+                }
             }
         }
     }
