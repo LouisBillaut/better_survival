@@ -14,6 +14,7 @@ import java.util.Objects;
 
 public class Player {
     private List<Plot> plots;
+    private List<Shop> shops = new ArrayList<>();
     private String playerName;
 
     private org.bukkit.entity.Player bukkitPlayer;
@@ -47,6 +48,28 @@ public class Player {
     }
     public void addPlot(Plot zone) {
         plots.add(zone);
+    }
+
+    public void addShop(Shop shop) {
+        shops.add(shop);
+    }
+
+    public Shop getShop(String name) {
+        for(Shop s: shops) {
+            if(s.getName().equals(name)) {
+                return s;
+            }
+        }
+
+        return null;
+    }
+
+    public void removeShop(String name) {
+        for(var i = 0; i < shops.size(); i ++) {
+            if(shops.get(i).getName().equals(name)){
+                shops.remove(i);
+            }
+        }
     }
 
     public void removePlot(Plot zone) {

@@ -1,6 +1,7 @@
 package fr.louisbillaut.bettersurvival;
 
 import fr.louisbillaut.bettersurvival.commands.PlotCommand;
+import fr.louisbillaut.bettersurvival.commands.ShopCommand;
 import fr.louisbillaut.bettersurvival.commands.StuckCommand;
 import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.listeners.PlayerListener;
@@ -48,8 +49,10 @@ public class Main extends JavaPlugin {
 
         PlotCommand plotCommand = new PlotCommand(this, game);
         StuckCommand stuckCommand = new StuckCommand(game);
+        ShopCommand shopCommand = new ShopCommand(this, game);
         Objects.requireNonNull(getCommand("plot")).setExecutor(plotCommand);
         Objects.requireNonNull(getCommand("stuck")).setExecutor(stuckCommand);
+        Objects.requireNonNull(getCommand("shop")).setExecutor(shopCommand);
 
         initializeListeners();
     }

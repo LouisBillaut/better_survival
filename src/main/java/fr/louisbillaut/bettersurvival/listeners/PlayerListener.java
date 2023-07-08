@@ -4,6 +4,7 @@ import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.game.Player;
 import fr.louisbillaut.bettersurvival.game.Plot;
+import fr.louisbillaut.bettersurvival.game.Shop;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import fr.louisbillaut.bettersurvival.utils.Selector;
 import net.md_5.bungee.api.ChatMessageType;
@@ -560,11 +561,42 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void itemInShopClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getView().getTitle().contains("Shop configuration")) {
+            event.setCancelled(true);
+            String[] parts = event.getView().getTitle().split("\\s+");
+            String name = "";
+            if (parts.length > 2) {
+                name = parts[2];
+            }
+
+            ItemStack clickedItem = event.getCurrentItem();
+            if (clickedItem != null) {
+                ItemMeta clickedMeta = clickedItem.getItemMeta();
+                for(Player pIG: game.getPlayers()) {
+                    if(!pIG.getPlayerName().equals(player.getDisplayName())) continue;
+                    Shop shop = pIG.getShop(name);
+                    if (shop == null) continue;
+                    if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.RED + "remove")) {
+                        shop.removeItem(player, event.getSlot());
+                        return;
+                    }
+                    if (clickedMeta != null && clickedMeta.getDisplayName().contains("Item to exchange")) {
+                        shop.sendAddItemCommand(player);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         plotSettingClickEvent(event);
         plotHeightClickEvent(event);
         plotListClickEvent(event);
+        itemInShopClickEvent(event);
     }
 
     @EventHandler

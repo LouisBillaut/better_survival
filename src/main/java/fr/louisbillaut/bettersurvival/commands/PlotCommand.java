@@ -3,6 +3,7 @@ package fr.louisbillaut.bettersurvival.commands;
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.game.Plot;
+import fr.louisbillaut.bettersurvival.game.Shop;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -100,7 +101,7 @@ public class PlotCommand implements CommandExecutor {
                         player.sendMessage("Use : /plot new <name>");
                         return true;
                     }
-                    Plot.showPlotHeightOptions(player);
+                    //player.openInventory(Shop.createShopInventory(args[1]));
                     return true;
                 }
                 case "new" -> {

@@ -4,6 +4,7 @@ import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.game.Plot;
 import fr.louisbillaut.bettersurvival.utils.Detector;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -31,14 +32,22 @@ public class StuckCommand implements CommandExecutor {
                     }
                     if(Detector.isInZone(player.getLocation(), p.getLocation1(), p.getLocation2(), p.getHeight())
                             && p.getPlayerEnter().equals(Plot.PlotSetting.DEACTIVATED)) {
-                        player.teleport(player.getBedSpawnLocation());
+                        Location spawn = player.getBedSpawnLocation();
+                        if (spawn == null) {
+                            spawn = player.getWorld().getSpawnLocation();
+                        }
+                        player.teleport(spawn);
                         player.sendMessage(Main.sendLocalizedMessage("unstuck"));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
                     }
                     if(Detector.isInZone(player.getLocation(), p.getLocation1(), p.getLocation2(), p.getHeight())
                             && p.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)
                             && !Detector.isInWhiteList(player, p.getPlayerEnterWhitelist())) {
-                        player.teleport(player.getBedSpawnLocation());
+                        Location spawn = player.getBedSpawnLocation();
+                        if (spawn == null) {
+                            spawn = player.getWorld().getSpawnLocation();
+                        }
+                        player.teleport(spawn);
                         player.sendMessage("You are now unstuck !");
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
                     }

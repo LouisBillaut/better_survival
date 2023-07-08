@@ -12,6 +12,9 @@ commands:
   stuck:
     description: Unstuck you
     usage: /stuck
+  shop:
+    description: Create or list shops
+    usage: /shop
 
 command-description:
   plot:

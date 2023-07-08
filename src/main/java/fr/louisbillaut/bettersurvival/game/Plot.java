@@ -1,6 +1,7 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.utils.Messages;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -505,18 +506,12 @@ public class Plot {
         String command = "/plot settings " + this.name + " " + type + "Whitelist ";
 
         player.spigot().sendMessage(
-                createClickableMessage(addPlayerMessage, command + "add ")
+                Messages.createClickableMessage(addPlayerMessage, command + "add ")
         );
         player.spigot().sendMessage(
-                createClickableMessage(removePlayerMessage, command + "remove ")
+                Messages.createClickableMessage(removePlayerMessage, command + "remove ")
         );
 
         player.closeInventory();
-    }
-
-    private TextComponent createClickableMessage(String text, String command) {
-        TextComponent message = new TextComponent(text);
-        message.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command));
-        return message;
     }
 }
