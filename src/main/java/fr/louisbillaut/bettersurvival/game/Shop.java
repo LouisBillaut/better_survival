@@ -10,9 +10,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Shop {
     private String name;
     private Inventory actualInventory;
+    private List<Trade> tradeList = new ArrayList<>();
 
     public Shop(String name) {
         this.name = name;
@@ -21,7 +25,7 @@ public class Shop {
         Inventory inventory = Bukkit.createInventory(null, 27, "Shop configuration " + name);
 
         for (int slot = 0; slot < 27; slot++) {
-            if(slot == 11 || slot == 12) {
+            if(slot == 11) {
                 continue;
             }
             inventory.setItem(slot, createGlassBlock());
@@ -57,6 +61,10 @@ public class Shop {
                 Messages.createClickableMessage(ChatColor.GOLD + "[add item]", "/shop add " + name + " ")
         );
         player.closeInventory();
+    }
+
+    public void addTrade(Trade trade) {
+        tradeList.add(trade);
     }
 
     public String getName() {

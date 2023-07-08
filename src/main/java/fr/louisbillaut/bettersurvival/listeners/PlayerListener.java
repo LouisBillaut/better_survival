@@ -1,10 +1,7 @@
 package fr.louisbillaut.bettersurvival.listeners;
 
 import fr.louisbillaut.bettersurvival.Main;
-import fr.louisbillaut.bettersurvival.game.Game;
-import fr.louisbillaut.bettersurvival.game.Player;
-import fr.louisbillaut.bettersurvival.game.Plot;
-import fr.louisbillaut.bettersurvival.game.Shop;
+import fr.louisbillaut.bettersurvival.game.*;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import fr.louisbillaut.bettersurvival.utils.Selector;
 import net.md_5.bungee.api.ChatMessageType;
@@ -22,6 +19,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -563,6 +561,9 @@ public class PlayerListener implements Listener {
 
     private void itemInShopClickEvent(InventoryClickEvent event) {
         org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
         if (event.getView().getTitle().contains("Shop configuration")) {
             event.setCancelled(true);
             String[] parts = event.getView().getTitle().split("\\s+");
@@ -585,6 +586,26 @@ public class PlayerListener implements Listener {
                     if (clickedMeta != null && clickedMeta.getDisplayName().contains("Item to exchange")) {
                         shop.sendAddItemCommand(player);
                         return;
+                    }
+                    if(clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "validate")) {
+                        Inventory clickedInventory = event.getClickedInventory();
+                        if(clickedInventory.getItem(11).getItemMeta() == null
+                                || (clickedInventory.getItem(14).getItemMeta().getDisplayName().equals("Item to exchange 1") && (clickedInventory.getItem(15).getItemMeta().getDisplayName().equals("Item to exchange 2")))
+                        ) {
+                            return;
+                        }
+                        List<ItemStack> itemsToExchange = new ArrayList<>();
+                        if(!clickedInventory.getItem(14).getItemMeta().getDisplayName().equals("Item to exchange 1")) {
+                            itemsToExchange.add(clickedInventory.getItem(14));
+                        }
+                        if(!clickedInventory.getItem(15).getItemMeta().getDisplayName().equals("Item to exchange 2")) {
+                            itemsToExchange.add(clickedInventory.getItem(15));
+                        }
+                        shop.addTrade(new Trade(clickedInventory.getItem(11), itemsToExchange));
+                        shop.createShopInventory();
+                        player.closeInventory();
+                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
+                        player.sendMessage(ChatColor.GREEN + "Trade added successfully !");
                     }
                 }
             }
