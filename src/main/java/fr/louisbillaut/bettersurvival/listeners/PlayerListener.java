@@ -90,6 +90,21 @@ public class PlayerListener implements Listener {
                     }
                     removeAllArmorStandsAndTasks(player);
                 }
+                if(player.hasMetadata("placeShop")) {
+                    String shopName = "";
+                    for(MetadataValue md: player.getMetadata("placeShop")) {
+                        shopName = md.asString();
+                        break;
+                    }
+                    player.removeMetadata("placeShop", instance);
+                    if(shopName.equals("")) return;
+                    Player playerInGame = game.getPlayer(player);
+                    if(playerInGame == null) return;
+                    Shop shop = playerInGame.getShop(shopName);
+                    if(shop == null) return;
+                    shop.createCustomVillager(armorStand.getLocation());
+                    removeAllArmorStandsAndTasks(player);
+                }
             }
         }
     }
@@ -676,21 +691,33 @@ public class PlayerListener implements Listener {
         ItemMeta clickedMeta = clickedItem.getItemMeta();
         if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.RED + "remove")) {
             ItemStack itemTradeNumber = event.getClickedInventory().getItem(event.getSlot()-7);
-            Bukkit.getLogger().info("number slot: " + (event.getSlot() - 7));
-            Bukkit.getLogger().info("item trade number: " + itemTradeNumber);
             if (itemTradeNumber == null) return;
             String strippedInput = ChatColor.stripColor(itemTradeNumber.getItemMeta().getDisplayName());
             var stripped = strippedInput.split(" ");
-            Bukkit.getLogger().info("stripped= " + stripped);
             if(stripped.length >= 2) {
                 player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
-                Bukkit.getLogger().info("id of trade: " + (Integer.parseInt(stripped[1]) - 1));
                 Trade trade = shop.getTradeList().get(Integer.parseInt(stripped[1]) - 1);
                 if (trade == null) return;
                 giveOrDropItem(player, trade.getItemsToBuy());
                 shop.removeTrade(Integer.parseInt(stripped[1]) - 1);
                 shop.displayTrades(player);
             }
+        }
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "add trade")) {
+            if(shop.getTradeList().size() == 5) {
+                player.sendMessage(ChatColor.RED + "Max trade limit reached (5).");
+                player.closeInventory();
+                return;
+            }
+            player.openInventory(shop.getActualInventory());
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+        }
+
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "place")) {
+            player.closeInventory();
+            player.setMetadata("placeShop", new FixedMetadataValue(instance, shop.getName()));
+            Selector.appearArmorStand(instance, game, player);
+            return;
         }
     }
 

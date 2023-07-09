@@ -2,13 +2,13 @@ package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.utils.Head;
 import fr.louisbillaut.bettersurvival.utils.Messages;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
@@ -18,6 +18,7 @@ public class Shop {
     private String name;
     private Inventory actualInventory;
     private List<Trade> tradeList = new ArrayList<>();
+    private Location location;
 
     public Shop(String name) {
         this.name = name;
@@ -45,6 +46,26 @@ public class Shop {
         inventory.setItem(26, validate);
 
         actualInventory = inventory;
+    }
+
+    public void createCustomVillager(Location location) {
+        Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
+        villager.setCustomName(name);
+        villager.setCustomNameVisible(true);
+        villager.setAI(false);
+        villager.setInvulnerable(true);
+        villager.setGravity(false);
+
+        List<MerchantRecipe> recipes = new ArrayList<>();
+        for (Trade trade : tradeList) {
+            MerchantRecipe merchantRecipe = new MerchantRecipe(trade.getItemsToBuy(), Integer.MAX_VALUE);
+            for (ItemStack item : trade.getItemsToExchange()) {
+                merchantRecipe.addIngredient(item);
+            }
+            recipes.add(merchantRecipe);
+        }
+        villager.setRecipes(recipes);
+        this.location = location;
     }
 
     public void removeItem(Player player, int slot) {
@@ -120,11 +141,18 @@ public class Shop {
         ItemStack villagerHead = getShopVillagerHead();
         inventory.setItem(0, villagerHead);
 
+        inventory.setItem( 4, createNewTradeItem());
+        ItemStack world = Head.getCustomHead(Head.world);
+        ItemMeta worldMeta = world.getItemMeta();
+        worldMeta.setDisplayName(ChatColor.GREEN + "place");
+        world.setItemMeta(worldMeta);
+        inventory.setItem(6, world);
+
         int i = 11;
         for(Trade trade: tradeList) {
             ItemStack glassBlock = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
             ItemMeta glassMeta = glassBlock.getItemMeta();
-            glassMeta.setDisplayName(ChatColor.GREEN + "Trade " + (i / 11));
+            glassMeta.setDisplayName(ChatColor.GREEN + "Trade " + ((i-2) / 9));
             glassBlock.setItemMeta(glassMeta);
             inventory.setItem(i - 2, glassBlock);
             inventory.setItem(i, trade.getItemsToBuy());
@@ -137,7 +165,7 @@ public class Shop {
             }
 
             inventory.setItem(i + 5, createRemoveItem());
-            i += 11;
+            i += 9;
         }
 
         player.openInventory(inventory);
@@ -197,6 +225,14 @@ public class Shop {
         ItemStack pageItem = new ItemStack(Material.SLIME_BALL);
         ItemMeta pageMeta = pageItem.getItemMeta();
         pageMeta.setDisplayName(ChatColor.GREEN + "validate");
+        pageItem.setItemMeta(pageMeta);
+        return pageItem;
+    }
+
+    private static ItemStack createNewTradeItem() {
+        ItemStack pageItem = new ItemStack(Material.SLIME_BALL);
+        ItemMeta pageMeta = pageItem.getItemMeta();
+        pageMeta.setDisplayName(ChatColor.GREEN + "add trade");
         pageItem.setItemMeta(pageMeta);
         return pageItem;
     }
