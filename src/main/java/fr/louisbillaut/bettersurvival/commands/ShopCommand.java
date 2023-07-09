@@ -3,6 +3,7 @@ package fr.louisbillaut.bettersurvival.commands;
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.game.Shop;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -93,8 +94,13 @@ public class ShopCommand implements CommandExecutor {
                     }
                     addNewShopToPlayer(player, args[1]);
                 }
+                case "list" -> {
+                    fr.louisbillaut.bettersurvival.game.Player playerInGame = game.getPlayer(player);
+                    if(playerInGame==null) return true;
+                    playerInGame.displayListShopInventory();
+                }
                 case "add" -> {
-                    if (args.length < 3) {
+                    if (args.length < 4) {
                         player.sendMessage("Use: /shop add <name> <itemID> <quantity>");
                         return true;
                     }
@@ -107,6 +113,22 @@ public class ShopCommand implements CommandExecutor {
                         return true;
                     }
                     addItemToPlayerShop(player, args[1], args[2], quantity);
+                }
+                case "trade" -> {
+                    if (args.length < 2) {
+                        player.sendMessage("Use : /shop trade <shop name>");
+                        return true;
+                    }
+                    if (args.length == 2) {
+                        fr.louisbillaut.bettersurvival.game.Player playerInGame = game.getPlayer(player);
+                        if(playerInGame==null) return true;
+                        Shop shop = playerInGame.getShop(args[1]);
+                        if(shop == null) {
+                            player.sendMessage(ChatColor.RED + "You don't have a shop named: " + args[1]);
+                            return true;
+                        }
+                        shop.displayTrades(player);
+                    }
                 }
             }
         }

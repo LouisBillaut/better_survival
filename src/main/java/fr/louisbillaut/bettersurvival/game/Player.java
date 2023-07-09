@@ -1,5 +1,6 @@
 package fr.louisbillaut.bettersurvival.game;
 
+import fr.louisbillaut.bettersurvival.utils.Head;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -119,6 +120,34 @@ public class Player {
             plotSection.set("name", plot.getName());
             plot.saveToConfig(config.createSection("plots." + i));
         }
+    }
+
+    public void displayListShopInventory() {
+        int inventorySize = Math.max(9, (int) Math.ceil(shops.size() / 9.0) * 9);
+        Inventory inventory = Bukkit.createInventory(null, inventorySize, "Shops List");
+
+        ItemStack glassPane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta glassPaneMeta = glassPane.getItemMeta();
+        glassPaneMeta.setDisplayName(" ");
+        glassPane.setItemMeta(glassPaneMeta);
+
+        for (int i = 0; i < 9; i++) {
+            inventory.setItem(i, glassPane);
+            inventory.setItem(inventorySize - 9 + i, glassPane);
+        }
+
+        for (int i = 0; i < shops.size(); i++) {
+            ItemStack villagerHead = Head.getCustomHead(Head.villagerHead);
+            ItemMeta villagerHeadMeta = villagerHead.getItemMeta();
+            villagerHeadMeta.setDisplayName(ChatColor.GREEN + shops.get(i).getName());
+            villagerHead.setItemMeta(villagerHeadMeta);
+            int row = i / 9;
+            int column = i % 9;
+
+            inventory.setItem(row * 9 + column, villagerHead);
+        }
+
+        bukkitPlayer.openInventory(inventory);
     }
 
     public void displayListPlotInventory() {

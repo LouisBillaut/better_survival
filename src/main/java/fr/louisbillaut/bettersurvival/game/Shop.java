@@ -1,5 +1,6 @@
 package fr.louisbillaut.bettersurvival.game;
 
+import fr.louisbillaut.bettersurvival.utils.Head;
 import fr.louisbillaut.bettersurvival.utils.Messages;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -66,6 +67,13 @@ public class Shop {
     public void addTrade(Trade trade) {
         tradeList.add(trade);
     }
+    public void removeTrade(int i) {
+        tradeList.remove(i);
+    }
+
+    public List<Trade> getTradeList() {
+        return tradeList;
+    }
 
     public String getName() {
         return name;
@@ -103,6 +111,56 @@ public class Shop {
         return false;
     }
 
+    public void displayTrades(Player player) {
+        Inventory inventory = Bukkit.createInventory(null, 54, name + " trades list");
+        for(var i= 0; i < 54; i++) {
+            inventory.setItem(i, createGlassBlock());
+        }
+
+        ItemStack villagerHead = getShopVillagerHead();
+        inventory.setItem(0, villagerHead);
+
+        int i = 11;
+        for(Trade trade: tradeList) {
+            ItemStack glassBlock = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+            ItemMeta glassMeta = glassBlock.getItemMeta();
+            glassMeta.setDisplayName(ChatColor.GREEN + "Trade " + (i / 11));
+            glassBlock.setItemMeta(glassMeta);
+            inventory.setItem(i - 2, glassBlock);
+            inventory.setItem(i, trade.getItemsToBuy());
+            inventory.setItem(i + 1, getArrowRight());
+            if(trade.getItemsToExchange().size() > 0) {
+                inventory.setItem(i + 2, trade.getItemsToExchange().get(0));
+            }
+            if(trade.getItemsToExchange().size() > 1) {
+                inventory.setItem(i + 3, trade.getItemsToExchange().get(1));
+            }
+
+            inventory.setItem(i + 5, createRemoveItem());
+            i += 11;
+        }
+
+        player.openInventory(inventory);
+    }
+
+    private ItemStack getArrowRight() {
+        ItemStack villagerHead = Head.getCustomHead(Head.quartzArrowRight);
+        ItemMeta villagerHeadMeta = villagerHead.getItemMeta();
+        villagerHeadMeta.setDisplayName(" ");
+        villagerHead.setItemMeta(villagerHeadMeta);
+
+        return villagerHead;
+    }
+
+    private ItemStack getShopVillagerHead() {
+        ItemStack villagerHead = Head.getCustomHead(Head.villagerHead);
+        ItemMeta villagerHeadMeta = villagerHead.getItemMeta();
+        villagerHeadMeta.setDisplayName(ChatColor.GREEN + name);
+        villagerHead.setItemMeta(villagerHeadMeta);
+
+        return villagerHead;
+    }
+
     private static ItemStack createGlassBlock() {
         ItemStack glassBlock = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glassBlock.getItemMeta();
@@ -123,6 +181,14 @@ public class Shop {
         ItemStack pageItem = new ItemStack(Material.BARRIER);
         ItemMeta pageMeta = pageItem.getItemMeta();
         pageMeta.setDisplayName(ChatColor.RED + "cancel");
+        pageItem.setItemMeta(pageMeta);
+        return pageItem;
+    }
+
+    private static ItemStack createRemoveItem() {
+        ItemStack pageItem = new ItemStack(Material.BARRIER);
+        ItemMeta pageMeta = pageItem.getItemMeta();
+        pageMeta.setDisplayName(ChatColor.RED + "remove");
         pageItem.setItemMeta(pageMeta);
         return pageItem;
     }
