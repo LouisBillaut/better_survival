@@ -9,10 +9,12 @@ import java.util.List;
 public class Trade {
     private ItemStack itemsToBuy;
     private List<ItemStack> itemsToExchange;
+    private int maxTrade = 1;
 
-    public Trade(ItemStack itemsToBuy, List<ItemStack> itemsToExchange) {
+    public Trade(ItemStack itemsToBuy, List<ItemStack> itemsToExchange, int maxTrade) {
         this.itemsToBuy = itemsToBuy;
         this.itemsToExchange = itemsToExchange;
+        this.maxTrade = maxTrade;
     }
 
     public Trade() {}
@@ -25,9 +27,20 @@ public class Trade {
         return itemsToExchange;
     }
 
+    public void setMaxTrade(int maxTrade) {
+        this.maxTrade = maxTrade;
+    }
+
+    public int getMaxTrade() {
+        return maxTrade;
+    }
+
     public void loadFromConfig(ConfigurationSection config) {
         if (config.contains("itemsToBuy")) {
             itemsToBuy = config.getItemStack("itemsToBuy");
+        }
+        if (config.contains("maxTrade")) {
+            maxTrade = config.getInt("maxTrade");
         }
         if (config.contains("itemsToExchange")) {
             ConfigurationSection exchangeSection = config.getConfigurationSection("itemsToExchange");
@@ -41,7 +54,7 @@ public class Trade {
 
     public void saveToConfig(ConfigurationSection config) {
         config.set("itemsToBuy", itemsToBuy);
-
+        config.set("maxTrade", maxTrade);
         ConfigurationSection exchangeSection = config.createSection("itemsToExchange");
         for (int i = 0; i < itemsToExchange.size(); i++) {
             ItemStack item = itemsToExchange.get(i);

@@ -37,6 +37,8 @@ import java.util.Random;
 public class PlayerListener implements Listener {
     private Game game;
     private Main instance;
+    private static int emptyTradeSlot = 12;
+    private static int amountSlot = 11;
     public PlayerListener(Main instance, Game game) {
         this.game = game;
         this.instance = instance;
@@ -615,8 +617,7 @@ public class PlayerListener implements Listener {
         }
         if (event.getView().getTitle().contains("Shop configuration")) {
             String name = getShopName(event.getView().getTitle());
-            if(event.getSlot() == 11) return;
-            event.setCancelled(true);
+            if(event.getSlot() != emptyTradeSlot) event.setCancelled(true);
             ItemStack clickedItem = event.getCurrentItem();
             if (clickedItem != null) {
                 ItemMeta clickedMeta = clickedItem.getItemMeta();
@@ -638,8 +639,8 @@ public class PlayerListener implements Listener {
                     }
                     if(clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "validate")) {
                         Inventory clickedInventory = event.getClickedInventory();
-                        if(clickedInventory.getItem(11) == null || clickedInventory.getItem(14) == null || clickedInventory.getItem(15) == null) return;
-                        if(clickedInventory.getItem(11).getItemMeta() == null
+                        if(clickedInventory.getItem(emptyTradeSlot) == null || clickedInventory.getItem(14) == null || clickedInventory.getItem(15) == null) return;
+                        if(clickedInventory.getItem(emptyTradeSlot).getItemMeta() == null
                                 || (clickedInventory.getItem(14).getItemMeta().getDisplayName().equals("Item to exchange 1") && (clickedInventory.getItem(15).getItemMeta().getDisplayName().equals("Item to exchange 2")))
                         ) {
                             return;
@@ -651,17 +652,70 @@ public class PlayerListener implements Listener {
                         if(!clickedInventory.getItem(15).getItemMeta().getDisplayName().equals("Item to exchange 2")) {
                             itemsToExchange.add(clickedInventory.getItem(15));
                         }
-                        shop.addTrade(new Trade(clickedInventory.getItem(11), itemsToExchange));
+                        shop.addTrade(new Trade(clickedInventory.getItem(emptyTradeSlot), itemsToExchange, shop.getActualNumberOfTrade()));
                         shop.createShopInventory();
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
                         player.sendMessage(ChatColor.GREEN + "Trade added successfully !");
                         player.setMetadata("tradeSuccessful", new FixedMetadataValue(instance, true));
                         player.closeInventory();
                     }
+                    if(clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "+")) {
+                        Inventory clickedInventory = event.getClickedInventory();
+                        if (clickedInventory.getItem(emptyTradeSlot) == null || clickedInventory.getItem(emptyTradeSlot).getItemMeta() == null) return;
+                        if (!removeItemFromPlayerInventory(player, clickedInventory.getItem(emptyTradeSlot))) {
+                            return;
+                        }
+                        player.setMetadata("tradeIncrement", new FixedMetadataValue(instance, true));
+                        shop.incrementActualNumberOfTrade();
+                        shop.setItemToBuy(clickedInventory.getItem(emptyTradeSlot));
+                        player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                        player.openInventory(shop.getActualInventory());
+                    }
+                    if(clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "-")) {
+                        Inventory clickedInventory = event.getClickedInventory();
+                        if (clickedInventory.getItem(emptyTradeSlot) == null || clickedInventory.getItem(emptyTradeSlot).getItemMeta() == null) return;
+                        if (shop.getActualNumberOfTrade() == 1) return;
+                        player.setMetadata("tradeIncrement", new FixedMetadataValue(instance, true));
+                        shop.decrementActualNumberOfTrade();
+                        giveOrDropItem(player, clickedInventory.getItem(emptyTradeSlot));
+                        shop.setItemToBuy(clickedInventory.getItem(emptyTradeSlot));
+                        player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                        player.openInventory(shop.getActualInventory());
+                    }
+                    if(event.getSlot() == emptyTradeSlot && event.getClickedInventory().getItem(emptyTradeSlot) != null && shop.getActualNumberOfTrade() > 1) {
+                        ItemStack itemStack = event.getClickedInventory().getItem(emptyTradeSlot).clone();
+                        itemStack.setAmount(itemStack.getAmount() * (shop.getActualNumberOfTrade() - 1));
+                        shop.setActualNumberOfTrade(1);
+                        giveOrDropItem(player, itemStack);
+                        event.getClickedInventory().setItem(amountSlot, Shop.createGreenGlassBlock(1));
+                    }
                 }
             }
         }
     }
+    public boolean removeItemFromPlayerInventory(org.bukkit.entity.Player player, ItemStack itemStack) {
+        Inventory inventory = player.getInventory();
+        ItemStack[] contents = inventory.getContents();
+
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack currentItem = contents[i];
+            if (currentItem != null && currentItem.isSimilar(itemStack)) {
+                int amountToRemove = itemStack.getAmount();
+                int currentAmount = currentItem.getAmount();
+
+                if (currentAmount < amountToRemove) {
+                    return false;
+                } else {
+                    currentItem.setAmount(currentAmount - amountToRemove);
+                    inventory.setItem(i, currentItem);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     private void giveOrDropItem(org.bukkit.entity.Player player, ItemStack item) {
         if (player.getInventory().firstEmpty() == -1) {
@@ -698,7 +752,9 @@ public class PlayerListener implements Listener {
                 player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
                 Trade trade = shop.getTradeList().get(Integer.parseInt(stripped[1]) - 1);
                 if (trade == null) return;
-                giveOrDropItem(player, trade.getItemsToBuy());
+                ItemStack itemStack = trade.getItemsToBuy().clone();
+                itemStack.setAmount(itemStack.getAmount() * trade.getMaxTrade());
+                giveOrDropItem(player, itemStack);
                 shop.removeTrade(Integer.parseInt(stripped[1]) - 1);
                 shop.displayTrades(player);
             }
@@ -737,11 +793,15 @@ public class PlayerListener implements Listener {
         Inventory inventory = event.getInventory();
 
         if (event.getView().getTitle().contains("Shop configuration")) {
+            if(player.hasMetadata("tradeIncrement")) {
+                player.removeMetadata("tradeIncrement", instance);
+                return;
+            }
             if(player.hasMetadata("tradeSuccessful")) {
                 player.removeMetadata("tradeSuccessful", instance);
                 return;
             }
-            ItemStack item = inventory.getItem(11);
+            ItemStack item = inventory.getItem(emptyTradeSlot);
             if (item != null) {
                 String name = getShopName(event.getView().getTitle());
                 for(Player pIG: game.getPlayers()) {
@@ -749,9 +809,11 @@ public class PlayerListener implements Listener {
                     Shop shop = pIG.getShop(name);
                     if (shop == null) continue;
                     Inventory inv = shop.getActualInventory();
-                    inv.setItem(11, null);
+                    inv.setItem(emptyTradeSlot, null);
                     shop.setActualInventory(inv);
+                    item.setAmount(item.getAmount() * shop.getActualNumberOfTrade());
                     giveOrDropItem(player, item);
+                    shop.setActualNumberOfTrade(1);
                 }
             }
         }

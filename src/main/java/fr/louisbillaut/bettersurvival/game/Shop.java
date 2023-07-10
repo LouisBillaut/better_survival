@@ -18,6 +18,8 @@ import java.util.List;
 public class Shop {
     private String name;
     private Inventory actualInventory;
+    private int actualNumberOfTrade = 1;
+    private ItemStack itemToBuy;
     private List<Trade> tradeList = new ArrayList<>();
     private Location location;
 
@@ -30,12 +32,18 @@ public class Shop {
     public void createShopInventory() {
         Inventory inventory = Bukkit.createInventory(null, 27, "Shop configuration " + name);
 
+        itemToBuy = null;
+        actualNumberOfTrade = 1;
         for (int slot = 0; slot < 27; slot++) {
-            if(slot == 11) {
+            if(slot == 12) {
                 continue;
             }
             inventory.setItem(slot, createGlassBlock());
         }
+
+        inventory.setItem(11, createGreenGlassBlock(1));
+        inventory.setItem(2, createPlusHeadItem());
+        inventory.setItem(20, createMinusHeadItem());
 
         ItemStack itemToExchangePage1 = createPageItem("Item to exchange 1");
         inventory.setItem(14, itemToExchangePage1);
@@ -108,8 +116,38 @@ public class Shop {
         this.actualInventory = actualInventory;
     }
 
+    public ItemStack getItemToBuy() {
+        return itemToBuy;
+    }
+
+    public void setItemToBuy(ItemStack itemToBuy) {
+        this.actualInventory.setItem(12, itemToBuy);
+        this.itemToBuy = itemToBuy;
+    }
+
     public Inventory getActualInventory() {
         return actualInventory;
+    }
+
+    public int incrementActualNumberOfTrade() {
+        actualNumberOfTrade++;
+        this.actualInventory.setItem(11, createGreenGlassBlock(actualNumberOfTrade));
+        return actualNumberOfTrade;
+    }
+
+    public int decrementActualNumberOfTrade() {
+        actualNumberOfTrade--;
+        this.actualInventory.setItem(11, createGreenGlassBlock(actualNumberOfTrade));
+        return actualNumberOfTrade;
+    }
+
+    public int getActualNumberOfTrade() {
+        return actualNumberOfTrade;
+    }
+
+    public void setActualNumberOfTrade(int actualNumberOfTrade) {
+        this.actualNumberOfTrade = actualNumberOfTrade;
+        this.actualInventory.setItem(11, createGreenGlassBlock(actualNumberOfTrade));
     }
 
     public boolean addItemToShop(Player player, ItemStack itemStack) {
@@ -158,6 +196,13 @@ public class Shop {
             ItemStack glassBlock = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
             ItemMeta glassMeta = glassBlock.getItemMeta();
             glassMeta.setDisplayName(ChatColor.GREEN + "Trade " + ((i-2) / 9));
+            if (glassMeta.hasLore()) {
+                glassMeta.getLore().add(ChatColor.GRAY + "Max trade: " + trade.getMaxTrade());
+            } else {
+                List<String> lore = new ArrayList<>();
+                lore.add(ChatColor.GRAY + "Max trade: " + trade.getMaxTrade());
+                glassMeta.setLore(lore);
+            }
             glassBlock.setItemMeta(glassMeta);
             inventory.setItem(i - 2, glassBlock);
             inventory.setItem(i, trade.getItemsToBuy());
@@ -252,6 +297,14 @@ public class Shop {
         return glassBlock;
     }
 
+    public static ItemStack createGreenGlassBlock(int number) {
+        ItemStack glassBlock = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+        ItemMeta glassMeta = glassBlock.getItemMeta();
+        glassMeta.setDisplayName("Max trades: " + ChatColor.GREEN + number);
+        glassBlock.setItemMeta(glassMeta);
+        return glassBlock;
+    }
+
     private static ItemStack createPageItem(String pageName) {
         ItemStack pageItem = new ItemStack(Material.PAPER);
         ItemMeta pageMeta = pageItem.getItemMeta();
@@ -290,5 +343,21 @@ public class Shop {
         pageMeta.setDisplayName(ChatColor.GREEN + "add trade");
         pageItem.setItemMeta(pageMeta);
         return pageItem;
+    }
+
+    private static ItemStack createPlusHeadItem() {
+        ItemStack plus = Head.getCustomHead(Head.quartzPlus);
+        ItemMeta plusMeta = plus.getItemMeta();
+        plusMeta.setDisplayName(ChatColor.GREEN + "+");
+        plus.setItemMeta(plusMeta);
+        return plus;
+    }
+
+    private static ItemStack createMinusHeadItem() {
+        ItemStack minus = Head.getCustomHead(Head.quartzMinus);
+        ItemMeta minusMeta = minus.getItemMeta();
+        minusMeta.setDisplayName(ChatColor.GREEN + "-");
+        minus.setItemMeta(minusMeta);
+        return minus;
     }
 }
