@@ -108,6 +108,14 @@ public class Player {
                 plots.add(plot);
             }
         }
+        if (c.contains("shops")) {
+            ConfigurationSection shopsSection = c.getConfigurationSection("shops");
+            for (String shopKey : shopsSection.getKeys(false)) {
+                Shop shop = new Shop();
+                shop.loadFromConfig(Objects.requireNonNull(shopsSection.getConfigurationSection(shopKey)));
+                shops.add(shop);
+            }
+        }
     }
 
     public void saveToConfig(ConfigurationSection config) {
@@ -119,6 +127,13 @@ public class Player {
             ConfigurationSection plotSection = plotsSection.createSection(String.valueOf(i));
             plotSection.set("name", plot.getName());
             plot.saveToConfig(config.createSection("plots." + i));
+        }
+
+        ConfigurationSection shopsSection = config.createSection("shops");
+        for (int i = 0; i < shops.size(); i++) {
+            Shop shop = shops.get(i);
+            ConfigurationSection shopSection = shopsSection.createSection(String.valueOf(i));
+            shop.saveToConfig(shopSection);
         }
     }
 

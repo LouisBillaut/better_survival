@@ -3,6 +3,7 @@ package fr.louisbillaut.bettersurvival.game;
 import fr.louisbillaut.bettersurvival.utils.Head;
 import fr.louisbillaut.bettersurvival.utils.Messages;
 import org.bukkit.*;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -22,6 +23,9 @@ public class Shop {
 
     public Shop(String name) {
         this.name = name;
+        createShopInventory();
+    }
+    public Shop() {
     }
     public void createShopInventory() {
         Inventory inventory = Bukkit.createInventory(null, 27, "Shop configuration " + name);
@@ -139,6 +143,7 @@ public class Shop {
         }
 
         ItemStack villagerHead = getShopVillagerHead();
+        villagerHead = addLocationToItemStack(villagerHead, location);
         inventory.setItem(0, villagerHead);
 
         inventory.setItem( 4, createNewTradeItem());
@@ -169,6 +174,56 @@ public class Shop {
         }
 
         player.openInventory(inventory);
+    }
+
+    private ItemStack addLocationToItemStack(ItemStack itemStack, Location location) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta != null) {
+            String field = "Location";
+            String locationDescription = "X: " + location.getBlockX() + ", Y: " + location.getBlockY() + ", Z: " + location.getBlockZ();
+
+            if (itemMeta.hasLore()) {
+                itemMeta.getLore().add(ChatColor.GRAY + field + ": " + locationDescription);
+            } else {
+                List<String> lore = new ArrayList<>();
+                lore.add(ChatColor.GRAY + field + ": " + locationDescription);
+                itemMeta.setLore(lore);
+            }
+            itemStack.setItemMeta(itemMeta);
+        }
+        return itemStack;
+    }
+
+    public void loadFromConfig(ConfigurationSection config) {
+        if (config.contains("name")) {
+            name = config.getString("name");
+        }
+        if (config.contains("location")) {
+            location = config.getLocation("location");
+        }
+        if (config.contains("trades")) {
+            ConfigurationSection tradeSection = config.getConfigurationSection("trades");
+            tradeList.clear();
+            for (String key : tradeSection.getKeys(false)) {
+                ConfigurationSection tradeConfig = tradeSection.getConfigurationSection(key);
+                Trade trade = new Trade();
+                trade.loadFromConfig(tradeConfig);
+                tradeList.add(trade);
+            }
+        }
+
+        createShopInventory();
+    }
+
+    public void saveToConfig(ConfigurationSection config) {
+        config.set("name", name);
+        config.set("location", location);
+        ConfigurationSection tradeSection = config.createSection("trades");
+        for (int i = 0; i < tradeList.size(); i++) {
+            ConfigurationSection tradeConfig = tradeSection.createSection(String.valueOf(i));
+            Trade trade = tradeList.get(i);
+            trade.saveToConfig(tradeConfig);
+        }
     }
 
     private ItemStack getArrowRight() {
