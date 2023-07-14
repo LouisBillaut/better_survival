@@ -6,6 +6,7 @@ import fr.louisbillaut.bettersurvival.commands.StuckCommand;
 import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.listeners.EntityListener;
 import fr.louisbillaut.bettersurvival.listeners.PlayerListener;
+import fr.louisbillaut.bettersurvival.runnables.ClaimRunnable;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -26,6 +27,10 @@ public class Main extends JavaPlugin {
     private void initializeListeners() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this, game), this);
         getServer().getPluginManager().registerEvents(new EntityListener(), this);
+    }
+
+    private void initializeRunnables() {
+        new ClaimRunnable(this, game).startTask();
     }
 
     public FileConfiguration getDataConfig() {
@@ -57,6 +62,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("shop")).setExecutor(shopCommand);
 
         initializeListeners();
+        initializeRunnables();
     }
 
     @Override
