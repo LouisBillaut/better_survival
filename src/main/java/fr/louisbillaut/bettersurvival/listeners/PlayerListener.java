@@ -44,6 +44,17 @@ public class PlayerListener implements Listener {
         this.instance = instance;
     }
 
+    public void displayTitle(org.bukkit.entity.Player player, boolean isBack) {
+        String title = ChatColor.GREEN + "BETTER SURVIVAL";
+        String subtitle = ChatColor.GRAY + "Welcome back";
+        if(!isBack) {
+            subtitle = ChatColor.GRAY + "Welcome";
+        }
+
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+        player.sendTitle(title, subtitle, 10, 70, 20);
+    }
+
     private void armorStandSelector(PlayerInteractEvent event) {
         org.bukkit.entity.Player player = event.getPlayer();
 
@@ -554,9 +565,11 @@ public class PlayerListener implements Listener {
             Bukkit.getLogger().info("player not found, creating new player ...");
             player = new Player(event.getPlayer().getDisplayName());
             game.addPlayer(player);
+            displayTitle(event.getPlayer(), false);
         } else {
             Bukkit.getLogger().info("player found.");
             player.setBukkitPlayer(event.getPlayer());
+            displayTitle(event.getPlayer(), true);
         }
     }
 
