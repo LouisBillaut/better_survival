@@ -190,6 +190,15 @@ public class Player {
                 shops.add(shop);
             }
         }
+        if (c.contains("claims")) {
+            List<?> claimsList = c.getList("claims");
+            for (Object claimObject : claimsList) {
+                if (claimObject instanceof ItemStack) {
+                    ItemStack claimItem = (ItemStack) claimObject;
+                    claims.add(claimItem);
+                }
+            }
+        }
     }
 
     public void saveToConfig(ConfigurationSection config) {
@@ -209,6 +218,8 @@ public class Player {
             ConfigurationSection shopSection = shopsSection.createSection(String.valueOf(i));
             shop.saveToConfig(shopSection);
         }
+
+        config.set("claims", claims);
     }
 
     public void displayAllTrades(Main instance, Game game) {
