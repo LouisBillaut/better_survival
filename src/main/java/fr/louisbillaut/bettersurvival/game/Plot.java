@@ -314,28 +314,31 @@ public class Plot {
 
         for (int x = 0; x < width; x++) {
             for (int z = 0; z < depth; z++) {
-                for (int y = startHeight; y <= endHeight; y++) {
-                    Location particleLocation = new Location(location1.getWorld(), minX + x, y, minZ + z);
-                    player.spawnParticle(Particle.BUBBLE_COLUMN_UP, particleLocation, 1, 0, 0, 0);
+                if (x == 0 || x == width - 1 || z == 0 || z == depth - 1) {
+                    for (int y = startHeight; y <= endHeight; y++) {
+                        Location particleLocation = new Location(location1.getWorld(), minX + x, y, minZ + z);
+                        player.spawnParticle(Particle.BUBBLE_COLUMN_UP, particleLocation, 1, 0, 0, 0);
+                    }
                 }
             }
         }
     }
     public void show(Main instance, Player player) {
         new BukkitRunnable() {
+            int count = 0;
+
             @Override
             public void run() {
-                for(int i = 0; i < 80; i++) {
-                    showParticles(player);
-                    try {
-                        Thread.sleep(25);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                if (count >= 80) {
+                    this.cancel();
+                    return;
                 }
-                this.cancel();
+
+                showParticles(player);
+
+                count++;
             }
-        }.runTaskTimerAsynchronously(instance, 0L, 20L);
+        }.runTaskTimerAsynchronously(instance, 0L, 1);
     }
 
     private void setInteractOption(Inventory inventory) {
