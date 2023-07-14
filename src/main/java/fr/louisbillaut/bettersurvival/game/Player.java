@@ -29,7 +29,7 @@ public class Player {
     private String playerName;
     private static int maxShops = 5;
 
-    private int bsBucks = 10000;
+    private int bsBucks = 30000;
 
     private org.bukkit.entity.Player bukkitPlayer;
 

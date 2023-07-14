@@ -92,8 +92,17 @@ public class PlayerListener implements Listener {
                                             Location pos1 = as.get(as.size() -2).getLocation();
                                             Location pos2 = as.get(as.size() -1).getLocation();
                                             Player playerIG = game.getPlayer(player);
+                                            double price = Math.floor(computeNumberOfBlocks(pos1, pos2, md.asInt()) * BsBucks.blockPrice);
+                                            if(playerIG.getBsBucks() < price) {
+                                                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                                                player.sendMessage(ChatColor.RED + "You don't have enough bsBucks");
+                                                removeAllArmorStandsAndTasks(player);
+                                                return;
+                                            }
                                             playerIG.addPlot(new Plot(player, pos1, pos2, md.asInt(), name));
                                             player.spigot().sendMessage();
+                                            playerIG.setBsBucks((int) (playerIG.getBsBucks() - price));
+                                            player.sendMessage(ChatColor.GREEN + "You have now " + ChatColor.GOLD + playerIG.getBsBucks() + " bsBucks");
                                         }
                                     }
                                 }
@@ -461,11 +470,17 @@ public class PlayerListener implements Listener {
         }
         Location pos1 = as.get(as.size() -2).getLocation();
         Location pos2 = as.get(as.size() -1).getLocation();
+        Player playerIG = game.getPlayer(player);
+        if(playerIG == null) return;
+        ChatColor color = ChatColor.GOLD;
         if (player.hasMetadata("plotHeight")) {
             for (MetadataValue md : player.getMetadata("plotHeight")) {
                 if (md.asInt() != 0) {
                     int numberOfBlocks = computeNumberOfBlocks(pos1, pos2, md.asInt());
-                    sendActionBar(player, ChatColor.YELLOW + "Number of Blocks: " + ChatColor.BOLD + numberOfBlocks);
+                    if(playerIG.getBsBucks() < Math.floor(numberOfBlocks * BsBucks.blockPrice)) {
+                        color = ChatColor.RED;
+                    }
+                    sendActionBar(player, ChatColor.GREEN + "Price: " + color + Math.floor(numberOfBlocks * BsBucks.blockPrice) + " bsBucks");
                 }
             }
         }
