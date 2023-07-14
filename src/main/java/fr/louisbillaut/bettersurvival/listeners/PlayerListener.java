@@ -607,7 +607,7 @@ public class PlayerListener implements Listener {
         if (event.getView().getTitle().equals("Plots List")) {
             event.setCancelled(true);
 
-            if (clickedItem.getType() == Material.GRASS_BLOCK) {
+            if (clickedItem.getType() != null && clickedItem.getType() == Material.GRASS_BLOCK) {
                 ItemMeta itemMeta = clickedItem.getItemMeta();
                 if (itemMeta != null && itemMeta.hasDisplayName()) {
                     String displayName = itemMeta.getDisplayName();
