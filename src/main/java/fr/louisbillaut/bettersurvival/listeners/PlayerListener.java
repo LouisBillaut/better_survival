@@ -58,6 +58,11 @@ public class PlayerListener implements Listener {
                         armorStand.getLocation().getBlockZ());
                 if (player.hasMetadata("createPos1")) {
                     player.removeMetadata("createPos1", instance);
+                    if(game.isLocationInPlot(armorStand.getLocation())) {
+                        player.sendMessage(ChatColor.RED + "You can't select in an existing plot");
+                        removeAllArmorStandsAndTasks(player);
+                        return;
+                    }
                     player.setMetadata("createPos2", new FixedMetadataValue(instance, true));
                     Selector.appearArmorStand(instance, game, player);
                     return;
@@ -65,6 +70,11 @@ public class PlayerListener implements Listener {
                 if (player.hasMetadata("createPos2")) {
                     player.removeMetadata("createPos2", instance);
                     player.removeMetadata("createPos1", instance);
+                    if(game.isLocationInPlot(armorStand.getLocation())) {
+                        player.sendMessage(ChatColor.RED + "You can't select in an existing plot");
+                        removeAllArmorStandsAndTasks(player);
+                        return;
+                    }
                     if (as.size() >= 2) {
                         String name = "";
                         if (player.hasMetadata("plotName")) {
@@ -99,6 +109,11 @@ public class PlayerListener implements Listener {
                         break;
                     }
                     player.removeMetadata("placeShop", instance);
+                    if(game.isLocationInOtherPlayerPlot(player, armorStand.getLocation())) {
+                        player.sendMessage(ChatColor.RED + "You can't select in a plot that is not your");
+                        removeAllArmorStandsAndTasks(player);
+                        return;
+                    }
                     if(shopName.equals("")) return;
                     Player playerInGame = game.getPlayer(player);
                     if(playerInGame == null) return;
@@ -112,6 +127,10 @@ public class PlayerListener implements Listener {
                 if(player.hasMetadata("claimShop")) {
                     removeAllArmorStandsAndTasks(player);
                     player.removeMetadata("claimShop", instance);
+                    if(game.isLocationInOtherPlayerPlot(player, armorStand.getLocation())) {
+                        player.sendMessage(ChatColor.RED + "You can't select in a plot that is not your");
+                        return;
+                    }
                     Player playerInGame = game.getPlayer(player);
                     if(playerInGame == null) return;
                     if(playerInGame.getClaims().size() == 0) {

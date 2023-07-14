@@ -1,5 +1,7 @@
 package fr.louisbillaut.bettersurvival.game;
 
+import fr.louisbillaut.bettersurvival.utils.Detector;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -36,6 +38,33 @@ public class Game implements Serializable {
         }
 
         return null;
+    }
+
+    public boolean isLocationInOtherPlayerPlot(org.bukkit.entity.Player player, Location location) {
+        for(Player p: players) {
+            if(p.getPlayerName().equals(player.getDisplayName())) {
+                continue;
+            }
+            for(Plot plot: p.getPlots()) {
+                if (Detector.isInZone(location, plot.getLocation1(), plot.getLocation2(), plot.getHeight())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isLocationInPlot(Location location) {
+        for(Player p: players) {
+            for(Plot plot: p.getPlots()) {
+                if (Detector.isInZone(location, plot.getLocation1(), plot.getLocation2(), plot.getHeight())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public List<Shop> getAllShops() {
