@@ -39,6 +39,9 @@ public class Tab implements TabCompleter {
             if (args.length == 1) {
                 return Arrays.asList("claim", "new", "list", "add", "trade");
             }
+            if (args.length == 2 && args[0].equals("list")) {
+                return Arrays.asList("all");
+            }
             if (args.length == 2 && (args[0].equals("claim"))) {
                 return Arrays.asList("get", "list");
             }
