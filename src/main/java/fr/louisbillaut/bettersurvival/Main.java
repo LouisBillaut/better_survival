@@ -4,6 +4,7 @@ import fr.louisbillaut.bettersurvival.commands.PlotCommand;
 import fr.louisbillaut.bettersurvival.commands.ShopCommand;
 import fr.louisbillaut.bettersurvival.commands.StuckCommand;
 import fr.louisbillaut.bettersurvival.game.Game;
+import fr.louisbillaut.bettersurvival.listeners.EntityListener;
 import fr.louisbillaut.bettersurvival.listeners.PlayerListener;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -24,6 +25,7 @@ public class Main extends JavaPlugin {
 
     private void initializeListeners() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this, game), this);
+        getServer().getPluginManager().registerEvents(new EntityListener(), this);
     }
 
     public FileConfiguration getDataConfig() {

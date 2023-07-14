@@ -47,6 +47,11 @@ public class Player {
 
         return null;
     }
+
+    public List<Shop> getShops() {
+        return shops;
+    }
+
     public void addPlot(Plot zone) {
         plots.add(zone);
     }

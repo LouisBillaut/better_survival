@@ -2,16 +2,14 @@ package fr.louisbillaut.bettersurvival.listeners;
 
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.*;
+import fr.louisbillaut.bettersurvival.game.Player;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import fr.louisbillaut.bettersurvival.utils.Selector;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -23,6 +21,8 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -104,7 +104,9 @@ public class PlayerListener implements Listener {
                     if(playerInGame == null) return;
                     Shop shop = playerInGame.getShop(shopName);
                     if(shop == null) return;
-                    shop.createCustomVillager(armorStand.getLocation());
+                    Location loc = armorStand.getLocation();
+                    loc.setY(Math.floor(armorStand.getLocation().getY() + 1));
+                    shop.createCustomVillager(loc);
                     removeAllArmorStandsAndTasks(player);
                 }
             }
@@ -777,6 +779,73 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private Shop findShopByVillager(List<Shop> shops, Villager villager) {
+        for (Shop shop : shops) {
+            if (shop.getVillager() == villager) {
+                return shop;
+            }
+        }
+        return null;
+    }
+
+    private void itemBuyToVillager(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        Inventory clickedInventory = event.getClickedInventory();
+        if (!(clickedInventory != null && clickedInventory.getHolder() instanceof Villager)) return;
+        Villager villager = (Villager) clickedInventory.getHolder();
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || clickedItem.getType().isAir()) return;
+        Player playerIG = game.getPlayer(player);
+        if (playerIG == null) return;
+        Shop shop = findShopByVillager(playerIG.getShops(), villager);
+        if(shop == null) return;
+        if (event.isShiftClick()) {
+            event.setCancelled(true);
+            return;
+        }
+        if (event.getSlot() != 2) return;
+        List<ItemStack> itemsToExchange = new ArrayList<>();
+        if(clickedInventory.getItem(0) != null) itemsToExchange.add(clickedInventory.getItem(0));
+        if(clickedInventory.getItem(1) != null) itemsToExchange.add(clickedInventory.getItem(1));
+        Trade trade = shop.getTradeByItemToBuy(itemsToExchange, clickedItem);
+        if(trade == null) return;
+        trade.setMaxTrade(trade.getMaxTrade() - 1);
+        // removing trade from villager
+        if (trade.getMaxTrade() <= 0) {
+            shop.getTradeList().remove(trade);
+            int recipeId = getMerchantRecipeFromTrade(villager, trade);
+            if (recipeId == -1) return;
+            List<MerchantRecipe> merchantRecipes = new ArrayList<>(villager.getRecipes());
+            merchantRecipes.remove(recipeId);
+            villager.setRecipes(merchantRecipes);
+            if(clickedInventory.getItem(0) != null && trade.getItemsToExchange().size() > 0 && trade.getItemsToExchange().get(0) != null) {
+                clickedInventory.getItem(0).setAmount(clickedInventory.getItem(0).getAmount() - trade.getItemsToExchange().get(0).getAmount());
+            }
+            if(clickedInventory.getItem(1) != null && trade.getItemsToExchange().size() > 1 && trade.getItemsToExchange().get(1) != null) {
+                clickedInventory.getItem(1).setAmount(clickedInventory.getItem(1).getAmount() - trade.getItemsToExchange().get(1).getAmount());
+            }
+        }
+    }
+
+    private boolean recipeContainsTrade(MerchantRecipe recipe, Trade trade) {
+        for(ItemStack i: recipe.getIngredients()) {
+            if(i.getType().equals(Material.AIR)) continue;
+            if (!trade.getItemsToExchange().contains(i)) return false;
+        }
+
+        return true;
+    }
+    private int getMerchantRecipeFromTrade(Villager villager, Trade trade) {
+        for(var i = 0; i < villager.getRecipes().size(); i++) {
+            if(!recipeContainsTrade(villager.getRecipes().get(i), trade)) continue;
+            if (villager.getRecipes().get(i).getResult().equals(trade.getItemsToBuy())) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         plotSettingClickEvent(event);
@@ -785,6 +854,7 @@ public class PlayerListener implements Listener {
         itemInShopClickEvent(event);
         shopListClickEvent(event);
         shopTradesListClickEvent(event);
+        itemBuyToVillager(event);
     }
 
     @EventHandler

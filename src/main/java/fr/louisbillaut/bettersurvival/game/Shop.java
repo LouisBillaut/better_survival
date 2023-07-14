@@ -4,6 +4,7 @@ import fr.louisbillaut.bettersurvival.utils.Head;
 import fr.louisbillaut.bettersurvival.utils.Messages;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -22,6 +23,7 @@ public class Shop {
     private ItemStack itemToBuy;
     private List<Trade> tradeList = new ArrayList<>();
     private Location location;
+    private Villager villager;
 
     public Shop(String name) {
         this.name = name;
@@ -60,14 +62,7 @@ public class Shop {
         actualInventory = inventory;
     }
 
-    public void createCustomVillager(Location location) {
-        Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
-        villager.setCustomName(name);
-        villager.setCustomNameVisible(true);
-        villager.setAI(false);
-        villager.setInvulnerable(true);
-        villager.setGravity(false);
-
+    private List<MerchantRecipe> getMerchantRecipesFromTrades() {
         List<MerchantRecipe> recipes = new ArrayList<>();
         for (Trade trade : tradeList) {
             MerchantRecipe merchantRecipe = new MerchantRecipe(trade.getItemsToBuy(), Integer.MAX_VALUE);
@@ -76,8 +71,26 @@ public class Shop {
             }
             recipes.add(merchantRecipe);
         }
+
+        return recipes;
+    }
+
+    public void createCustomVillager(Location location) {
+        if(villager != null) {
+            villager.remove();
+        }
+        Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
+        villager.setCustomName(name);
+        villager.setCustomNameVisible(true);
+        villager.setAI(false);
+        villager.setInvulnerable(true);
+        villager.setGravity(false);
+
+        List<MerchantRecipe> recipes = getMerchantRecipesFromTrades();
+
         villager.setRecipes(recipes);
         this.location = location;
+        this.villager = villager;
     }
 
     public void removeItem(Player player, int slot) {
@@ -99,6 +112,9 @@ public class Shop {
 
     public void addTrade(Trade trade) {
         tradeList.add(trade);
+        if(villager != null) {
+            villager.setRecipes(getMerchantRecipesFromTrades());
+        }
     }
     public void removeTrade(int i) {
         tradeList.remove(i);
@@ -110,6 +126,14 @@ public class Shop {
 
     public String getName() {
         return name;
+    }
+
+    public Villager getVillager() {
+        return villager;
+    }
+
+    public Location getLocation() {
+        return location;
     }
 
     public void setActualInventory(Inventory actualInventory) {
@@ -127,6 +151,19 @@ public class Shop {
 
     public Inventory getActualInventory() {
         return actualInventory;
+    }
+
+    public Trade getTradeByItemToBuy(List<ItemStack> items, ItemStack item) {
+        for (Trade t: tradeList) {
+            boolean contains = true;
+            for(ItemStack i: items) {
+                if(!t.itemsToExchangeContainsMaterial(i.getType())) contains = false;
+            }
+            if (!contains) continue;
+            if(t.getItemsToBuy().getType().equals(item.getType())) return t;
+        }
+
+        return null;
     }
 
     public int incrementActualNumberOfTrade() {
@@ -192,7 +229,12 @@ public class Shop {
         inventory.setItem(6, world);
 
         int i = 11;
+        var tradesToRemove = new ArrayList<Trade>();
         for(Trade trade: tradeList) {
+            if(trade.getMaxTrade() <= 0) {
+                tradesToRemove.add(trade);
+                continue;
+            }
             ItemStack glassBlock = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
             ItemMeta glassMeta = glassBlock.getItemMeta();
             glassMeta.setDisplayName(ChatColor.GREEN + "Trade " + ((i-2) / 9));
@@ -216,6 +258,10 @@ public class Shop {
 
             inventory.setItem(i + 5, createRemoveItem());
             i += 9;
+        }
+
+        for(Trade t: tradesToRemove) {
+            tradeList.remove(t);
         }
 
         player.openInventory(inventory);
@@ -258,6 +304,7 @@ public class Shop {
         }
 
         createShopInventory();
+        villager = getVillagerAtLocation(location, name);
     }
 
     public void saveToConfig(ConfigurationSection config) {
@@ -269,6 +316,21 @@ public class Shop {
             Trade trade = tradeList.get(i);
             trade.saveToConfig(tradeConfig);
         }
+    }
+
+    public Villager getVillagerAtLocation(Location location, String name) {
+        World world = location.getWorld();
+        if (world != null) {
+            for (Entity entity : world.getNearbyEntities(location, 2, 2, 2)) {
+                if (entity.getType() == EntityType.VILLAGER && entity instanceof Villager) {
+                    Villager villager = (Villager) entity;
+                    if (villager.getCustomName() != null && villager.getCustomName().equals(name)) {
+                        return villager;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private ItemStack getArrowRight() {

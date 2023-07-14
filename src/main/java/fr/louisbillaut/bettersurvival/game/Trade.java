@@ -1,5 +1,6 @@
 package fr.louisbillaut.bettersurvival.game;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
@@ -25,6 +26,14 @@ public class Trade {
 
     public List<ItemStack> getItemsToExchange() {
         return itemsToExchange;
+    }
+
+    public boolean itemsToExchangeContainsMaterial(Material material) {
+        for(ItemStack i: itemsToExchange) {
+            if(i.getType().equals(material)) return true;
+        }
+
+        return false;
     }
 
     public void setMaxTrade(int maxTrade) {
