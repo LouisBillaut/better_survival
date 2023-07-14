@@ -904,7 +904,6 @@ public class PlayerListener implements Listener {
         trade.setMaxTrade(trade.getMaxTrade() - 1);
         Player playerHasShop = game.getPlayerFromShop(shop);
         if (playerHasShop != null) {
-            Bukkit.getLogger().info("adding claim to: " + playerHasShop.getPlayerName());
             playerHasShop.addClaimsToShop(trade);
         }
         // removing trade from villager
@@ -948,6 +947,62 @@ public class PlayerListener implements Listener {
         event.setCancelled(true);
     }
 
+    public void bsItemBuyEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (!event.getView().getTitle().contains("bsBuck market")) return;
+        event.setCancelled(true);
+        if(event.getClickedInventory().getItem(0) == null)return;
+        Player playerInGame = game.getPlayer(player);
+        if (playerInGame == null) return;
+        ItemStack clickedItem = event.getCurrentItem();
+        if(clickedItem == null) return;
+        ItemMeta clickedMeta = clickedItem.getItemMeta();
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "next")) {
+            int page = 0;
+            if(player.hasMetadata("bsBucksPage")) {
+                for (MetadataValue v: player.getMetadata("bsBucksPage")) {
+                    page = v.asInt();
+                }
+            }
+            player.setMetadata("bsBucksPage", new FixedMetadataValue(instance, page + 1));
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            game.displayBsBucksInventoryToPlayer(instance, player);
+        }
+
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "previous")) {
+            int page = 0;
+            if(player.hasMetadata("bsBucksPage")) {
+                for (MetadataValue v: player.getMetadata("bsBucksPage")) {
+                    page = v.asInt();
+                }
+            }
+            player.setMetadata("bsBucksPage", new FixedMetadataValue(instance, page - 1));
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            game.displayBsBucksInventoryToPlayer(instance, player);
+        }
+
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "buy")) {
+            String strippedInput = ChatColor.stripColor(event.getClickedInventory().getItem(event.getSlot() - 2).getItemMeta().getDisplayName());
+            int price = 0;
+            try {
+                price = Integer.parseInt(strippedInput);
+            } catch (NumberFormatException e){
+                return;
+            }
+            if(price == 0) return;
+            ItemStack itemNeeded = event.getClickedInventory().getItem(event.getSlot() - 4);
+            if (!removeItemFromPlayerInventory(player, itemNeeded)) {
+                return;
+            }
+            playerInGame.addBsBucks(price);
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.GREEN + "You have now " + ChatColor.GOLD + playerInGame.getBsBucks() + " bsBucks");
+        }
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         plotSettingClickEvent(event);
@@ -959,6 +1014,7 @@ public class PlayerListener implements Listener {
         itemBuyToVillager(event);
         shopAllTradesListClickEvent(event);
         listClaimsClickEvent(event);
+        bsItemBuyEvent(event);
     }
 
     @EventHandler

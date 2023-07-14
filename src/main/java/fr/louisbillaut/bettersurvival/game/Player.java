@@ -17,7 +17,6 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,8 +27,9 @@ public class Player {
     private List<Shop> shops = new ArrayList<>();
     private List<ItemStack> claims = new ArrayList<>();
     private String playerName;
-
     private static int maxShops = 5;
+
+    private int bsBucks = 10000;
 
     private org.bukkit.entity.Player bukkitPlayer;
 
@@ -61,6 +61,14 @@ public class Player {
         return null;
     }
 
+    public void addBsBucks(int bucks) {
+        bsBucks += bucks;
+    }
+
+    public void removeBsBuck(int bucks) {
+        bsBucks -= bucks;
+    }
+
     public List<Shop> getShops() {
         return shops;
     }
@@ -85,6 +93,11 @@ public class Player {
         }
 
         return null;
+    }
+
+    public void showBsBuck() {
+        if(bukkitPlayer == null) return;
+        bukkitPlayer.sendMessage(ChatColor.GREEN + "you have " + ChatColor.GOLD + bsBucks + " bsBucks");
     }
 
     public void createChestWithClaims(Location location) {
@@ -120,6 +133,14 @@ public class Player {
         }
 
         return false;
+    }
+
+    public int getBsBucks() {
+        return bsBucks;
+    }
+
+    public void setBsBucks(int bsBucks) {
+        this.bsBucks = bsBucks;
     }
 
     public List<ItemStack> getClaims() {
@@ -175,6 +196,9 @@ public class Player {
         if (c == null) {
             return;
         }
+        if (c.contains("bsBucks")) {
+            this.bsBucks = c.getInt("bsBucks");
+        }
         if (c.contains("plots")) {
             for (String plotKey : Objects.requireNonNull(c.getConfigurationSection("plots")).getKeys(false)) {
                 Plot plot = new Plot();
@@ -220,6 +244,7 @@ public class Player {
         }
 
         config.set("claims", claims);
+        config.set("bsBucks", bsBucks);
     }
 
     public void displayAllTrades(Main instance, Game game) {

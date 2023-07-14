@@ -1,18 +1,31 @@
 package fr.louisbillaut.bettersurvival.game;
 
+import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.utils.Detector;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.*;
 import java.util.*;
 
+import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
+
 public class Game implements Serializable {
     private List<Player> players;
     public Map<UUID, ArrayList<ArmorStand>> armorStands = new HashMap<>();
     public Map<UUID, ArrayList<BukkitRunnable>> armorStandsRotationTasks = new HashMap<>();
+
+    public BsBucks bs = new BsBucks();
     public Game() {
         players = new ArrayList<>();
     }
@@ -78,6 +91,59 @@ public class Game implements Serializable {
 
     public List<Player> getPlayers() {
         return players;
+    }
+
+    public void displayBsBucksInventoryToPlayer(Main instance, org.bukkit.entity.Player player) {
+        int page = 0;
+        if(player.hasMetadata("bsBucksPage")) {
+            for (MetadataValue v: player.getMetadata("bsBucksPage")) {
+                page = v.asInt();
+            }
+        }
+
+        if (page*5 > bs.getItemsToSale().size()) {
+            page = page -1;
+            player.setMetadata("bsBucksPage", new FixedMetadataValue(instance, page));
+        }
+        if(page < 0) {
+            page = 0;
+            player.setMetadata("bsBucksPage", new FixedMetadataValue(instance, page));
+        }
+        Inventory inventory = Bukkit.createInventory(null, 54, "bsBuck market");
+        for(var i= 0; i < 54; i++) {
+            inventory.setItem(i, createGlassBlock());
+        }
+
+        int i = 2;
+        for(var index= 0; index < bs.getItemsToSale().size() && index <= 4 && (page * 5 + index) < bs.getItemsToSale().size(); index++) {
+            int p = page * 5 + index;
+            inventory.setItem(i, bs.getItemsToSale().get(p).getItem());
+            inventory.setItem(i + 1, Shop.getArrowRight());
+            inventory.setItem(i + 2, getBsPrice(bs.getItemsToSale().get(p).getPrice()));
+            inventory.setItem(i + 4, createBuyItem());
+            i += 9;
+        }
+
+        inventory.setItem(45, Shop.getPreviousArrow());
+        inventory.setItem(53, Shop.getNextArrow());
+        player.openInventory(inventory);
+    }
+
+    private ItemStack createBuyItem() {
+        ItemStack pageItem = new ItemStack(Material.SLIME_BALL);
+        ItemMeta pageMeta = pageItem.getItemMeta();
+        pageMeta.setDisplayName(ChatColor.GREEN + "buy");
+        pageItem.setItemMeta(pageMeta);
+        return pageItem;
+    }
+
+    private ItemStack getBsPrice(int number) {
+        ItemStack gold = new ItemStack(Material.RAW_GOLD);
+        ItemMeta goldMeta = gold.getItemMeta();
+        goldMeta.setDisplayName(ChatColor.GOLD + "" + number);
+        gold.setItemMeta(goldMeta);
+
+        return gold;
     }
 
     public void loadFromConfig(ConfigurationSection config) {
