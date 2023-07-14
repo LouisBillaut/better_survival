@@ -5,6 +5,7 @@ import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.listeners.EntityListener;
 import fr.louisbillaut.bettersurvival.listeners.PlayerListener;
 import fr.louisbillaut.bettersurvival.runnables.ClaimRunnable;
+import fr.louisbillaut.bettersurvival.runnables.DailyRewardsRunnable;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -29,6 +30,7 @@ public class Main extends JavaPlugin {
 
     private void initializeRunnables() {
         new ClaimRunnable(this, game).startTask();
+        new DailyRewardsRunnable(this, game).startTask();
     }
 
     public FileConfiguration getDataConfig() {

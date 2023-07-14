@@ -566,10 +566,15 @@ public class PlayerListener implements Listener {
             player = new Player(event.getPlayer().getDisplayName());
             game.addPlayer(player);
             displayTitle(event.getPlayer(), false);
+            player = game.getPlayer(event.getPlayer());
+            if (player != null) {
+                player.login();
+            }
         } else {
             Bukkit.getLogger().info("player found.");
             player.setBukkitPlayer(event.getPlayer());
             displayTitle(event.getPlayer(), true);
+            player.login();
         }
     }
 

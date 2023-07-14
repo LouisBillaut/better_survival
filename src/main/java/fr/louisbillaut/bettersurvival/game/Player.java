@@ -2,23 +2,22 @@ package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.utils.Head;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.util.*;
 
 import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
 
@@ -31,6 +30,18 @@ public class Player {
 
     private int bsBucks = 30000;
 
+    private LocalDate lastLoginDate = LocalDate.now();
+    private int consecutiveLoginDays = 0;
+
+    private static final Map<Integer, Integer> REWARD_MAPPING = new HashMap<>();
+
+    static {
+        REWARD_MAPPING.put(2, 100);
+        REWARD_MAPPING.put(3, 120);
+        REWARD_MAPPING.put(4, 130);
+        REWARD_MAPPING.put(5, 150);
+    }
+
     private org.bukkit.entity.Player bukkitPlayer;
 
     public Player(String playerName) {
@@ -41,6 +52,68 @@ public class Player {
                 bukkitPlayer = p;
             }
         }
+    }
+
+    public void login() {
+        LocalDate currentDate = LocalDate.now();
+
+        if (lastLoginDate != null && currentDate.equals(lastLoginDate.plusDays(1))) {
+            consecutiveLoginDays++;
+        } else {
+            consecutiveLoginDays = 1;
+        }
+
+        var key = consecutiveLoginDays;
+        if(key > 5) {
+            key = 5;
+        }
+        if (REWARD_MAPPING.containsKey(key)) {
+            int reward = REWARD_MAPPING.get(key);
+            bsBucks += reward;
+            if(bukkitPlayer != null) {
+                sendRewardMessage(bukkitPlayer, consecutiveLoginDays);
+            }
+        }
+
+        lastLoginDate = currentDate;
+    }
+
+    public void sendRewardMessage(org.bukkit.entity.Player player, int consecutiveLoginDays) {
+        var currentRewardKey = consecutiveLoginDays;
+        if (currentRewardKey > 5) {
+            currentRewardKey = 5;
+        }
+        int currentReward = REWARD_MAPPING.get(currentRewardKey);
+        int nextReward = 0;
+
+        var key = consecutiveLoginDays + 1;
+        if(key > 5) {
+            key = 5;
+        }
+        if (REWARD_MAPPING.containsKey(key)) {
+            nextReward = REWARD_MAPPING.get(key);
+        }
+
+        String message = ChatColor.GREEN + "Congratulations! You have received a reward for logging in " + consecutiveLoginDays + " day(s).";
+        message += "\n" + ChatColor.GRAY + "You received " + currentReward + " bsBucks.";
+
+        if (nextReward > 0) {
+            message += "\n" + ChatColor.GRAY + "Your next reward will be " + nextReward + " bsBucks.";
+        }
+
+        player.sendMessage(message);
+        Firework firework = (Firework) player.getLocation().getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
+        FireworkMeta fireworkMeta = firework.getFireworkMeta();
+
+        FireworkEffect effect = FireworkEffect.builder()
+                .withColor(Color.GREEN)
+                .build();
+
+        fireworkMeta.addEffect(effect);
+        fireworkMeta.setPower(1);
+        firework.setFireworkMeta(fireworkMeta);
+        firework.detonate();
+        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
     }
 
     public void setBukkitPlayer(org.bukkit.entity.Player bukkitPlayer) {
@@ -199,6 +272,13 @@ public class Player {
         if (c.contains("bsBucks")) {
             this.bsBucks = c.getInt("bsBucks");
         }
+        if (c.contains("lastLoginDate")) {
+            this.lastLoginDate = LocalDate.parse(c.getString("lastLoginDate"));
+        }
+
+        if (c.contains("consecutiveLoginDays")) {
+            this.consecutiveLoginDays = c.getInt("consecutiveLoginDays");
+        }
         if (c.contains("plots")) {
             for (String plotKey : Objects.requireNonNull(c.getConfigurationSection("plots")).getKeys(false)) {
                 Plot plot = new Plot();
@@ -227,6 +307,8 @@ public class Player {
 
     public void saveToConfig(ConfigurationSection config) {
         config.set("name", playerName);
+        config.set("lastLoginDate", lastLoginDate.toString());
+        config.set("consecutiveLoginDays", consecutiveLoginDays);
 
         ConfigurationSection plotsSection = config.createSection("plots");
         for (int i = 0; i < plots.size(); i++) {
