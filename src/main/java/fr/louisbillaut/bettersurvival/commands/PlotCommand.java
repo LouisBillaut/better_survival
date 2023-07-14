@@ -95,21 +95,13 @@ public class PlotCommand implements CommandExecutor {
             Player player = (Player) sender;
 
             if (args.length < 1) {
-                player.sendMessage("Use : /plot <new|list> [name]");
+                player.sendMessage("Usage: /plot <new|list|show|settings> <name>");
                 return true;
             }
 
             String subCommand = args[0].toLowerCase();
 
             switch (subCommand) {
-                case "test" -> {
-                    if (args.length < 2) {
-                        player.sendMessage("Use : /plot new <name>");
-                        return true;
-                    }
-                    //player.openInventory(Shop.createShopInventory(args[1]));
-                    return true;
-                }
                 case "new" -> {
                     if (args.length < 2) {
                         player.sendMessage("Use : /plot new <name>");
@@ -145,7 +137,7 @@ public class PlotCommand implements CommandExecutor {
                     return true;
                 }
                 default -> {
-                    player.sendMessage("Unknown command. Use : /plot <new|list|show> [name]");
+                    player.sendMessage("Unknown command. Usage: /plot <new|list|show|settings> [name]");
                     return true;
                 }
             }

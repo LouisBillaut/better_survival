@@ -4,19 +4,18 @@ author: Louis BILLAUT
 website: https://github.com/LouisBillaut
 main: fr.louisbillaut.bettersurvival.Main
 api-version: 1.19
+
 commands:
   plot:
     description: Create or list plots
     usage: /plot <new|list> [name]
     aliases: [parcel]
-  stuck:
-    description: Unstuck you
-    usage: /stuck
   shop:
     description: Create or list shops
-    usage: /shop
+    usage: /shop <claim|show|new|list|add|trade>
   bs:
-    usage: /bs
+    description: Access Better Survival Bucks features
+    usage: /bs <buy|show>
 
 command-description:
   plot:
@@ -28,3 +27,33 @@ command-description:
       list:
         description: List active plots
         usage: /plot list
+  shop:
+    description: Create or list shops
+    subcommands:
+      claim:
+        description: Manage shop claims
+        usage: /shop claim <list|get>
+      show:
+        description: Show a specific shop
+        usage: /shop show <name>
+      new:
+        description: Create a new shop
+        usage: /shop new <name>
+      list:
+        description: List available shops
+        usage: /shop list [all]
+      add:
+        description: Add an item to a shop
+        usage: /shop add <name> <itemID> <quantity>
+      trade:
+        description: Perform trade actions with a shop
+        usage: /shop trade <shop name> [new]
+  bs:
+    description: Access Better Survival Bucks features
+    subcommands:
+      buy:
+        description: Open the BS Bucks inventory
+        usage: /bs buy
+      show:
+        description: Show the player's BS Bucks balance
+        usage: /bs show

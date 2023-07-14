@@ -118,7 +118,7 @@ public class ShopCommand implements CommandExecutor {
             Player player = (Player) sender;
 
             if (args.length < 1) {
-                player.sendMessage("Use : /shop <new|add>");
+                player.sendMessage("Usage: /shop <claim|show|new|list|add|trade>");
                 return true;
             }
 
@@ -127,7 +127,7 @@ public class ShopCommand implements CommandExecutor {
             switch (subCommand) {
                 case "claim" -> {
                     if (args.length < 2) {
-                        player.sendMessage("Use : /shop claim <list|get>");
+                        player.sendMessage("Usage: /shop claim <list|get>");
                         return true;
                     }
                     if (args[1].equals("get")) {
@@ -159,13 +159,11 @@ public class ShopCommand implements CommandExecutor {
                     if (args.length == 1) {
                         playerInGame.displayListShopInventory();
                         return true;
-                    }
-                    if (args.length > 2) {
-                        player.sendMessage("Use : /shop list all");
-                        return true;
-                    }
-                    if (args[1].equals("all")) {
+                    } else if (args.length == 2 && args[1].equals("all")) {
                         playerInGame.displayAllTrades(instance, game);
+                        return true;
+                    } else {
+                        player.sendMessage("Use : /shop list [all]");
                         return true;
                     }
                 }
