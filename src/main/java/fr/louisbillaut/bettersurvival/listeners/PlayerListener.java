@@ -109,6 +109,19 @@ public class PlayerListener implements Listener {
                     shop.createCustomVillager(loc);
                     removeAllArmorStandsAndTasks(player);
                 }
+                if(player.hasMetadata("claimShop")) {
+                    removeAllArmorStandsAndTasks(player);
+                    player.removeMetadata("claimShop", instance);
+                    Player playerInGame = game.getPlayer(player);
+                    if(playerInGame == null) return;
+                    if(playerInGame.getClaims().size() == 0) {
+                        player.sendMessage(ChatColor.RED + "you don't have any item to claim");
+                        return;
+                    }
+                    Location loc = armorStand.getLocation();
+                    loc.setY(Math.floor(armorStand.getLocation().getY() + 1));
+                    playerInGame.createChestWithClaims(loc);
+                }
             }
         }
     }
@@ -870,6 +883,11 @@ public class PlayerListener implements Listener {
         Trade trade = shop.getTradeByItemToBuy(itemsToExchange, clickedItem);
         if(trade == null) return;
         trade.setMaxTrade(trade.getMaxTrade() - 1);
+        Player playerHasShop = game.getPlayerFromShop(shop);
+        if (playerHasShop != null) {
+            Bukkit.getLogger().info("adding claim to: " + playerHasShop.getPlayerName());
+            playerHasShop.addClaimsToShop(trade);
+        }
         // removing trade from villager
         if (trade.getMaxTrade() <= 0) {
             shop.getTradeList().remove(trade);
@@ -906,6 +924,11 @@ public class PlayerListener implements Listener {
         return -1;
     }
 
+    private void listClaimsClickEvent(InventoryClickEvent event) {
+        if (!event.getView().getTitle().contains("claims list")) return;
+        event.setCancelled(true);
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         plotSettingClickEvent(event);
@@ -916,6 +939,7 @@ public class PlayerListener implements Listener {
         shopTradesListClickEvent(event);
         itemBuyToVillager(event);
         shopAllTradesListClickEvent(event);
+        listClaimsClickEvent(event);
     }
 
     @EventHandler

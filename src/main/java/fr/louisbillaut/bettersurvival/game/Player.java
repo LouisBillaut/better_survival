@@ -6,6 +6,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -14,6 +17,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,6 +26,7 @@ import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
 public class Player {
     private List<Plot> plots;
     private List<Shop> shops = new ArrayList<>();
+    private List<ItemStack> claims = new ArrayList<>();
     private String playerName;
 
     private static int maxShops = 5;
@@ -80,6 +85,42 @@ public class Player {
         }
 
         return null;
+    }
+
+    public void createChestWithClaims(Location location) {
+        Block block = location.getBlock();
+        block.setType(Material.CHEST);
+
+        BlockState blockState = block.getState();
+        if (blockState instanceof Chest) {
+            Chest chest = (Chest) blockState;
+            Inventory inventory = chest.getBlockInventory();
+
+            ItemStack[] itemsArray = new ItemStack[inventory.getSize()];
+            for (int i = 0; i < Math.min(claims.size(), itemsArray.length); i++) {
+                itemsArray[i] = claims.get(i);
+            }
+
+            inventory.setContents(itemsArray);
+            claims.subList(0, Math.min(claims.size(), itemsArray.length)).clear();
+        }
+    }
+
+    public List<ItemStack> getClaims() {
+        return claims;
+    }
+
+    public void displayClaims() {
+        if(bukkitPlayer == null) return;
+        Inventory inventory = Bukkit.createInventory(null, 54, "claims list");
+        for(var i = 0; i < claims.size() && i < 54; i++) {
+            inventory.addItem(claims.get(i));
+        }
+        bukkitPlayer.openInventory(inventory);
+    }
+
+    public void addClaimsToShop(Trade trade) {
+        claims.addAll(trade.getItemsToExchange());
     }
 
     public void removeShop(String name) {

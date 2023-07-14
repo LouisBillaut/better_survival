@@ -3,6 +3,7 @@ package fr.louisbillaut.bettersurvival.commands;
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.game.Shop;
+import fr.louisbillaut.bettersurvival.utils.Selector;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -12,6 +13,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 
 public class ShopCommand implements CommandExecutor {
     private Game game;
@@ -93,6 +95,23 @@ public class ShopCommand implements CommandExecutor {
         }
         shop.displayTrades(instance, player);
     }
+
+    private void claimShop(Player player) {
+        fr.louisbillaut.bettersurvival.game.Player playerInGame = game.getPlayer(player);
+        if(playerInGame == null) return;
+        if(playerInGame.getClaims().size() == 0) {
+            player.sendMessage(ChatColor.RED + "you don't have any item to claim");
+            return;
+        }
+        player.setMetadata("claimShop", new FixedMetadataValue(instance, true));
+        Selector.appearArmorStand(instance, game, player);
+    }
+
+    private void displayClaims(Player player) {
+        fr.louisbillaut.bettersurvival.game.Player playerInGame = game.getPlayer(player);
+        if(playerInGame == null) return;
+        playerInGame.displayClaims();
+    }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
@@ -106,6 +125,20 @@ public class ShopCommand implements CommandExecutor {
             String subCommand = args[0].toLowerCase();
 
             switch (subCommand) {
+                case "claim" -> {
+                    if (args.length < 2) {
+                        player.sendMessage("Use : /shop claim <list|get>");
+                        return true;
+                    }
+                    if (args[1].equals("get")) {
+                        claimShop(player);
+                        return true;
+                    }
+                    if (args[1].equals("list")) {
+                        displayClaims(player);
+                        return true;
+                    }
+                }
                 case "show" -> {
                     if (args.length < 2) {
                         player.sendMessage("Use : /shop show <name>");
