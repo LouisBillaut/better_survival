@@ -85,17 +85,6 @@ public class ShopCommand implements CommandExecutor {
         }
     }
 
-    private void showShopToPlayer(Player player, String name) {
-        var playerInGame = game.getPlayer(player);
-        if (player == null) return;
-        Shop shop = playerInGame.getShop(name);
-        if (shop == null) {
-            player.sendMessage(ChatColor.RED + "You don't have a shop named: " + name);
-            return;
-        }
-        shop.displayTrades(instance, player);
-    }
-
     private void claimShop(Player player) {
         fr.louisbillaut.bettersurvival.game.Player playerInGame = game.getPlayer(player);
         if(playerInGame == null) return;
@@ -138,13 +127,6 @@ public class ShopCommand implements CommandExecutor {
                         displayClaims(player);
                         return true;
                     }
-                }
-                case "show" -> {
-                    if (args.length < 2) {
-                        player.sendMessage("Use : /shop show <name>");
-                        return true;
-                    }
-                    showShopToPlayer(player, args[1]);
                 }
                 case "new" -> {
                     if (args.length < 2) {

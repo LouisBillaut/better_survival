@@ -9,13 +9,28 @@ commands:
   plot:
     description: Create or list plots
     usage: /plot <new|list> [name]
-    aliases: [parcel]
+    tab-completions:
+      new: []
+      list: []
   shop:
     description: Create or list shops
-    usage: /shop <claim|show|new|list|add|trade>
+    usage: /shop <claim|new|list|add|trade>
+    tab-completions:
+      claim: []
+      new: []
+      list: []
+      add: []
+      trade: []
   bs:
     description: Access Better Survival Bucks features
     usage: /bs <buy|show>
+    tab-completions:
+      buy: []
+      show: []
+  stuck:
+    description: Unstuck you
+    usage: /stuck
+
 
 command-description:
   plot:
@@ -57,3 +72,5 @@ command-description:
       show:
         description: Show the player's BS Bucks balance
         usage: /bs show
+  stuck:
+    description: Unstuck you
