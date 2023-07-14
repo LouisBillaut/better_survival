@@ -843,6 +843,11 @@ public class PlayerListener implements Listener {
                 itemStack.setAmount(itemStack.getAmount() * trade.getMaxTrade());
                 giveOrDropItem(player, itemStack);
                 shop.removeTrade(Integer.parseInt(stripped[1]) - 1);
+                int recipeId = getMerchantRecipeFromTrade(shop.getVillager(), trade);
+                if (recipeId == -1) return;
+                List<MerchantRecipe> merchantRecipes = new ArrayList<>(shop.getVillager().getRecipes());
+                merchantRecipes.remove(recipeId);
+                shop.getVillager().setRecipes(merchantRecipes);
                 shop.displayTrades(instance, player);
             }
         }
