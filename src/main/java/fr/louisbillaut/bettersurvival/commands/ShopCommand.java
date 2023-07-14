@@ -40,8 +40,8 @@ public class ShopCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.RED + "You don't have a shop named: " + name);
                 return;
             }
-            if(shop.getTradeList().size() == 5) {
-                player.sendMessage(ChatColor.RED + "Max trade limit reached (5).");
+            if(shop.getTradeList().size() == Shop.getMaxTradeLimit()) {
+                player.sendMessage(ChatColor.RED + "Max trade limit reached: " + Shop.getMaxTradeLimit());
                 return;
             }
             Material m = Material.matchMaterial(item);
@@ -71,7 +71,7 @@ public class ShopCommand implements CommandExecutor {
             Shop newShop = new Shop(name);
             playerInGame.addShop(newShop);
             newShop.createShopInventory();
-            newShop.displayTrades(player);
+            newShop.displayTrades(instance, player);
 
             player.sendMessage(ChatColor.GREEN + "Shop " + name + " created !");
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_YES, 1.0f, 1.0f);
@@ -87,7 +87,7 @@ public class ShopCommand implements CommandExecutor {
             player.sendMessage(ChatColor.RED + "You don't have a shop named: " + name);
             return;
         }
-        shop.displayTrades(player);
+        shop.displayTrades(instance, player);
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -149,7 +149,7 @@ public class ShopCommand implements CommandExecutor {
                             player.sendMessage(ChatColor.RED + "You don't have a shop named: " + args[1]);
                             return true;
                         }
-                        shop.displayTrades(player);
+                        shop.displayTrades(instance, player);
                     }
                     if(args.length == 3) {
                         if(args[2].equals("new")) {

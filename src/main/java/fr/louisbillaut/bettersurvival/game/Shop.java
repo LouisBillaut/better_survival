@@ -1,5 +1,6 @@
 package fr.louisbillaut.bettersurvival.game;
 
+import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.utils.Head;
 import fr.louisbillaut.bettersurvival.utils.Messages;
 import org.bukkit.*;
@@ -12,6 +13,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,7 @@ public class Shop {
     private List<Trade> tradeList = new ArrayList<>();
     private Location location;
     private Villager villager;
+    private static int MaxTradeLimit = 8;
 
     public Shop(String name) {
         this.name = name;
@@ -85,6 +89,7 @@ public class Shop {
         villager.setAI(false);
         villager.setInvulnerable(true);
         villager.setGravity(false);
+        villager.setSilent(true);
 
         List<MerchantRecipe> recipes = getMerchantRecipesFromTrades();
 
@@ -134,6 +139,10 @@ public class Shop {
 
     public Location getLocation() {
         return location;
+    }
+
+    public static int getMaxTradeLimit() {
+        return MaxTradeLimit;
     }
 
     public void setActualInventory(Inventory actualInventory) {
@@ -211,7 +220,36 @@ public class Shop {
         return false;
     }
 
-    public void displayTrades(Player player) {
+    public void displayTrades(Main instance, Player player) {
+        var tradesToRemove = new ArrayList<Trade>();
+        for(Trade trade: tradeList) {
+            if (trade.getMaxTrade() <= 0) {
+                tradesToRemove.add(trade);
+            }
+        }
+        for(Trade t: tradesToRemove) {
+            tradeList.remove(t);
+        }
+
+        int page = 0;
+        if(player.hasMetadata("tradeListPage")) {
+            for (MetadataValue v: player.getMetadata("tradeListPage")) {
+                page = v.asInt();
+            }
+        }
+
+        if (page + 4 > tradeList.size()) {
+            page = page -1;
+            player.setMetadata("tradeListPage", new FixedMetadataValue(instance, page));
+        }
+        if(page < 0) {
+            page = 0;
+            player.setMetadata("tradeListPage", new FixedMetadataValue(instance, page));
+        }
+        if((page+1)* 4 > getMaxTradeLimit()) {
+            page = page -1;
+            player.setMetadata("tradeListPage", new FixedMetadataValue(instance, page));
+        }
         Inventory inventory = Bukkit.createInventory(null, 54, name + " trades list");
         for(var i= 0; i < 54; i++) {
             inventory.setItem(i, createGlassBlock());
@@ -229,40 +267,35 @@ public class Shop {
         inventory.setItem(6, world);
 
         int i = 11;
-        var tradesToRemove = new ArrayList<Trade>();
-        for(Trade trade: tradeList) {
-            if(trade.getMaxTrade() <= 0) {
-                tradesToRemove.add(trade);
-                continue;
-            }
+        for(var index= 0; index < tradeList.size() && index <= 3 && (page * 4 + index) < tradeList.size(); index++) {
+            int p = page * 4 + index;
             ItemStack glassBlock = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
             ItemMeta glassMeta = glassBlock.getItemMeta();
-            glassMeta.setDisplayName(ChatColor.GREEN + "Trade " + ((i-2) / 9));
+            glassMeta.setDisplayName(ChatColor.GREEN + "Trade " + (p + 1));
             if (glassMeta.hasLore()) {
-                glassMeta.getLore().add(ChatColor.GRAY + "Max trade: " + trade.getMaxTrade());
+                glassMeta.getLore().add(ChatColor.GRAY + "Max trade: " + tradeList.get(p).getMaxTrade());
             } else {
                 List<String> lore = new ArrayList<>();
-                lore.add(ChatColor.GRAY + "Max trade: " + trade.getMaxTrade());
+                lore.add(ChatColor.GRAY + "Max trade: " + tradeList.get(p).getMaxTrade());
                 glassMeta.setLore(lore);
             }
             glassBlock.setItemMeta(glassMeta);
             inventory.setItem(i - 2, glassBlock);
-            inventory.setItem(i, trade.getItemsToBuy());
+            inventory.setItem(i, tradeList.get(p).getItemsToBuy());
             inventory.setItem(i + 1, getArrowRight());
-            if(trade.getItemsToExchange().size() > 0) {
-                inventory.setItem(i + 2, trade.getItemsToExchange().get(0));
+            if(tradeList.get(p).getItemsToExchange().size() > 0) {
+                inventory.setItem(i + 2, tradeList.get(p).getItemsToExchange().get(0));
             }
-            if(trade.getItemsToExchange().size() > 1) {
-                inventory.setItem(i + 3, trade.getItemsToExchange().get(1));
+            if(tradeList.get(p).getItemsToExchange().size() > 1) {
+                inventory.setItem(i + 3, tradeList.get(p).getItemsToExchange().get(1));
             }
 
             inventory.setItem(i + 5, createRemoveItem());
             i += 9;
         }
 
-        for(Trade t: tradesToRemove) {
-            tradeList.remove(t);
-        }
+        inventory.setItem(45, getPreviousArrow());
+        inventory.setItem(53, getNextArrow());
 
         player.openInventory(inventory);
     }
@@ -305,6 +338,10 @@ public class Shop {
 
         createShopInventory();
         villager = getVillagerAtLocation(location, name);
+        villager.setAI(false);
+        villager.setInvulnerable(true);
+        villager.setGravity(false);
+        villager.setSilent(true);
     }
 
     public void saveToConfig(ConfigurationSection config) {
@@ -337,6 +374,24 @@ public class Shop {
         ItemStack villagerHead = Head.getCustomHead(Head.quartzArrowRight);
         ItemMeta villagerHeadMeta = villagerHead.getItemMeta();
         villagerHeadMeta.setDisplayName(" ");
+        villagerHead.setItemMeta(villagerHeadMeta);
+
+        return villagerHead;
+    }
+
+    public ItemStack getNextArrow() {
+        ItemStack villagerHead = Head.getCustomHead(Head.quartzArrowRight);
+        ItemMeta villagerHeadMeta = villagerHead.getItemMeta();
+        villagerHeadMeta.setDisplayName(ChatColor.GREEN + "next");
+        villagerHead.setItemMeta(villagerHeadMeta);
+
+        return villagerHead;
+    }
+
+    public ItemStack getPreviousArrow() {
+        ItemStack villagerHead = Head.getCustomHead(Head.quartzArrowLeft);
+        ItemMeta villagerHeadMeta = villagerHead.getItemMeta();
+        villagerHeadMeta.setDisplayName(ChatColor.GREEN + "previous");
         villagerHead.setItemMeta(villagerHeadMeta);
 
         return villagerHead;

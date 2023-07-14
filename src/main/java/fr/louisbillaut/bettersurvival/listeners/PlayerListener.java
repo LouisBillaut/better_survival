@@ -606,7 +606,7 @@ public class PlayerListener implements Listener {
             String strippedInput = ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName());
             Shop shop = playerInGame.getShop(strippedInput);
             if(shop == null) return;
-            shop.displayTrades(player);
+            shop.displayTrades(instance, player);
             player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
             return;
         }
@@ -758,12 +758,12 @@ public class PlayerListener implements Listener {
                 itemStack.setAmount(itemStack.getAmount() * trade.getMaxTrade());
                 giveOrDropItem(player, itemStack);
                 shop.removeTrade(Integer.parseInt(stripped[1]) - 1);
-                shop.displayTrades(player);
+                shop.displayTrades(instance, player);
             }
         }
         if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "add trade")) {
-            if(shop.getTradeList().size() == 5) {
-                player.sendMessage(ChatColor.RED + "Max trade limit reached (5).");
+            if(shop.getTradeList().size() == Shop.getMaxTradeLimit()) {
+                player.sendMessage(ChatColor.RED + "Max trade limit reached: " + Shop.getMaxTradeLimit());
                 player.closeInventory();
                 return;
             }
@@ -776,6 +776,30 @@ public class PlayerListener implements Listener {
             player.setMetadata("placeShop", new FixedMetadataValue(instance, shop.getName()));
             Selector.appearArmorStand(instance, game, player);
             return;
+        }
+
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "next")) {
+            int page = 0;
+            if(player.hasMetadata("tradeListPage")) {
+                for (MetadataValue v: player.getMetadata("tradeListPage")) {
+                    page = v.asInt();
+                }
+            }
+            player.setMetadata("tradeListPage", new FixedMetadataValue(instance, page + 1));
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            shop.displayTrades(instance, player);
+        }
+
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "previous")) {
+            int page = 0;
+            if(player.hasMetadata("tradeListPage")) {
+                for (MetadataValue v: player.getMetadata("tradeListPage")) {
+                    page = v.asInt();
+                }
+            }
+            player.setMetadata("tradeListPage", new FixedMetadataValue(instance, page - 1));
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            shop.displayTrades(instance, player);
         }
     }
 
