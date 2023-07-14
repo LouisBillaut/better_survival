@@ -100,7 +100,6 @@ public class BsBucks {
             new BSItem(new ItemStack(Material.ZOMBIE_HEAD), 1500),
             new BSItem(new ItemStack(Material.SHULKER_BOX), 300),
             new BSItem(new ItemStack(Material.RESPAWN_ANCHOR), 1500),
-            new BSItem(getInfinityBook(), 600),
             new BSItem(getRiptideTrident(), 3900),
             new BSItem(new ItemStack(Material.ENDER_CHEST), 300),
             new BSItem(new ItemStack(Material.SPONGE), 210),
