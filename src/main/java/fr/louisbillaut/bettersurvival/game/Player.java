@@ -18,6 +18,8 @@ public class Player {
     private List<Shop> shops = new ArrayList<>();
     private String playerName;
 
+    private static int maxShops = 5;
+
     private org.bukkit.entity.Player bukkitPlayer;
 
     public Player(String playerName) {
@@ -58,6 +60,10 @@ public class Player {
 
     public void addShop(Shop shop) {
         shops.add(shop);
+    }
+
+    public static int getMaxShops() {
+        return maxShops;
     }
 
     public Shop getShop(String name) {

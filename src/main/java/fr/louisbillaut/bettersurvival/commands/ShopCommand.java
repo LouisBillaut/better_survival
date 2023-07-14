@@ -68,6 +68,10 @@ public class ShopCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.RED + "You already have a shop named: " + name);
                 return;
             }
+            if (playerInGame.getShops().size() >= fr.louisbillaut.bettersurvival.game.Player.getMaxShops()) {
+                player.sendMessage(ChatColor.RED + "Maximum number of shops reached: " + fr.louisbillaut.bettersurvival.game.Player.getMaxShops());
+                return;
+            }
             Shop newShop = new Shop(name);
             playerInGame.addShop(newShop);
             newShop.createShopInventory();

@@ -256,7 +256,9 @@ public class Shop {
         }
 
         ItemStack villagerHead = getShopVillagerHead();
-        villagerHead = addLocationToItemStack(villagerHead, location);
+        if (location != null) {
+            villagerHead = addLocationToItemStack(villagerHead, location);
+        }
         inventory.setItem(0, villagerHead);
 
         inventory.setItem( 4, createNewTradeItem());
@@ -337,11 +339,17 @@ public class Shop {
         }
 
         createShopInventory();
-        villager = getVillagerAtLocation(location, name);
-        villager.setAI(false);
-        villager.setInvulnerable(true);
-        villager.setGravity(false);
-        villager.setSilent(true);
+        if (location != null) {
+            villager = getVillagerAtLocation(location, name);
+            if(villager == null) {
+                createCustomVillager(location);
+                return;
+            }
+            villager.setAI(false);
+            villager.setInvulnerable(true);
+            villager.setGravity(false);
+            villager.setSilent(true);
+        }
     }
 
     public void saveToConfig(ConfigurationSection config) {
