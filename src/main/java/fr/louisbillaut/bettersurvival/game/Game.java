@@ -28,6 +28,15 @@ public class Game implements Serializable {
         return null;
     }
 
+    public List<Shop> getAllShops() {
+        List<Shop> res = new ArrayList<>();
+        for(Player p: players) {
+            res.addAll(p.getShops());
+        }
+
+        return res;
+    }
+
     public List<Player> getPlayers() {
         return players;
     }

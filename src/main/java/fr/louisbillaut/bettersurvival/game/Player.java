@@ -1,17 +1,23 @@
 package fr.louisbillaut.bettersurvival.game;
 
+import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.utils.Head;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
 
 public class Player {
     private List<Plot> plots;
@@ -146,6 +152,82 @@ public class Player {
             ConfigurationSection shopSection = shopsSection.createSection(String.valueOf(i));
             shop.saveToConfig(shopSection);
         }
+    }
+
+    public void displayAllTrades(Main instance, Game game) {
+        org.bukkit.entity.Player player = getBukkitPlayer();
+        List<Shop> shops = new ArrayList<>();
+        List<Trade> tradeList = new ArrayList<>();
+        List<Player> players = new ArrayList<>();
+
+        for(Player p: game.getPlayers()) {
+            for(Shop s: p.getShops()) {
+                for(Trade t: s.getTradeList()) {
+                    shops.add(s);
+                    tradeList.add(t);
+                    players.add(p);
+                }
+            }
+        }
+
+        int page = 0;
+        if(player.hasMetadata("allTradeListPage")) {
+            for (MetadataValue v: player.getMetadata("allTradeListPage")) {
+                page = v.asInt();
+            }
+        }
+
+        if (page + 5 > tradeList.size()) {
+            page = page -1;
+            player.setMetadata("allTradeListPage", new FixedMetadataValue(instance, page));
+        }
+        if(page < 0) {
+            page = 0;
+            player.setMetadata("allTradeListPage", new FixedMetadataValue(instance, page));
+        }
+
+        Inventory inventory = Bukkit.createInventory(null, 54, "all trades");
+        for(var i= 0; i < 54; i++) {
+            inventory.setItem(i, createGlassBlock());
+        }
+
+        int i = 2;
+        for(var index= 0; index < tradeList.size() && index <= 4 && (page * 5 + index) < tradeList.size(); index++) {
+            int p = page * 5 + index;
+            ItemStack glassBlock = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+            ItemMeta glassMeta = glassBlock.getItemMeta();
+            glassMeta.setDisplayName(ChatColor.GREEN + "Max trades: " +tradeList.get(p).getMaxTrade());
+            glassBlock.setItemMeta(glassMeta);
+            inventory.setItem(i - 2, glassBlock);
+            inventory.setItem(i+3, tradeList.get(p).getItemsToBuy());
+            inventory.setItem(i + 2, Shop.getArrowRight());
+            if(tradeList.get(p).getItemsToExchange().size() > 0) {
+                inventory.setItem(i, tradeList.get(p).getItemsToExchange().get(0));
+            }
+            if(tradeList.get(p).getItemsToExchange().size() > 1) {
+                inventory.setItem(i + 1, tradeList.get(p).getItemsToExchange().get(1));
+            }
+            inventory.setItem(i + 5, getShopVillagerHead(players.get(p).getPlayerName(), shops.get(p).getName(), shops.get(p).getLocation()));
+
+            i += 9;
+        }
+
+        inventory.setItem(45, Shop.getPreviousArrow());
+        inventory.setItem(53, Shop.getNextArrow());
+
+        player.openInventory(inventory);
+    }
+
+    private ItemStack getShopVillagerHead(String playerName, String name, Location location) {
+        ItemStack villagerHead = Head.getCustomHead(Head.villagerHead);
+        ItemMeta villagerHeadMeta = villagerHead.getItemMeta();
+        villagerHeadMeta.setDisplayName(ChatColor.LIGHT_PURPLE  + playerName + ": " + ChatColor.GREEN + name);
+        villagerHead.setItemMeta(villagerHeadMeta);
+        if(location != null) {
+            Shop.addLocationToItemStack(villagerHead, location);
+        }
+
+        return villagerHead;
     }
 
     public void displayListShopInventory() {

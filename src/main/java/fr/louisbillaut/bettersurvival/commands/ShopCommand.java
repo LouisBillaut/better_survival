@@ -123,7 +123,18 @@ public class ShopCommand implements CommandExecutor {
                 case "list" -> {
                     fr.louisbillaut.bettersurvival.game.Player playerInGame = game.getPlayer(player);
                     if(playerInGame==null) return true;
-                    playerInGame.displayListShopInventory();
+                    if (args.length == 1) {
+                        playerInGame.displayListShopInventory();
+                        return true;
+                    }
+                    if (args.length > 2) {
+                        player.sendMessage("Use : /shop list all");
+                        return true;
+                    }
+                    if (args[1].equals("all")) {
+                        playerInGame.displayAllTrades(instance, game);
+                        return true;
+                    }
                 }
                 case "add" -> {
                     if (args.length < 4) {

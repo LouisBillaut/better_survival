@@ -729,6 +729,44 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void shopAllTradesListClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (!event.getView().getTitle().contains("all trades")) return;
+        event.setCancelled(true);
+        if(event.getClickedInventory().getItem(0) == null)return;
+        Player playerInGame = game.getPlayer(player);
+        if (playerInGame == null) return;
+        ItemStack clickedItem = event.getCurrentItem();
+        if(clickedItem == null) return;
+        ItemMeta clickedMeta = clickedItem.getItemMeta();
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "next")) {
+            int page = 0;
+            if(player.hasMetadata("allTradeListPage")) {
+                for (MetadataValue v: player.getMetadata("allTradeListPage")) {
+                    page = v.asInt();
+                }
+            }
+            player.setMetadata("allTradeListPage", new FixedMetadataValue(instance, page + 1));
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            playerInGame.displayAllTrades(instance, game);
+        }
+
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "previous")) {
+            int page = 0;
+            if(player.hasMetadata("allTradeListPage")) {
+                for (MetadataValue v: player.getMetadata("allTradeListPage")) {
+                    page = v.asInt();
+                }
+            }
+            player.setMetadata("allTradeListPage", new FixedMetadataValue(instance, page - 1));
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            playerInGame.displayAllTrades(instance, game);
+        }
+    }
+
     private void shopTradesListClickEvent(InventoryClickEvent event) {
         org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
         if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
@@ -819,9 +857,7 @@ public class PlayerListener implements Listener {
         Villager villager = (Villager) clickedInventory.getHolder();
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType().isAir()) return;
-        Player playerIG = game.getPlayer(player);
-        if (playerIG == null) return;
-        Shop shop = findShopByVillager(playerIG.getShops(), villager);
+        Shop shop = findShopByVillager(game.getAllShops(), villager);
         if(shop == null) return;
         if (event.isShiftClick()) {
             event.setCancelled(true);
@@ -879,6 +915,7 @@ public class PlayerListener implements Listener {
         shopListClickEvent(event);
         shopTradesListClickEvent(event);
         itemBuyToVillager(event);
+        shopAllTradesListClickEvent(event);
     }
 
     @EventHandler

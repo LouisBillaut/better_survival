@@ -302,7 +302,7 @@ public class Shop {
         player.openInventory(inventory);
     }
 
-    private ItemStack addLocationToItemStack(ItemStack itemStack, Location location) {
+    public static ItemStack addLocationToItemStack(ItemStack itemStack, Location location) {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
             String field = "Location";
@@ -378,7 +378,7 @@ public class Shop {
         return null;
     }
 
-    private ItemStack getArrowRight() {
+    public static ItemStack getArrowRight() {
         ItemStack villagerHead = Head.getCustomHead(Head.quartzArrowRight);
         ItemMeta villagerHeadMeta = villagerHead.getItemMeta();
         villagerHeadMeta.setDisplayName(" ");
@@ -387,7 +387,7 @@ public class Shop {
         return villagerHead;
     }
 
-    public ItemStack getNextArrow() {
+    public static ItemStack getNextArrow() {
         ItemStack villagerHead = Head.getCustomHead(Head.quartzArrowRight);
         ItemMeta villagerHeadMeta = villagerHead.getItemMeta();
         villagerHeadMeta.setDisplayName(ChatColor.GREEN + "next");
@@ -396,7 +396,7 @@ public class Shop {
         return villagerHead;
     }
 
-    public ItemStack getPreviousArrow() {
+    public static ItemStack getPreviousArrow() {
         ItemStack villagerHead = Head.getCustomHead(Head.quartzArrowLeft);
         ItemMeta villagerHeadMeta = villagerHead.getItemMeta();
         villagerHeadMeta.setDisplayName(ChatColor.GREEN + "previous");
@@ -414,7 +414,7 @@ public class Shop {
         return villagerHead;
     }
 
-    private static ItemStack createGlassBlock() {
+    public static ItemStack createGlassBlock() {
         ItemStack glassBlock = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glassBlock.getItemMeta();
         glassMeta.setDisplayName(" ");
