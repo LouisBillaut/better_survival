@@ -22,6 +22,12 @@ public class PlotCommand implements CommandExecutor {
     }
 
     private void createPlot(Player player, String name) {
+        fr.louisbillaut.bettersurvival.game.Player playerIG = game.getPlayer(player);
+        if (playerIG == null) return;
+        if(playerIG.hasPlotWithName(name)) {
+            player.sendMessage(ChatColor.RED + "you already have a plot named " + name);
+            return;
+        }
         player.setMetadata("plotName", new FixedMetadataValue(instance, name));
         Plot.showPlotHeightOptions(player);
     }

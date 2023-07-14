@@ -106,6 +106,22 @@ public class Player {
         }
     }
 
+    public boolean hasPlotWithName(String name) {
+        for(Plot p: plots) {
+            if(p.getName().equals(name)) return true;
+        }
+
+        return false;
+    }
+
+    public boolean hasShopWithName(String name) {
+        for(Shop s: shops) {
+            if(s.getName().equals(name)) return true;
+        }
+
+        return false;
+    }
+
     public List<ItemStack> getClaims() {
         return claims;
     }
