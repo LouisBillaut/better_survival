@@ -717,12 +717,14 @@ public class PlayerListener implements Listener {
                         if(!clickedInventory.getItem(15).getItemMeta().getDisplayName().equals("Item to exchange 2")) {
                             itemsToExchange.add(clickedInventory.getItem(15));
                         }
-                        shop.addTrade(new Trade(clickedInventory.getItem(emptyTradeSlot), itemsToExchange, shop.getActualNumberOfTrade()));
+                        Trade trade = new Trade(clickedInventory.getItem(emptyTradeSlot), itemsToExchange, shop.getActualNumberOfTrade());
+                        shop.addTrade(trade);
                         shop.createShopInventory();
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
                         player.sendMessage(ChatColor.GREEN + "Trade added successfully !");
                         player.setMetadata("tradeSuccessful", new FixedMetadataValue(instance, true));
                         player.closeInventory();
+                        instance.sendWebhookMessage(player.getDisplayName(), shop, trade);
                     }
                     if(clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "+")) {
                         Inventory clickedInventory = event.getClickedInventory();

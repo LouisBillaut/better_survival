@@ -2,10 +2,14 @@ package fr.louisbillaut.bettersurvival;
 
 import fr.louisbillaut.bettersurvival.commands.*;
 import fr.louisbillaut.bettersurvival.game.Game;
+import fr.louisbillaut.bettersurvival.game.Shop;
+import fr.louisbillaut.bettersurvival.game.Trade;
 import fr.louisbillaut.bettersurvival.listeners.EntityListener;
 import fr.louisbillaut.bettersurvival.listeners.PlayerListener;
 import fr.louisbillaut.bettersurvival.runnables.ClaimRunnable;
 import fr.louisbillaut.bettersurvival.runnables.DailyRewardsRunnable;
+import fr.louisbillaut.bettersurvival.utils.ConfigManager;
+import fr.louisbillaut.bettersurvival.utils.DiscordWebhook;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -20,8 +24,10 @@ import java.util.ResourceBundle;
 public class Main extends JavaPlugin {
     private Game game;
     private File dataFile;
+    private File settingsFile;
     private FileConfiguration dataConfig;
-    private static ResourceBundle messagesBundle;
+    private FileConfiguration settings;
+    private DiscordWebhook webhook;
 
     private void initializeListeners() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this, game), this);
@@ -45,13 +51,25 @@ public class Main extends JavaPlugin {
         return template;
     }
 
+    public void sendWebhookMessage(String playerName, Shop shop, Trade trade) {
+        try {
+            webhook.send(playerName, shop, trade);
+        } catch (IOException e) {
+            Bukkit.getLogger().info("error send webhook: " + e);
+        }
+    }
+
     @Override
     public void onEnable() {
         Bukkit.getLogger().info("Loading game ...");
         game = new Game();
 
+        settingsFile = new File(getDataFolder(), "settings.yml");
         dataFile = new File(getDataFolder(), "game_better_survival_data.yml");
         dataConfig = YamlConfiguration.loadConfiguration(dataFile);
+        settings = YamlConfiguration.loadConfiguration(settingsFile);
+        String webhookUrl = settings.getString("webhookUrl");
+        webhook = new DiscordWebhook(webhookUrl);
         game.loadFromConfig(dataConfig);
 
         PlotCommand plotCommand = new PlotCommand(this, game);
@@ -75,10 +93,17 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         Bukkit.getLogger().info("Saving game ...");
         game.saveToConfig(dataConfig);
+        if (webhook.getUrl() == null) {
+            settings.set("webhookUrl", " ");
+        } else {
+            settings.set("webhookUrl", webhook.getUrl());
+        }
+
         try {
+            settings.save(settingsFile);
             dataConfig.save(dataFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            Bukkit.getLogger().severe("Failed to save settings.yml & game_better_survival_data.yml:" + e.getMessage());
         }
         Bukkit.getLogger().info("Game saved !");
     }
