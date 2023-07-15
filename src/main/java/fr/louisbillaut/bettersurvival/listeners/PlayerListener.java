@@ -69,8 +69,7 @@ public class PlayerListener implements Listener {
                         armorStand.getLocation().getBlockZ());
                 if (player.hasMetadata("createPos1")) {
                     player.removeMetadata("createPos1", instance);
-                    if(game.isLocationInPlot(armorStand.getLocation())) {
-                        player.sendMessage(ChatColor.RED + "You can't select in an existing plot");
+                    if(game.isLocationInPlotWithRadius(player, armorStand.getLocation())) {
                         removeAllArmorStandsAndTasks(player);
                         return;
                     }
@@ -81,8 +80,7 @@ public class PlayerListener implements Listener {
                 if (player.hasMetadata("createPos2")) {
                     player.removeMetadata("createPos2", instance);
                     player.removeMetadata("createPos1", instance);
-                    if(game.isLocationInPlot(armorStand.getLocation())) {
-                        player.sendMessage(ChatColor.RED + "You can't select in an existing plot");
+                    if(game.isLocationInPlotWithRadius(player, armorStand.getLocation())) {
                         removeAllArmorStandsAndTasks(player);
                         return;
                     }

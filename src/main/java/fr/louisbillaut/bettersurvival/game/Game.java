@@ -21,6 +21,7 @@ import java.util.*;
 import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
 
 public class Game implements Serializable {
+    private final int maxRadiusPlot = 5;
     private List<Player> players;
     public Map<UUID, ArrayList<ArmorStand>> armorStands = new HashMap<>();
     public Map<UUID, ArrayList<BukkitRunnable>> armorStandsRotationTasks = new HashMap<>();
@@ -72,6 +73,28 @@ public class Game implements Serializable {
         for(Player p: players) {
             for(Plot plot: p.getPlots()) {
                 if (Detector.isInZone(location, plot.getLocation1(), plot.getLocation2(), plot.getHeight())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isLocationInPlotWithRadius(org.bukkit.entity.Player player, Location location) {
+        for(Player p: players) {
+            if(player.getDisplayName().equals(p.getPlayerName())) {
+                for(Plot plot: p.getPlots()) {
+                    if (Detector.isInZone(location, plot.getLocation1(), plot.getLocation2(), plot.getHeight())) {
+                        player.sendMessage(ChatColor.RED + "You can't select in your plots");
+                        return true;
+                    }
+                }
+                continue;
+            }
+            for(Plot plot: p.getPlots()) {
+                if (Detector.isInZoneWithRadius(location, plot.getLocation1(), plot.getLocation2(), plot.getHeight(), maxRadiusPlot)) {
+                    player.sendMessage(ChatColor.RED + "You are too close from an existing plot (in it or 5 blocks radius)");
                     return true;
                 }
             }
