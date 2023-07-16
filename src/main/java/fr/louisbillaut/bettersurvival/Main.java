@@ -52,7 +52,7 @@ public class Main extends JavaPlugin {
 
         dataFile = new File(getDataFolder(), "game_better_survival_data.yml");
         dataConfig = YamlConfiguration.loadConfiguration(dataFile);
-        game.loadFromConfig(dataConfig);
+        game.loadFromConfig(this, dataConfig);
 
         PlotCommand plotCommand = new PlotCommand(this, game);
         StuckCommand stuckCommand = new StuckCommand(game);
@@ -75,6 +75,7 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         Bukkit.getLogger().info("Saving game ...");
         game.saveToConfig(dataConfig);
+        game.cancelAllVillagersTasks();
         try {
             dataConfig.save(dataFile);
         } catch (IOException e) {

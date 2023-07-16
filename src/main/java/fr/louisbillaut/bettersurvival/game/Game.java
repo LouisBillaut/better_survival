@@ -169,14 +169,14 @@ public class Game implements Serializable {
         return gold;
     }
 
-    public void loadFromConfig(ConfigurationSection config) {
+    public void loadFromConfig(Main instance, ConfigurationSection config) {
         if (config.contains("players")) {
             ConfigurationSection playersSection = config.getConfigurationSection("players");
             for (String playerKey : Objects.requireNonNull(playersSection).getKeys(false)) {
                 ConfigurationSection playerConfig = playersSection.getConfigurationSection(playerKey);
 
                 Player player = new Player(Objects.requireNonNull(playerConfig).getString("name"));
-                player.loadFromConfig(playersSection);
+                player.loadFromConfig(instance, playersSection);
                 players.add(player);
             }
         }
@@ -189,5 +189,9 @@ public class Game implements Serializable {
             ConfigurationSection playerConfig = playersSection.createSection(String.valueOf(i));
             player.saveToConfig(playerConfig);
         }
+    }
+
+    public void cancelAllVillagersTasks() {
+        players.forEach(p -> p.getShops().forEach(Shop::cancelVillagerTask));
     }
 }
