@@ -110,7 +110,6 @@ public class Shop {
         villager.setInvulnerable(true);
         villager.setGravity(false);
         villager.setSilent(true);
-        villager.setPersistent(true);
 
         List<MerchantRecipe> recipes = getMerchantRecipesFromTrades();
 
@@ -372,7 +371,6 @@ public class Shop {
             villager.setInvulnerable(true);
             villager.setGravity(false);
             villager.setSilent(true);
-            villager.setPersistent(true);
             villagerTaskID = getVillagerTask(instance);
         }
     }
@@ -385,6 +383,12 @@ public class Shop {
             ConfigurationSection tradeConfig = tradeSection.createSection(String.valueOf(i));
             Trade trade = tradeList.get(i);
             trade.saveToConfig(tradeConfig);
+        }
+    }
+
+    public void removeVillager() {
+        if (villager != null) {
+            villager.remove();
         }
     }
 

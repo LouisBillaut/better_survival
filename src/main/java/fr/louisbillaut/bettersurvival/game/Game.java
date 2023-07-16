@@ -8,6 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Villager;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -193,5 +195,19 @@ public class Game implements Serializable {
 
     public void cancelAllVillagersTasks() {
         players.forEach(p -> p.getShops().forEach(Shop::cancelVillagerTask));
+    }
+    public void deleteAllVillagers(){
+        players.forEach(p -> p.getShops().forEach(Shop::removeVillager));
+
+        Bukkit.getWorlds().forEach(world -> {
+            for (Entity entity : world.getEntities()){
+                if (entity instanceof Villager){
+                    Villager villager = (Villager) entity;
+                    if (villager.isCustomNameVisible() && villager.getCustomName() != null){
+                        villager.remove();
+                    }
+                }
+            }
+        });
     }
 }

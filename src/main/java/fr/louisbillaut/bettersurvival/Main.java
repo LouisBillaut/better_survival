@@ -94,6 +94,7 @@ public class Main extends JavaPlugin {
         Bukkit.getLogger().info("Saving game ...");
         game.saveToConfig(dataConfig);
         game.cancelAllVillagersTasks();
+        game.deleteAllVillagers();
         if (webhook != null && webhook.getUrl() == null) {
             settings.set("webhookUrl", " ");
         } else {
