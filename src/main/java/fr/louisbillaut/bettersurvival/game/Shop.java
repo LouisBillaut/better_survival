@@ -85,6 +85,19 @@ public class Shop {
         return recipes;
     }
 
+    private int getVillagerTask(Main instance) {
+        return Bukkit.getScheduler().runTaskTimer(instance, () -> {
+            List<Player> nearbyPlayers = location.getWorld().getPlayers().stream()
+                    .filter(player -> player.getLocation().distance(location) <= 10)
+                    .toList();
+            if (!nearbyPlayers.isEmpty()) {
+                Player closestPlayer = nearbyPlayers.get(0);
+
+                villager.teleport(villager.getLocation().setDirection(closestPlayer.getLocation().subtract(villager.getLocation()).toVector()));
+            }
+        }, 20, 20).getTaskId();
+    }
+
     public void createCustomVillager(Main instance, Location location) {
         if(villager != null) {
             cancelVillagerTask();
@@ -97,6 +110,7 @@ public class Shop {
         villager.setInvulnerable(true);
         villager.setGravity(false);
         villager.setSilent(true);
+        villager.setPersistent(true);
 
         List<MerchantRecipe> recipes = getMerchantRecipesFromTrades();
 
@@ -104,17 +118,7 @@ public class Shop {
         this.location = location;
         this.villager = villager;
 
-        villagerTaskID = Bukkit.getScheduler().runTaskTimer(instance, () -> {
-            List<Player> nearbyPlayers = location.getWorld().getPlayers().stream()
-                    .filter(player -> player.getLocation().distance(location) <= 10)
-                    .toList();
-
-            if (!nearbyPlayers.isEmpty()) {
-                Player closestPlayer = nearbyPlayers.get(0);
-
-                villager.teleport(villager.getLocation().setDirection(closestPlayer.getLocation().subtract(villager.getLocation()).toVector()));
-            }
-        }, 20, 20).getTaskId();
+        villagerTaskID = getVillagerTask(instance);
     }
 
     public void removeItem(Player player, int slot) {
@@ -368,6 +372,8 @@ public class Shop {
             villager.setInvulnerable(true);
             villager.setGravity(false);
             villager.setSilent(true);
+            villager.setPersistent(true);
+            villagerTaskID = getVillagerTask(instance);
         }
     }
 
