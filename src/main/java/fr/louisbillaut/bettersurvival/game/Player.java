@@ -264,7 +264,7 @@ public class Player {
         return null;
     }
 
-    public void loadFromConfig(ConfigurationSection config) {
+    public void loadFromConfig(Main instance, ConfigurationSection config) {
         ConfigurationSection c = getPlayerConfigByName(this.playerName, config);
         if (c == null) {
             return;
@@ -290,7 +290,7 @@ public class Player {
             ConfigurationSection shopsSection = c.getConfigurationSection("shops");
             for (String shopKey : shopsSection.getKeys(false)) {
                 Shop shop = new Shop();
-                shop.loadFromConfig(Objects.requireNonNull(shopsSection.getConfigurationSection(shopKey)));
+                shop.loadFromConfig(instance, Objects.requireNonNull(shopsSection.getConfigurationSection(shopKey)));
                 shops.add(shop);
             }
         }

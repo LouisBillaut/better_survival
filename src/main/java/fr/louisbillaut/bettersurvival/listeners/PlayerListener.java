@@ -139,7 +139,7 @@ public class PlayerListener implements Listener {
                     if(shop == null) return;
                     Location loc = armorStand.getLocation();
                     loc.setY(Math.floor(armorStand.getLocation().getY() + 1));
-                    shop.createCustomVillager(loc);
+                    shop.createCustomVillager(instance, loc);
                     removeAllArmorStandsAndTasks(player);
                 }
                 if(player.hasMetadata("claimShop")) {

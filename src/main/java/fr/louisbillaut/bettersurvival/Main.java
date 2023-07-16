@@ -70,7 +70,7 @@ public class Main extends JavaPlugin {
         settings = YamlConfiguration.loadConfiguration(settingsFile);
         String webhookUrl = settings.getString("webhookUrl");
         webhook = new DiscordWebhook(webhookUrl);
-        game.loadFromConfig(dataConfig);
+        game.loadFromConfig(this, dataConfig);
 
         PlotCommand plotCommand = new PlotCommand(this, game);
         StuckCommand stuckCommand = new StuckCommand(game);
@@ -93,6 +93,7 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         Bukkit.getLogger().info("Saving game ...");
         game.saveToConfig(dataConfig);
+        game.cancelAllVillagersTasks();
         if (webhook != null && webhook.getUrl() == null) {
             settings.set("webhookUrl", " ");
         } else {

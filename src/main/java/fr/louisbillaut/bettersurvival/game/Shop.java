@@ -29,6 +29,8 @@ public class Shop {
     private Villager villager;
     private static int MaxTradeLimit = 8;
 
+    private int villagerTaskID;
+
     public Shop(String name) {
         this.name = name;
         createShopInventory();
@@ -66,6 +68,10 @@ public class Shop {
         actualInventory = inventory;
     }
 
+    public void cancelVillagerTask() {
+        Bukkit.getScheduler().cancelTask(villagerTaskID);
+    }
+
     private List<MerchantRecipe> getMerchantRecipesFromTrades() {
         List<MerchantRecipe> recipes = new ArrayList<>();
         for (Trade trade : tradeList) {
@@ -79,8 +85,9 @@ public class Shop {
         return recipes;
     }
 
-    public void createCustomVillager(Location location) {
+    public void createCustomVillager(Main instance, Location location) {
         if(villager != null) {
+            cancelVillagerTask();
             villager.remove();
         }
         Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
@@ -96,6 +103,18 @@ public class Shop {
         villager.setRecipes(recipes);
         this.location = location;
         this.villager = villager;
+
+        villagerTaskID = Bukkit.getScheduler().runTaskTimer(instance, () -> {
+            List<Player> nearbyPlayers = location.getWorld().getPlayers().stream()
+                    .filter(player -> player.getLocation().distance(location) <= 10)
+                    .toList();
+
+            if (!nearbyPlayers.isEmpty()) {
+                Player closestPlayer = nearbyPlayers.get(0);
+
+                villager.teleport(villager.getLocation().setDirection(closestPlayer.getLocation().subtract(villager.getLocation()).toVector()));
+            }
+        }, 20, 20).getTaskId();
     }
 
     public void removeItem(Player player, int slot) {
@@ -320,7 +339,7 @@ public class Shop {
         return itemStack;
     }
 
-    public void loadFromConfig(ConfigurationSection config) {
+    public void loadFromConfig(Main instance, ConfigurationSection config) {
         if (config.contains("name")) {
             name = config.getString("name");
         }
@@ -342,7 +361,7 @@ public class Shop {
         if (location != null) {
             villager = getVillagerAtLocation(location, name);
             if(villager == null) {
-                createCustomVillager(location);
+                createCustomVillager(instance, location);
                 return;
             }
             villager.setAI(false);
