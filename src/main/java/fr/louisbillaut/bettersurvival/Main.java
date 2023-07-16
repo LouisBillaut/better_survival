@@ -93,7 +93,7 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         Bukkit.getLogger().info("Saving game ...");
         game.saveToConfig(dataConfig);
-        if (webhook.getUrl() == null) {
+        if (webhook != null && webhook.getUrl() == null) {
             settings.set("webhookUrl", " ");
         } else {
             settings.set("webhookUrl", webhook.getUrl());
