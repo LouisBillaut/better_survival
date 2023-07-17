@@ -102,7 +102,9 @@ public class Player {
         }
 
         player.sendMessage(message);
-        Firework firework = (Firework) player.getLocation().getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
+        Location fireworkLocation = player.getLocation().clone();
+        fireworkLocation.setY(fireworkLocation.getY() + 5);
+        Firework firework = (Firework) player.getLocation().getWorld().spawnEntity(fireworkLocation, EntityType.FIREWORK);
         FireworkMeta fireworkMeta = firework.getFireworkMeta();
 
         FireworkEffect effect = FireworkEffect.builder()

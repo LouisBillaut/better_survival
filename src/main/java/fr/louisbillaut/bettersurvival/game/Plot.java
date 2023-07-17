@@ -113,7 +113,9 @@ public class Plot {
 
     private void successfulCreation(Player player) {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-        Firework firework = (Firework) player.getLocation().getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
+        Location fireworkLocation = player.getLocation().clone();
+        fireworkLocation.setY(fireworkLocation.getY() + 5);
+        Firework firework = (Firework) player.getLocation().getWorld().spawnEntity(fireworkLocation, EntityType.FIREWORK);
         FireworkMeta fireworkMeta = firework.getFireworkMeta();
 
         FireworkEffect effect = FireworkEffect.builder()
