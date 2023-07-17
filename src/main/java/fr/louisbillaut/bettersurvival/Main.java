@@ -8,11 +8,12 @@ import fr.louisbillaut.bettersurvival.listeners.EntityListener;
 import fr.louisbillaut.bettersurvival.listeners.PlayerListener;
 import fr.louisbillaut.bettersurvival.runnables.ClaimRunnable;
 import fr.louisbillaut.bettersurvival.runnables.DailyRewardsRunnable;
-import fr.louisbillaut.bettersurvival.utils.ConfigManager;
 import fr.louisbillaut.bettersurvival.utils.DiscordWebhook;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Villager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -59,9 +60,23 @@ public class Main extends JavaPlugin {
         }
     }
 
+    private void deleteVillagerPersistants() {
+        Bukkit.getWorlds().forEach(world -> {
+            for (Entity entity : world.getEntities()){
+                if (entity instanceof Villager){
+                    Villager villager = (Villager) entity;
+                    if (villager.isInvulnerable()){
+                        villager.remove();
+                    }
+                }
+            }
+        });
+    }
+
     @Override
     public void onEnable() {
         Bukkit.getLogger().info("Loading game ...");
+        deleteVillagerPersistants();
         game = new Game();
 
         settingsFile = new File(getDataFolder(), "settings.yml");
