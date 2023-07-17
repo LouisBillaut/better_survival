@@ -6,6 +6,8 @@ main: fr.louisbillaut.bettersurvival.Main
 api-version: 1.19
 
 commands:
+  bshelp:
+    description: show help of bs plugin
   plot:
     description: Create or list plots
     usage: /plot <new|list> [name]

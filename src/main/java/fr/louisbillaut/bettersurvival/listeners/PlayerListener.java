@@ -6,6 +6,7 @@ import fr.louisbillaut.bettersurvival.game.Player;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import fr.louisbillaut.bettersurvival.utils.Selector;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -556,6 +557,15 @@ public class PlayerListener implements Listener {
         removeAllArmorStandsAndTasks(player);
     }
 
+    public void sendClickableMessage(org.bukkit.entity.Player player) {
+        TextComponent messageComponent = new TextComponent(ChatColor.GREEN + "Don't forget to check commands: ");
+        TextComponent linkComponent = new TextComponent(ChatColor.GOLD + "[Click Here]");
+        linkComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bshelp"));
+        messageComponent.addExtra(linkComponent);
+        player.spigot().sendMessage(messageComponent);
+        player.sendMessage(ChatColor.GREEN + "Check our tutos on our discord !");
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = game.getPlayer(event.getPlayer());
@@ -568,12 +578,14 @@ public class PlayerListener implements Listener {
             if (player != null) {
                 player.login();
             }
+            event.getPlayer().sendMessage(ChatColor.GREEN + "For your first connection we offer you: " + ChatColor.GOLD + "30000 bsBucks !");
         } else {
             Bukkit.getLogger().info("player found.");
             player.setBukkitPlayer(event.getPlayer());
             displayTitle(event.getPlayer(), true);
             player.login();
         }
+        sendClickableMessage(event.getPlayer());
     }
 
     private void plotSettingClickEvent(InventoryClickEvent event) {

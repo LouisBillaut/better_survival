@@ -76,7 +76,9 @@ public class Main extends JavaPlugin {
         StuckCommand stuckCommand = new StuckCommand(game);
         ShopCommand shopCommand = new ShopCommand(this, game);
         BucksCommand buckCommand = new BucksCommand(this, game);
+        fr.louisbillaut.bettersurvival.commands.HelpCommand helpCommand = new HelpCommand();
         Tab completer = new Tab(game);
+        Objects.requireNonNull(getCommand("bshelp")).setExecutor(helpCommand);
         Objects.requireNonNull(getCommand("plot")).setExecutor(plotCommand);
         Objects.requireNonNull(getCommand("plot")).setTabCompleter(completer);
         Objects.requireNonNull(getCommand("stuck")).setExecutor(stuckCommand);
