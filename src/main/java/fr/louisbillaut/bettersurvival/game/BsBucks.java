@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BsBucks {
-    public static double blockPrice = 6;
+    public static double blockPrice = 0.20;
     public class BSItem {
         private int price;
         private ItemStack item;

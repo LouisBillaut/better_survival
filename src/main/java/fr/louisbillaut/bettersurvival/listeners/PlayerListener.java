@@ -102,7 +102,7 @@ public class PlayerListener implements Listener {
                                             Location pos1 = as.get(as.size() -2).getLocation();
                                             Location pos2 = as.get(as.size() -1).getLocation();
                                             Player playerIG = game.getPlayer(player);
-                                            double price = Math.floor(computeNumberOfBlocks(pos1, pos2, md.asInt()) * BsBucks.blockPrice);
+                                            double price = Math.floor(computeNumberOfBlocks(pos1, pos2, md.asInt()))* BsBucks.blockPrice;
                                             if(playerIG.getBsBucks() < price) {
                                                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                                                 player.sendMessage(ChatColor.RED + "You don't have enough bsBucks");
@@ -487,7 +487,7 @@ public class PlayerListener implements Listener {
             for (MetadataValue md : player.getMetadata("plotHeight")) {
                 if (md.asInt() != 0) {
                     int numberOfBlocks = computeNumberOfBlocks(pos1, pos2, md.asInt());
-                    if(playerIG.getBsBucks() < Math.floor(numberOfBlocks * BsBucks.blockPrice)) {
+                    if(playerIG.getBsBucks() < Math.floor(numberOfBlocks)* BsBucks.blockPrice) {
                         color = ChatColor.RED;
                     }
                     sendActionBar(player, ChatColor.GREEN + "Price: " + color + Math.floor(numberOfBlocks * BsBucks.blockPrice) + " bsBucks");
@@ -497,26 +497,18 @@ public class PlayerListener implements Listener {
     }
 
     private int computeNumberOfBlocks(Location coin1, Location coin2, int height) {
-        int minX = Math.min(coin1.getBlockX(), coin2.getBlockX());
-        int minY = Math.min(coin1.getBlockY(), coin2.getBlockY());
-        int minZ = Math.min(coin1.getBlockZ(), coin2.getBlockZ());
+        int minX = Math.min(Math.abs(coin1.getBlockX()), Math.abs(coin2.getBlockX()));
+        int minZ = Math.min(Math.abs(coin1.getBlockZ()), Math.abs(coin2.getBlockZ()));
 
-        int maxX = Math.max(coin1.getBlockX(), coin2.getBlockX());
-        int maxY = Math.max(coin1.getBlockY(), coin2.getBlockY());
-        int maxZ = Math.max(coin1.getBlockZ(), coin2.getBlockZ());
+        int maxX = Math.max(Math.abs(coin1.getBlockX()), Math.abs(coin2.getBlockX()));
+        int maxZ = Math.max(Math.abs(coin1.getBlockZ()), Math.abs(coin2.getBlockZ()));
 
-        int numBlocks = 0;
-        for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
-                for (int z = minZ; z <= maxZ; z++) {
-                    if (y >= minY && y <= minY + height - 1) {
-                        numBlocks++;
-                    }
-                }
-            }
+        int h = height;
+        if (h == -1) {
+            h = 300;
         }
 
-        return numBlocks;
+        return (maxX - minX + 1) * (maxZ - minZ + 1) * h;
     }
 
     @EventHandler
