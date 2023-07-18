@@ -370,7 +370,7 @@ public class PlayerListener implements Listener {
                     playerLocation = vehicle.getLocation();
                 }
                 Vector direction = playerLocation.getDirection().multiply(-0.5);
-                if(Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                if(Detector.isInZone(event.getTo(), p.getLocation1(), p.getLocation2(), p.getHeight())
                         && p.getPlayerEnter().equals(Plot.PlotSetting.DEACTIVATED)) {
                     if(vehicle != null) {
                         if (vehicle.getType().equals(EntityType.MINECART)) {
@@ -378,13 +378,13 @@ public class PlayerListener implements Listener {
                         }
                         vehicle.setVelocity(direction);
                     } else {
-                        event.getPlayer().setVelocity(direction);
+                        event.getPlayer().teleport(event.getFrom());
                     }
                     event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                     event.getPlayer().sendMessage(ChatColor.RED + getRandomMessage());
                     return;
                 }
-                if(Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                if(Detector.isInZone(event.getTo(), p.getLocation1(), p.getLocation2(), p.getHeight())
                         && p.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)
                         && !Detector.isInWhiteList(event.getPlayer(), p.getPlayerEnterWhitelist())) {
                     if(vehicle != null) {
@@ -393,20 +393,20 @@ public class PlayerListener implements Listener {
                         }
                         vehicle.setVelocity(direction);
                     } else {
-                        event.getPlayer().setVelocity(direction);
+                        event.getPlayer().teleport(event.getFrom());
                     }
                     event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                     event.getPlayer().sendMessage(ChatColor.RED + getRandomMessage());
                     return;
                 }
-                if (Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                if (Detector.isInZone(event.getTo(), p.getLocation1(), p.getLocation2(), p.getHeight())
                         && !event.getPlayer().hasMetadata(p.getName())
                         && p.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)
                         && Detector.isInWhiteList(event.getPlayer(), p.getPlayerEnterWhitelist())) {
                     event.getPlayer().setMetadata(p.getName(), new FixedMetadataValue(instance, true));
                     sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
                 }
-                if (!Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight())
+                if (!Detector.isInZone(event.getTo(), p.getLocation1(), p.getLocation2(), p.getHeight())
                         && event.getPlayer().hasMetadata(p.getName())
                         && p.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)
                         && Detector.isInWhiteList(event.getPlayer(), p.getPlayerEnterWhitelist())){
