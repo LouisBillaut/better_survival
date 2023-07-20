@@ -525,12 +525,13 @@ public class PlayerListener implements Listener {
     }
 
     private boolean hasPlayerMoved(Location from, Location to) {
-        return from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ();
+        if (to == null) return false;
+        return Math.floor(from.getX()) != Math.floor(to.getX()) || Math.floor(from.getY()) != Math.floor(to.getY()) || Math.floor(from.getZ()) != Math.floor(to.getZ());
     }
 
     private void checkSpawnTeleportCancel(PlayerMoveEvent event) {
         if (event.getPlayer().hasMetadata("teleportingSpawn")) {
-            if (hasPlayerMoved(event.getFrom(), Objects.requireNonNull(event.getTo()))) {
+            if (hasPlayerMoved(event.getFrom(), event.getTo())) {
                 Player playerIG = game.getPlayer(event.getPlayer());
                 if(playerIG == null) return;
                 playerIG.getTeleportRunnable().cancel();
