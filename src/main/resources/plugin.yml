@@ -6,6 +6,8 @@ main: fr.louisbillaut.bettersurvival.Main
 api-version: 1.19
 
 commands:
+  spawn:
+    description: teleport to spawn
   bshelp:
     description: show help of bs plugin
   plot:
