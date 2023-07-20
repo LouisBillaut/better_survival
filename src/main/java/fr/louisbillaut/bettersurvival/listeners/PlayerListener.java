@@ -16,6 +16,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
@@ -30,10 +32,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class PlayerListener implements Listener {
     private Game game;
@@ -511,8 +510,7 @@ public class PlayerListener implements Listener {
         return (maxX - minX + 1) * (maxZ - minZ + 1) * h;
     }
 
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
+    private void updateArmorStandPos(PlayerMoveEvent event) {
         org.bukkit.entity.Player player = event.getPlayer();
         var armorStands = game.armorStands;
         if (armorStands.containsKey(player.getUniqueId())) {
@@ -524,8 +522,61 @@ public class PlayerListener implements Listener {
                 showNumberOfBlock(player);
             }
         }
+    }
 
+    private boolean hasPlayerMoved(Location from, Location to) {
+        return from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ();
+    }
+
+    private void checkSpawnTeleportCancel(PlayerMoveEvent event) {
+        if (event.getPlayer().hasMetadata("teleportingSpawn")) {
+            if (hasPlayerMoved(event.getFrom(), Objects.requireNonNull(event.getTo()))) {
+                Player playerIG = game.getPlayer(event.getPlayer());
+                if(playerIG == null) return;
+                playerIG.getTeleportRunnable().cancel();
+                event.getPlayer().removeMetadata("teleportingSpawn", instance);
+                event.getPlayer().sendMessage(ChatColor.RED + "Teleportation to spawn canceled.");
+            }
+        }
+    }
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        updateArmorStandPos(event);
         enterWhitelistDetector(event);
+        checkSpawnTeleportCancel(event);
+    }
+
+    private void checkCancelSpawnTeleport(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player) {
+            org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getEntity();
+            if (player.hasMetadata("teleportingSpawn")) {
+                Player playerIG = game.getPlayer(player);
+                if(playerIG == null) return;
+                playerIG.getTeleportRunnable().cancel();
+                player.removeMetadata("teleportingSpawn", instance);
+                player.sendMessage(ChatColor.RED + "Teleportation to spawn canceled.");
+            }
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent event) {
+       checkCancelSpawnTeleport(event);
+    }
+
+    private void checkCancelSpawnTeleportDead(PlayerDeathEvent event) {
+        org.bukkit.entity.Player player = event.getEntity();
+        if (player.hasMetadata("teleportingSpawn")) {
+            Player playerIG = game.getPlayer(player);
+            if(playerIG == null) return;
+            playerIG.getTeleportRunnable().cancel();
+            player.removeMetadata("teleportingSpawn", instance);
+        }
+    }
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Bukkit.getLogger().info("player death event");
+        checkCancelSpawnTeleportDead(event);
     }
 
     private void removeAllArmorStandsAndTasks(org.bukkit.entity.Player player) {

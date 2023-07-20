@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -34,6 +35,8 @@ public class Player {
     private int consecutiveLoginDays = 0;
 
     private static final Map<Integer, Integer> REWARD_MAPPING = new HashMap<>();
+
+    private BukkitTask teleportRunnable;
 
     static {
         REWARD_MAPPING.put(2, 100);
@@ -134,6 +137,14 @@ public class Player {
         }
 
         return null;
+    }
+
+    public void setTeleportRunnable(BukkitTask teleportRunnable) {
+        this.teleportRunnable = teleportRunnable;
+    }
+
+    public BukkitTask getTeleportRunnable() {
+        return teleportRunnable;
     }
 
     public void addBsBucks(int bucks) {
