@@ -101,7 +101,9 @@ public class PlayerListener implements Listener {
                                             Location pos1 = as.get(as.size() -2).getLocation();
                                             Location pos2 = as.get(as.size() -1).getLocation();
                                             Player playerIG = game.getPlayer(player);
-                                            double price = Math.floor(computeNumberOfBlocks(pos1, pos2, md.asInt()))* BsBucks.blockPrice;
+                                            if(playerIG == null) return;
+                                            var numberOfBlocks = computeNumberOfBlocks(pos1, pos2, md.asInt());
+                                            double price = computePrice(numberOfBlocks, playerIG);
                                             if(playerIG.getBsBucks() < price) {
                                                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                                                 player.sendMessage(ChatColor.RED + "You don't have enough bsBucks");
@@ -471,6 +473,21 @@ public class PlayerListener implements Listener {
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
     }
 
+    private double computePrice(int numberOfBlocks, Player player) {
+        int nbOfBlocInPlots = 0;
+        for (Plot p : player.getPlots()) {
+            nbOfBlocInPlots += computeNumberOfBlocks(p.getLocation1(), p.getLocation2(), p.getHeight());
+        }
+
+        int nbOfPlotOfPlateau = (int) Math.floor(nbOfBlocInPlots / BsBucks.PlotNbOfBlocToIncreasePrice);
+        double increasedPricePercent = BsBucks.blockPrice;
+        for (var i = 0; i < nbOfPlotOfPlateau; i++) {
+            increasedPricePercent += increasedPricePercent * BsBucks.PercentageAugmentation;
+        }
+
+        return Math.floor(numberOfBlocks * increasedPricePercent);
+    }
+
     private void showNumberOfBlock(org.bukkit.entity.Player player) {
         var armorStands = game.armorStands;
         var as = armorStands.get(player.getUniqueId());
@@ -486,10 +503,10 @@ public class PlayerListener implements Listener {
             for (MetadataValue md : player.getMetadata("plotHeight")) {
                 if (md.asInt() != 0) {
                     int numberOfBlocks = computeNumberOfBlocks(pos1, pos2, md.asInt());
-                    if(playerIG.getBsBucks() < Math.floor(numberOfBlocks)* BsBucks.blockPrice) {
+                    if(playerIG.getBsBucks() < computePrice(numberOfBlocks, playerIG)) {
                         color = ChatColor.RED;
                     }
-                    sendActionBar(player, ChatColor.GREEN + "Price: " + color + Math.floor(numberOfBlocks * BsBucks.blockPrice) + " bsBucks");
+                    sendActionBar(player, ChatColor.GREEN + "Price: " + color + computePrice(numberOfBlocks, playerIG) + " bsBucks");
                 }
             }
         }

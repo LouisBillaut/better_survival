@@ -15,6 +15,8 @@ import java.util.List;
 
 public class BsBucks {
     public static double blockPrice = 0.20;
+    public static double PlotNbOfBlocToIncreasePrice = 27000;
+    public static double PercentageAugmentation = 0.15;
     public class BSItem {
         private int price;
         private ItemStack item;
