@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class Detector {
     public static boolean isInZone(Location location, Location location1, Location location2, int height) {
-        if (!location1.getWorld().equals(location2.getWorld())) {
+        if (!location.getWorld().equals(location2.getWorld())) {
             return false;
         }
 
@@ -24,7 +24,7 @@ public class Detector {
     }
 
     public static boolean isInZoneWithRadius(Location location, Location location1, Location location2, int height, int radius) {
-        if (!location1.getWorld().equals(location2.getWorld())) {
+        if (!location.getWorld().equals(location2.getWorld())) {
             return false;
         }
 
