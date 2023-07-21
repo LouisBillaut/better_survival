@@ -139,10 +139,18 @@ public class PlayerListener implements Listener {
                     if(playerInGame == null) return;
                     Shop shop = playerInGame.getShop(shopName);
                     if(shop == null) return;
+                    boolean sendWebhooks = false;
+                    if(shop.getVillager() == null) {
+                        sendWebhooks = true;
+                    }
                     Location loc = armorStand.getLocation();
                     loc.setY(Math.floor(armorStand.getLocation().getY() + 1));
                     shop.createCustomVillager(instance, loc);
                     removeAllArmorStandsAndTasks(player);
+                    if(!sendWebhooks) return;
+                    for(Trade t: shop.getTradeList()) {
+                        instance.sendWebhookMessage(player.getDisplayName(), shop, t);
+                    }
                 }
                 if(player.hasMetadata("claimShop")) {
                     removeAllArmorStandsAndTasks(player);
