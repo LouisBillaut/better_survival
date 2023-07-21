@@ -928,7 +928,9 @@ public class PlayerListener implements Listener {
             var stripped = strippedInput.split(" ");
             if(stripped.length >= 2) {
                 player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
-                Trade trade = shop.getTradeList().get(Integer.parseInt(stripped[1]) - 1);
+                var id = Integer.parseInt(stripped[1]) - 1;
+                if (id >= shop.getTradeList().size()) return;
+                Trade trade = shop.getTradeList().get(id);
                 if (trade == null) return;
                 ItemStack itemStack = trade.getItemsToBuy().clone();
                 itemStack.setAmount(itemStack.getAmount() * trade.getMaxTrade());
