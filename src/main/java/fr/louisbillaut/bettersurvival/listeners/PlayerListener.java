@@ -3,6 +3,7 @@ package fr.louisbillaut.bettersurvival.listeners;
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.*;
 import fr.louisbillaut.bettersurvival.game.Player;
+import fr.louisbillaut.bettersurvival.utils.ActionBar;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import fr.louisbillaut.bettersurvival.utils.Selector;
 import net.md_5.bungee.api.ChatMessageType;
@@ -477,10 +478,6 @@ public class PlayerListener implements Listener {
         }
     }
 
-    private void sendActionBar(org.bukkit.entity.Player player, String message) {
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
-    }
-
     private double computePrice(int numberOfBlocks, Player player) {
         int nbOfBlocInPlots = 0;
         for (Plot p : player.getPlots()) {
@@ -514,7 +511,7 @@ public class PlayerListener implements Listener {
                     if(playerIG.getBsBucks() < computePrice(numberOfBlocks, playerIG)) {
                         color = ChatColor.RED;
                     }
-                    sendActionBar(player, ChatColor.GREEN + "Price: " + color + computePrice(numberOfBlocks, playerIG) + " bsBucks");
+                    ActionBar.sendActionBar(player, ChatColor.GREEN + "Price: " + color + computePrice(numberOfBlocks, playerIG) + " bsBucks");
                 }
             }
         }
@@ -991,6 +988,11 @@ public class PlayerListener implements Listener {
             player.setMetadata("tradeListPage", new FixedMetadataValue(instance, page - 1));
             player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
             shop.displayTrades(instance, player);
+        }
+
+        if(event.getSlot() == 0) {
+            playerInGame.addCompassRunnable(Player.getCompassTask(instance, player, shop.getLocation(), shop.getName()));
+            player.closeInventory();
         }
     }
 

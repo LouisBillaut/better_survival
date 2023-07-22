@@ -1,6 +1,7 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.utils.ActionBar;
 import fr.louisbillaut.bettersurvival.utils.Head;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -15,7 +16,9 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -37,6 +40,7 @@ public class Player {
     private static final Map<Integer, Integer> REWARD_MAPPING = new HashMap<>();
 
     private BukkitTask teleportRunnable;
+    private List<BukkitTask> compassRunnables = new ArrayList<>();
 
     static {
         REWARD_MAPPING.put(2, 100);
@@ -169,6 +173,63 @@ public class Player {
 
     public static int getMaxShops() {
         return maxShops;
+    }
+
+    public List<BukkitTask> getCompassRunnables() {
+        return compassRunnables;
+    }
+
+    private static String getArrow(double angle) {
+        String[] arrows = {"↑", "↗", "→", "↘", "↓", "↙", "←", "↖"};
+
+        angle = (angle + 360) % 360;
+
+        int index = (int) Math.round(angle / 45.0) % 8;
+
+        return arrows[index];
+    }
+
+    public static BukkitTask getCompassTask(Main instance, org.bukkit.entity.Player player, Location location, String targetName) {
+        return new BukkitRunnable(){
+
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    this.cancel();
+                    return;
+                }
+
+                Location playerLocation = player.getLocation();
+                int distance = (int) playerLocation.distance(location);
+                Vector playerDirection = player.getEyeLocation().getDirection().normalize();
+
+                Vector targetDirection = location.toVector().subtract(playerLocation.toVector()).normalize();
+
+                double angle = Math.toDegrees(Math.atan2(targetDirection.getZ(), targetDirection.getX()) - Math.atan2(playerDirection.getZ(), playerDirection.getX()));
+
+                angle = (angle + 360) % 360;
+
+                ActionBar.sendActionBar(player, ChatColor.GREEN + targetName + " (" + distance + ") " + ChatColor.BOLD + getArrow(angle));
+            }
+        }.runTaskTimerAsynchronously(instance, 0L, 1);
+    }
+
+    public void addCompassRunnable(BukkitTask task) {
+        if (compassRunnables.size() < 3) {
+            compassRunnables.add(task);
+        } else{
+            for(var i = 2; i >=0; i--) {
+                compassRunnables.set(i + 1, compassRunnables.get(i));
+            }
+            compassRunnables.get(3).cancel();
+            compassRunnables.remove(3);
+            compassRunnables.set(0, task);
+        }
+    }
+
+    public void clearCompassRunnable() {
+        compassRunnables.forEach(BukkitTask::cancel);
+        compassRunnables = new ArrayList<>();
     }
 
     public Shop getShop(String name) {
