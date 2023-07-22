@@ -2,10 +2,7 @@ package fr.louisbillaut.bettersurvival.commands;
 
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.Game;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -77,7 +74,8 @@ public class SpawnCommand implements CommandExecutor {
     private void teleportToSpawn(Player player) {
         player.sendMessage(ChatColor.GREEN + "You have been teleported to spawn!");
         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
-        Location spawnLocation = player.getWorld().getSpawnLocation();
+        World overworld = Bukkit.getWorld("world");
+        Location spawnLocation = overworld.getSpawnLocation();
         player.teleport(spawnLocation);
         player.removeMetadata("teleportingSpawn", instance);
     }
