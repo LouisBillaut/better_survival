@@ -34,6 +34,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PlayerListener implements Listener {
     private Game game;
@@ -907,6 +909,25 @@ public class PlayerListener implements Listener {
             player.setMetadata("allTradeListPage", new FixedMetadataValue(instance, page - 1));
             player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
             playerInGame.displayAllTrades(instance, game);
+        }
+        Bukkit.getLogger().info("slot: " + event.getSlot());
+        // TODO fix clic only on first in the list
+        if(event.getSlot() % 7 == 0) {
+            if(event.getClickedInventory().getItem(event.getSlot()) == null)return;
+            Pattern pattern = Pattern.compile("([^:]*): (.*)");
+
+            Matcher matcher = pattern.matcher(event.getClickedInventory().getItem(event.getSlot()).getItemMeta().getDisplayName());
+            if (!matcher.find() || matcher.groupCount() < 2) return;
+            String playerName = ChatColor.stripColor(matcher.group(1));
+            playerName = playerName.replaceAll("\\s", "");
+            Player playerFromName = game.getPlayerByName(playerName);
+            if (playerFromName == null ) return;
+            String shopName = ChatColor.stripColor(matcher.group(2));
+            shopName = shopName.replaceAll("\\s", "");
+            Shop shop = playerFromName.getShop(shopName);
+            if (shop == null) return;
+            playerInGame.addCompassRunnable(Player.getCompassTask(instance, player, shop.getLocation(), shop.getName()));
+            player.closeInventory();
         }
     }
 
