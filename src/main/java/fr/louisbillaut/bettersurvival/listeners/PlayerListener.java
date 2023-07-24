@@ -661,6 +661,17 @@ public class PlayerListener implements Listener {
             ItemStack clickedItem = event.getCurrentItem();
             if (clickedItem != null) {
                 Player player = game.getPlayer((org.bukkit.entity.Player) event.getWhoClicked());
+                if(event.getSlot() == 0) {
+                    event.setCancelled(true);
+                    var itemName = event.getClickedInventory().getItem(0).getItemMeta().getDisplayName();
+                    var splited = itemName.split(" ");
+                    if (splited.length < 2) return;
+                    Plot plot = player.getPlot(splited[1]);
+                    if (plot == null) return;
+                    player.addTarget(instance, player.getBukkitPlayer(), plot.getLocation1(), plot.getName());
+                    player.getBukkitPlayer().closeInventory();
+                    return;
+                }
                 if(player.getBukkitPlayer().hasMetadata("setting")) {
                     for(MetadataValue mv: player.getBukkitPlayer().getMetadata("setting")) {
                         Plot plot = player.getPlot(mv.asString());
@@ -910,9 +921,11 @@ public class PlayerListener implements Listener {
             player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
             playerInGame.displayAllTrades(instance, game);
         }
-        Bukkit.getLogger().info("slot: " + event.getSlot());
-        // TODO fix clic only on first in the list
-        if(event.getSlot() % 7 == 0) {
+        if(event.getSlot() == 7 ||
+                event.getSlot() == 16 ||
+                event.getSlot() == 25 ||
+                event.getSlot() == 34 ||
+                event.getSlot() == 43) {
             if(event.getClickedInventory().getItem(event.getSlot()) == null)return;
             Pattern pattern = Pattern.compile("([^:]*): (.*)");
 
@@ -926,7 +939,7 @@ public class PlayerListener implements Listener {
             shopName = shopName.replaceAll("\\s", "");
             Shop shop = playerFromName.getShop(shopName);
             if (shop == null) return;
-            playerInGame.addCompassRunnable(Player.getCompassTask(instance, player, shop.getLocation(), shop.getName()));
+            playerInGame.addTarget(instance, player, shop.getLocation(), shop.getName());
             player.closeInventory();
         }
     }
@@ -1012,7 +1025,7 @@ public class PlayerListener implements Listener {
         }
 
         if(event.getSlot() == 0) {
-            playerInGame.addCompassRunnable(Player.getCompassTask(instance, player, shop.getLocation(), shop.getName()));
+            playerInGame.addTarget(instance, player, shop.getLocation(), shop.getName());
             player.closeInventory();
         }
     }

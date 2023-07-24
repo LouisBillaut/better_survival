@@ -6,6 +6,10 @@ main: fr.louisbillaut.bettersurvival.Main
 api-version: 1.19
 
 commands:
+  compass:
+    usage: /compass clear
+    tab-completions:
+      clear: []
   spawn:
     description: teleport to spawn
   bshelp:

@@ -29,6 +29,7 @@ public class Player {
     private List<Plot> plots;
     private List<Shop> shops = new ArrayList<>();
     private List<ItemStack> claims = new ArrayList<>();
+    private Compass compass = new Compass();
     private String playerName;
     private static int maxShops = 5;
 
@@ -40,7 +41,6 @@ public class Player {
     private static final Map<Integer, Integer> REWARD_MAPPING = new HashMap<>();
 
     private BukkitTask teleportRunnable;
-    private List<BukkitTask> compassRunnables = new ArrayList<>();
 
     static {
         REWARD_MAPPING.put(2, 100);
@@ -175,61 +175,11 @@ public class Player {
         return maxShops;
     }
 
-    public List<BukkitTask> getCompassRunnables() {
-        return compassRunnables;
+    public void addTarget(Main instance, org.bukkit.entity.Player player, Location location, String name) {
+        compass.addTarget(instance, player, location, name);
     }
-
-    private static String getArrow(double angle) {
-        String[] arrows = {"↑", "↗", "→", "↘", "↓", "↙", "←", "↖"};
-
-        angle = (angle + 360) % 360;
-
-        int index = (int) Math.round(angle / 45.0) % 8;
-
-        return arrows[index];
-    }
-
-    public static BukkitTask getCompassTask(Main instance, org.bukkit.entity.Player player, Location location, String targetName) {
-        return new BukkitRunnable(){
-
-            @Override
-            public void run() {
-                if (!player.isOnline()) {
-                    this.cancel();
-                    return;
-                }
-
-                Location playerLocation = player.getLocation();
-                int distance = (int) playerLocation.distance(location);
-                Vector playerDirection = player.getEyeLocation().getDirection().normalize();
-
-                Vector targetDirection = location.toVector().subtract(playerLocation.toVector()).normalize();
-
-                double angle = Math.toDegrees(Math.atan2(targetDirection.getZ(), targetDirection.getX()) - Math.atan2(playerDirection.getZ(), playerDirection.getX()));
-
-                angle = (angle + 360) % 360;
-
-                ActionBar.sendActionBar(player, ChatColor.GREEN + targetName + " (" + distance + ") " + ChatColor.BOLD + getArrow(angle));
-            }
-        }.runTaskTimerAsynchronously(instance, 0L, 1);
-    }
-
-    public void addCompassRunnable(BukkitTask task) {
-        if (compassRunnables.size() < 3) {
-            compassRunnables.add(task);
-        } else{
-            for(var i = 2; i >=0; i--) {
-                compassRunnables.set(i + 1, compassRunnables.get(i));
-            }
-            compassRunnables.get(3).cancel();
-            compassRunnables.remove(3);
-            compassRunnables.set(0, task);
-        }
-    }
-
-    public void clearCompassRunnable() {
-        compassRunnables.forEach(BukkitTask::cancel);
-        compassRunnables = new ArrayList<>();
+    public void clearCompass() {
+        compass.clear(bukkitPlayer);
     }
 
     public Shop getShop(String name) {
