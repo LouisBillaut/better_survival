@@ -177,7 +177,6 @@ public class BsBucks {
             new BSItem(new ItemStack(Material.ENDER_CHEST), 900),
             new BSItem(new ItemStack(Material.SPONGE), 230),
             new BSItem(new ItemStack(Material.BEACON), 5500),
-            new BSItem(new ItemStack(Material.EMERALD), 25),
             new BSItem(new ItemStack(Material.GOLDEN_CARROT), 30),
             new BSItem(new ItemStack(Material.NETHERITE_INGOT), 3200),
             new BSItem(new ItemStack(Material.CAKE), 50),
