@@ -17,12 +17,6 @@ public class CompassCommand implements CommandExecutor {
         this.instance = instance;
     }
 
-    private void showBsBuck(Player player) {
-        fr.louisbillaut.bettersurvival.game.Player playerIG = game.getPlayer(player);
-        if(playerIG == null) return;
-        playerIG.showBsBuck();
-    }
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
