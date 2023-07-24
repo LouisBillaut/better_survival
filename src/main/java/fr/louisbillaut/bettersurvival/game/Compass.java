@@ -35,7 +35,7 @@ public class Compass {
             @Override
             public void run() {
                 if (!player.isOnline()) {
-                    this.cancel();
+                    clear(player);
                     return;
                 }
 
