@@ -3,6 +3,7 @@ package fr.louisbillaut.bettersurvival.listeners;
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.*;
 import fr.louisbillaut.bettersurvival.game.Player;
+import fr.louisbillaut.bettersurvival.utils.ActionBar;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import fr.louisbillaut.bettersurvival.utils.Selector;
 import net.md_5.bungee.api.ChatMessageType;
@@ -33,6 +34,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PlayerListener implements Listener {
     private Game game;
@@ -477,10 +480,6 @@ public class PlayerListener implements Listener {
         }
     }
 
-    private void sendActionBar(org.bukkit.entity.Player player, String message) {
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
-    }
-
     private double computePrice(int numberOfBlocks, Player player) {
         int nbOfBlocInPlots = 0;
         for (Plot p : player.getPlots()) {
@@ -514,7 +513,7 @@ public class PlayerListener implements Listener {
                     if(playerIG.getBsBucks() < computePrice(numberOfBlocks, playerIG)) {
                         color = ChatColor.RED;
                     }
-                    sendActionBar(player, ChatColor.GREEN + "Price: " + color + computePrice(numberOfBlocks, playerIG) + " bsBucks");
+                    ActionBar.sendActionBar(player, ChatColor.GREEN + "Price: " + color + computePrice(numberOfBlocks, playerIG) + " bsBucks");
                 }
             }
         }
@@ -662,6 +661,17 @@ public class PlayerListener implements Listener {
             ItemStack clickedItem = event.getCurrentItem();
             if (clickedItem != null) {
                 Player player = game.getPlayer((org.bukkit.entity.Player) event.getWhoClicked());
+                if(event.getSlot() == 0) {
+                    event.setCancelled(true);
+                    var itemName = event.getClickedInventory().getItem(0).getItemMeta().getDisplayName();
+                    var splited = itemName.split(" ");
+                    if (splited.length < 2) return;
+                    Plot plot = player.getPlot(splited[1]);
+                    if (plot == null) return;
+                    player.addTarget(instance, player.getBukkitPlayer(), plot.getLocation1(), plot.getName());
+                    player.getBukkitPlayer().closeInventory();
+                    return;
+                }
                 if(player.getBukkitPlayer().hasMetadata("setting")) {
                     for(MetadataValue mv: player.getBukkitPlayer().getMetadata("setting")) {
                         Plot plot = player.getPlot(mv.asString());
@@ -911,6 +921,27 @@ public class PlayerListener implements Listener {
             player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
             playerInGame.displayAllTrades(instance, game);
         }
+        if(event.getSlot() == 7 ||
+                event.getSlot() == 16 ||
+                event.getSlot() == 25 ||
+                event.getSlot() == 34 ||
+                event.getSlot() == 43) {
+            if(event.getClickedInventory().getItem(event.getSlot()) == null)return;
+            Pattern pattern = Pattern.compile("([^:]*): (.*)");
+
+            Matcher matcher = pattern.matcher(event.getClickedInventory().getItem(event.getSlot()).getItemMeta().getDisplayName());
+            if (!matcher.find() || matcher.groupCount() < 2) return;
+            String playerName = ChatColor.stripColor(matcher.group(1));
+            playerName = playerName.replaceAll("\\s", "");
+            Player playerFromName = game.getPlayerByName(playerName);
+            if (playerFromName == null ) return;
+            String shopName = ChatColor.stripColor(matcher.group(2));
+            shopName = shopName.replaceAll("\\s", "");
+            Shop shop = playerFromName.getShop(shopName);
+            if (shop == null) return;
+            playerInGame.addTarget(instance, player, shop.getLocation(), shop.getName());
+            player.closeInventory();
+        }
     }
 
     private void shopTradesListClickEvent(InventoryClickEvent event) {
@@ -991,6 +1022,11 @@ public class PlayerListener implements Listener {
             player.setMetadata("tradeListPage", new FixedMetadataValue(instance, page - 1));
             player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
             shop.displayTrades(instance, player);
+        }
+
+        if(event.getSlot() == 0) {
+            playerInGame.addTarget(instance, player, shop.getLocation(), shop.getName());
+            player.closeInventory();
         }
     }
 

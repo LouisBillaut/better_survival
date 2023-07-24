@@ -353,13 +353,13 @@ public class Plot {
 
         interactOptionMeta.setLore(interactOptionLore);
         interactOption.setItemMeta(interactOptionMeta);
-        inventory.setItem(0, interactOption);
+        inventory.setItem(4, interactOption);
 
         ItemStack interactStatus = new ItemStack(getPlayerInteract().getItem());
         ItemMeta interactStatusMeta = interactStatus.getItemMeta();
         interactStatusMeta.setDisplayName(getPlayerInteract().getName());
         interactStatus.setItemMeta(interactStatusMeta);
-        inventory.setItem(1, interactStatus);
+        inventory.setItem(5, interactStatus);
     }
 
     private StringBuilder getWhitelistString(ArrayList<String> whitelist) {
@@ -384,13 +384,13 @@ public class Plot {
         buildOptionLore.add(getWhitelistString(playerBuildWhitelist).toString());
         buildOptionMeta.setLore(buildOptionLore);
         buildOption.setItemMeta(buildOptionMeta);
-        inventory.setItem(9, buildOption);
+        inventory.setItem(13, buildOption);
 
         ItemStack buildStatus = new ItemStack(getPlayerBuild().getItem());
         ItemMeta buildStatusMeta = buildStatus.getItemMeta();
         buildStatusMeta.setDisplayName(getPlayerBuild().getName());
         buildStatus.setItemMeta(buildStatusMeta);
-        inventory.setItem(10, buildStatus);
+        inventory.setItem(14, buildStatus);
     }
 
     private void setEnterOption(Inventory inventory) {
@@ -402,18 +402,36 @@ public class Plot {
         enterOptionLore.add(getWhitelistString(playerEnterWhitelist).toString());
         enterOptionMeta.setLore(enterOptionLore);
         enterOption.setItemMeta(enterOptionMeta);
-        inventory.setItem(18, enterOption);
+        inventory.setItem(22, enterOption);
 
         ItemStack enterStatus = new ItemStack(getPlayerEnter().getItem());
         ItemMeta enterStatusMeta = enterStatus.getItemMeta();
         enterStatusMeta.setDisplayName(getPlayerEnter().getName());
         enterStatus.setItemMeta(enterStatusMeta);
-        inventory.setItem(19, enterStatus);
+        inventory.setItem(23, enterStatus);
     }
 
     public void openSettingsInventory(Main instance, Player player) {
         player.setMetadata("setting", new FixedMetadataValue(instance, name));
         Inventory inventory = instance.getServer().createInventory(null, 27, name + " plot settings");
+
+        ItemStack grassBlock = new ItemStack(Material.GRASS_BLOCK);
+        ItemMeta grassBlockMeta = grassBlock.getItemMeta();
+        grassBlockMeta.setDisplayName(ChatColor.GREEN + "Plot " + getName());
+
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.YELLOW + "Location1: X: " + getLocation1().getX() +
+                " Y: " + getLocation1().getY() +
+                " Z: " + getLocation1().getZ());
+        lore.add(ChatColor.YELLOW + "Location2: X: " + getLocation2().getX() +
+                " Y: " + getLocation2().getY() +
+                " Z: " + getLocation2().getZ());
+        lore.add(ChatColor.YELLOW + "Height: " + getHeight());
+
+        grassBlockMeta.setLore(lore);
+        grassBlock.setItemMeta(grassBlockMeta);
+
+        inventory.setItem(0, grassBlock);
 
         // Players Can Interact Option
         setInteractOption(inventory);
@@ -430,57 +448,57 @@ public class Plot {
 
     public void toggleInteractStatus(Main instance, Player player, Inventory inventory, ItemStack item, int slot) {
         if (item.getType() == Material.BARRIER) {
-            if(slot == 1) {
+            if(slot == 5) {
                 playerInteract = PlotSetting.ACTIVATED;
                 setInteractOption(inventory);
             }
-            if(slot == 10) {
+            if(slot == 14) {
                 playerBuild = PlotSetting.ACTIVATED;
                 setBuildOption(inventory);
             }
-            if(slot==19) {
+            if(slot==23) {
                 playerEnter = PlotSetting.ACTIVATED;
                 setEnterOption(inventory);
             }
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         } else if (item.getType() == Material.SLIME_BALL) {
-            if(slot == 1) {
+            if(slot == 5) {
                 playerInteract = PlotSetting.CUSTOM;
                 setInteractOption(inventory);
             }
-            if(slot == 10) {
+            if(slot == 14) {
                 playerBuild = PlotSetting.CUSTOM;
                 setBuildOption(inventory);
             }
-            if(slot==19) {
+            if(slot==23) {
                 playerEnter = PlotSetting.CUSTOM;
                 setEnterOption(inventory);
             }
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         } else if (item.getType() == Material.EMERALD) {
-            if(slot == 1) {
+            if(slot == 5) {
                 playerInteract = PlotSetting.DEACTIVATED;
                 setInteractOption(inventory);
             }
-            if(slot == 10) {
+            if(slot == 14) {
                 playerBuild = PlotSetting.DEACTIVATED;
                 setBuildOption(inventory);
             }
-            if(slot==19) {
+            if(slot==23) {
                 playerEnter = PlotSetting.DEACTIVATED;
                 setEnterOption(inventory);
             }
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         } else if (item.getType() == Material.WRITABLE_BOOK) {
-            if(slot == 0) {
+            if(slot == 4) {
                 player.setMetadata("whitelist", new FixedMetadataValue(instance, "interact"));
                 sendWhiteListSetting(player, "interact");
             }
-            if(slot == 9) {
+            if(slot == 13) {
                 player.setMetadata("whitelist", new FixedMetadataValue(instance, "build"));
                 sendWhiteListSetting(player, "build");
             }
-            if(slot==18) {
+            if(slot==22) {
                 player.setMetadata("whitelist", new FixedMetadataValue(instance, "enter"));
                 sendWhiteListSetting(player, "enter");
             }

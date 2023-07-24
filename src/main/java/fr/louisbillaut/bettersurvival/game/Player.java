@@ -1,6 +1,7 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.utils.ActionBar;
 import fr.louisbillaut.bettersurvival.utils.Head;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -15,7 +16,9 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -26,6 +29,7 @@ public class Player {
     private List<Plot> plots;
     private List<Shop> shops = new ArrayList<>();
     private List<ItemStack> claims = new ArrayList<>();
+    private Compass compass = new Compass();
     private String playerName;
     private static int maxShops = 5;
 
@@ -169,6 +173,13 @@ public class Player {
 
     public static int getMaxShops() {
         return maxShops;
+    }
+
+    public void addTarget(Main instance, org.bukkit.entity.Player player, Location location, String name) {
+        compass.addTarget(instance, player, location, name);
+    }
+    public void clearCompass() {
+        compass.clear(bukkitPlayer);
     }
 
     public Shop getShop(String name) {

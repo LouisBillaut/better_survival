@@ -92,6 +92,7 @@ public class Main extends JavaPlugin {
         ShopCommand shopCommand = new ShopCommand(this, game);
         BucksCommand buckCommand = new BucksCommand(this, game);
         SpawnCommand spawnCommand = new SpawnCommand(this, game);
+        CompassCommand compassCommand = new CompassCommand(this, game);
         fr.louisbillaut.bettersurvival.commands.HelpCommand helpCommand = new HelpCommand();
         Tab completer = new Tab(game);
         Objects.requireNonNull(getCommand("bshelp")).setExecutor(helpCommand);
@@ -103,6 +104,8 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("bs")).setExecutor(buckCommand);
         Objects.requireNonNull(getCommand("bs")).setTabCompleter(completer);
         Objects.requireNonNull(getCommand("spawn")).setExecutor(spawnCommand);
+        Objects.requireNonNull(getCommand("compass")).setExecutor(compassCommand);
+        Objects.requireNonNull(getCommand("compass")).setTabCompleter(completer);
 
         initializeListeners();
         initializeRunnables();

@@ -46,6 +46,14 @@ public class Game implements Serializable {
         return null;
     }
 
+    public Player getPlayerByName(String name) {
+        for (Player p: players) {
+            if (p.getPlayerName().equals(name)) return p;
+        }
+
+        return null;
+    }
+
     public Player getPlayerFromShop(Shop shop) {
         for(Player p: players) {
             for(Shop s: p.getShops()) {
