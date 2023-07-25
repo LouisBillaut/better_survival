@@ -519,7 +519,7 @@ public class PlayerListener implements Listener {
         }
     }
 
-    private int computeNumberOfBlocks(Location coin1, Location coin2, int height) {
+    public static int computeNumberOfBlocks(Location coin1, Location coin2, int height) {
         int minX = Math.min(Math.abs(coin1.getBlockX()), Math.abs(coin2.getBlockX()));
         int minZ = Math.min(Math.abs(coin1.getBlockZ()), Math.abs(coin2.getBlockZ()));
 

@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
+import static fr.louisbillaut.bettersurvival.listeners.PlayerListener.computeNumberOfBlocks;
 
 public class Player {
     private List<Plot> plots;
@@ -234,6 +235,27 @@ public class Player {
 
     public int getBsBucks() {
         return bsBucks;
+    }
+
+
+    public int getTotalEstimatedFortune() {
+        int bsInPlots = 0;
+        int nbOfBlocInPlots = 0;
+        double increasedPricePercent = BsBucks.blockPrice;
+        for (Plot p: plots) {
+            var computedBlocks = computeNumberOfBlocks(p.getLocation1(), p.getLocation2(), p.getHeight());
+            bsInPlots += computedBlocks * increasedPricePercent;
+            if (nbOfBlocInPlots + computedBlocks >= BsBucks.PlotNbOfBlocToIncreasePrice) {
+                int nbOfPlotOfPlateau = (int) ((nbOfBlocInPlots + computedBlocks) / BsBucks.PlotNbOfBlocToIncreasePrice);
+                int remainingBlocks = (int) ((nbOfBlocInPlots + computedBlocks) % BsBucks.PlotNbOfBlocToIncreasePrice);
+                for (var i = 0; i < nbOfPlotOfPlateau; i++) {
+                    increasedPricePercent += increasedPricePercent * BsBucks.PercentageAugmentation;
+                }
+                nbOfBlocInPlots = remainingBlocks;
+            }
+        }
+
+        return bsInPlots + bsBucks;
     }
 
     public void setBsBucks(int bsBucks) {

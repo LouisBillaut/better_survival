@@ -29,6 +29,7 @@ public class Game implements Serializable {
     public Map<UUID, ArrayList<BukkitRunnable>> armorStandsRotationTasks = new HashMap<>();
 
     public BsBucks bs = new BsBucks();
+    private LeaderBoard leaderBoard = new LeaderBoard();
     public Game() {
         players = new ArrayList<>();
     }
@@ -62,6 +63,10 @@ public class Game implements Serializable {
         }
 
         return null;
+    }
+
+    public LeaderBoard getLeaderBoard() {
+        return leaderBoard;
     }
 
     public boolean isLocationInOtherPlayerPlot(org.bukkit.entity.Player player, Location location) {
@@ -179,6 +184,12 @@ public class Game implements Serializable {
         return gold;
     }
 
+    public List<Player> getSortedPlayersByBsBucks() {
+        Collections.sort(players, Comparator.comparingInt(Player::getTotalEstimatedFortune));
+        Collections.reverse(players);
+        return players;
+    }
+
     public void loadFromConfig(Main instance, ConfigurationSection config) {
         if (config.contains("players")) {
             ConfigurationSection playersSection = config.getConfigurationSection("players");
@@ -190,6 +201,10 @@ public class Game implements Serializable {
                 players.add(player);
             }
         }
+        if (config.contains("leaderboard")) {
+            ConfigurationSection leaderBoardSection = config.getConfigurationSection("leaderboard");
+            leaderBoard.loadFromConfig(instance, this, leaderBoardSection);
+        }
     }
 
     public void saveToConfig(ConfigurationSection config) {
@@ -199,6 +214,8 @@ public class Game implements Serializable {
             ConfigurationSection playerConfig = playersSection.createSection(String.valueOf(i));
             player.saveToConfig(playerConfig);
         }
+        ConfigurationSection leaderBoardSection = config.createSection("leaderboard");
+        leaderBoard.saveToConfig(leaderBoardSection);
     }
 
     public void cancelAllVillagersTasks() {
