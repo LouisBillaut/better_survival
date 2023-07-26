@@ -600,7 +600,6 @@ public class PlayerListener implements Listener {
     }
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        Bukkit.getLogger().info("player death event");
         checkCancelSpawnTeleportDead(event);
     }
 

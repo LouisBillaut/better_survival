@@ -45,15 +45,63 @@ public class LeaderboardCommand implements CommandExecutor {
 
                 if (args[1].equals("bsBucks")) {
                     if(args[2].equals("1")) {
-                        game.getLeaderBoard().setNumber1PNJ(player.getLocation());
+                        game.getLeaderBoard().setNumber1PNJBsBucks(player.getLocation());
                         player.sendMessage(ChatColor.GREEN + "Position set successfully.");
                         break;
                     } else if (args[2].equals("2")) {
-                        game.getLeaderBoard().setNumber2PNJ(player.getLocation());
+                        game.getLeaderBoard().setNumber2PNJBsBucks(player.getLocation());
                         player.sendMessage(ChatColor.GREEN + "Position set successfully.");
                         break;
                     } else if (args[2].equals("3")) {
-                        game.getLeaderBoard().setNumber3PNJ(player.getLocation());
+                        game.getLeaderBoard().setNumber3PNJBsBucks(player.getLocation());
+                        player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                        break;
+                    } else {
+                        player.sendMessage("Number of PNJ must be between 1 & 3.");
+                    }
+                }  else if(args[1].equals("playTime")) {
+                    if(args[2].equals("1")) {
+                        game.getLeaderBoard().setNumber1PNJTimePlayed(player.getLocation());
+                        player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                        break;
+                    } else if (args[2].equals("2")) {
+                        game.getLeaderBoard().setNumber2PNJTimePlayed(player.getLocation());
+                        player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                        break;
+                    } else if (args[2].equals("3")) {
+                        game.getLeaderBoard().setNumber3PNJTimePlayed(player.getLocation());
+                        player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                        break;
+                    } else {
+                        player.sendMessage("Number of PNJ must be between 1 & 3.");
+                    }
+                } else if(args[1].equals("blocks")) {
+                    if(args[2].equals("1")) {
+                        game.getLeaderBoard().setNumber1PNJTotalBlocks(player.getLocation());
+                        player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                        break;
+                    } else if (args[2].equals("2")) {
+                        game.getLeaderBoard().setNumber2PNJTotalBlocks(player.getLocation());
+                        player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                        break;
+                    } else if (args[2].equals("3")) {
+                        game.getLeaderBoard().setNumber3PNJTotalBlocks(player.getLocation());
+                        player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                        break;
+                    } else {
+                        player.sendMessage("Number of PNJ must be between 1 & 3.");
+                    }
+                } else if(args[1].equals("deaths")) {
+                    if(args[2].equals("1")) {
+                        game.getLeaderBoard().setNumber1PNJTotalDeaths(player.getLocation());
+                        player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                        break;
+                    } else if (args[2].equals("2")) {
+                        game.getLeaderBoard().setNumber2PNJTotalDeaths(player.getLocation());
+                        player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                        break;
+                    } else if (args[2].equals("3")) {
+                        game.getLeaderBoard().setNumber3PNJTotalDeaths(player.getLocation());
                         player.sendMessage(ChatColor.GREEN + "Position set successfully.");
                         break;
                     } else {
@@ -64,13 +112,24 @@ public class LeaderboardCommand implements CommandExecutor {
                     return true;
                 }
             case "sethologram":
-                Bukkit.getLogger().info("args: " + args);
                 if (args.length < 2) {
                     player.sendMessage("Use : /leaderboard setHologram <leaderboard name>");
                     return true;
                 }
                 if (args[1].equals("bsBucks")) {
                     game.getLeaderBoard().setBsBucksLeaderBoard(player.getLocation());
+                    player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                    break;
+                } else if (args[1].equals("playTime")) {
+                    game.getLeaderBoard().setTimePlayedLeaderBoard(player.getLocation());
+                    player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                    break;
+                } else if (args[1].equals("blocks")) {
+                    game.getLeaderBoard().setTotalBlocksLeaderBoard(player.getLocation());
+                    player.sendMessage(ChatColor.GREEN + "Position set successfully.");
+                    break;
+                } else if (args[1].equals("deaths")) {
+                    game.getLeaderBoard().setTotalDeathsLeaderBoard(player.getLocation());
                     player.sendMessage(ChatColor.GREEN + "Position set successfully.");
                     break;
                 }

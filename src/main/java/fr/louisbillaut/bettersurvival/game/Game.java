@@ -183,9 +183,26 @@ public class Game implements Serializable {
 
         return gold;
     }
+    public List<Player> getSortedPlayersByTotalDeaths() {
+        Collections.sort(players, Comparator.comparingInt(Player::getDeaths));
+        Collections.reverse(players);
+        return players;
+    }
+
+    public List<Player> getSortedPlayersByTotalBlocks() {
+        Collections.sort(players, Comparator.comparingInt(Player::getTotalBlocks));
+        Collections.reverse(players);
+        return players;
+    }
 
     public List<Player> getSortedPlayersByBsBucks() {
         Collections.sort(players, Comparator.comparingInt(Player::getTotalEstimatedFortune));
+        Collections.reverse(players);
+        return players;
+    }
+
+    public List<Player> getSortedPlayersByPlayedTime() {
+        Collections.sort(players, Comparator.comparingLong(Player::getPlayedTime));
         Collections.reverse(players);
         return players;
     }

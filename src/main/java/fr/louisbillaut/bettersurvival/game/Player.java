@@ -43,6 +43,10 @@ public class Player {
 
     private BukkitTask teleportRunnable;
 
+    private long playedTime = 0;
+
+    private int deaths = 0;
+
     static {
         REWARD_MAPPING.put(2, 100);
         REWARD_MAPPING.put(3, 120);
@@ -84,6 +88,21 @@ public class Player {
         }
 
         lastLoginDate = currentDate;
+    }
+
+    public long getPlayedTime() {
+        if (bukkitPlayer != null) {
+            var ticksPlayed = bukkitPlayer.getStatistic(Statistic.PLAY_ONE_MINUTE);
+            playedTime = ticksPlayed / (20 * 60);
+        }
+        return playedTime;
+    }
+
+    public int getDeaths() {
+        if (bukkitPlayer != null) {
+            deaths = bukkitPlayer.getStatistic(Statistic.DEATHS);
+        }
+        return deaths;
     }
 
     public void sendRewardMessage(org.bukkit.entity.Player player, int consecutiveLoginDays) {
@@ -237,6 +256,14 @@ public class Player {
         return bsBucks;
     }
 
+    public int getTotalBlocks() {
+        int total = 0;
+        for(Plot p: plots) {
+            total += computeNumberOfBlocks(p.getLocation1(), p.getLocation2(), p.getHeight());
+        }
+
+        return total;
+    }
 
     public int getTotalEstimatedFortune() {
         int bsInPlots = 0;
@@ -315,6 +342,12 @@ public class Player {
         if (c == null) {
             return;
         }
+        if (c.contains("deaths")) {
+            this.deaths = c.getInt("deaths");
+        }
+        if (c.contains("playedTime")) {
+            this.playedTime = c.getInt("playedTime");
+        }
         if (c.contains("bsBucks")) {
             this.bsBucks = c.getInt("bsBucks");
         }
@@ -373,6 +406,8 @@ public class Player {
 
         config.set("claims", claims);
         config.set("bsBucks", bsBucks);
+        config.set("playedTime", playedTime);
+        config.set("deaths", deaths);
     }
 
     public void displayAllTrades(Main instance, Game game) {
