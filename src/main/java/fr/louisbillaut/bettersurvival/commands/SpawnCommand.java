@@ -15,6 +15,8 @@ public class SpawnCommand implements CommandExecutor {
     private Main instance;
     private Game game;
 
+    private static final int hostileMobsRange = 15;
+
     public SpawnCommand(Main instance, Game game) {
         this.instance = instance;
         this.game =game;
@@ -85,7 +87,7 @@ public class SpawnCommand implements CommandExecutor {
         if (sender instanceof Player && cmd.getName().equalsIgnoreCase("spawn")) {
             Player player = (Player) sender;
 
-            if (hasHostileMobsNearby(player.getLocation(), 10)) {
+            if (hasHostileMobsNearby(player.getLocation(), hostileMobsRange)) {
                 player.sendMessage(ChatColor.RED + "There are hostile mobs nearby. You cannot use this command.");
                 return true;
             }
