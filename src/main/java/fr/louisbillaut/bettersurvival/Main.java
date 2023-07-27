@@ -9,10 +9,14 @@ import fr.louisbillaut.bettersurvival.listeners.PlayerListener;
 import fr.louisbillaut.bettersurvival.runnables.ClaimRunnable;
 import fr.louisbillaut.bettersurvival.runnables.DailyRewardsRunnable;
 import fr.louisbillaut.bettersurvival.utils.DiscordWebhook;
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.trait.trait.Owner;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -73,11 +77,34 @@ public class Main extends JavaPlugin {
         });
     }
 
+    private void removeInvisibleArmorStands() {
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity.getType() == EntityType.ARMOR_STAND && entity.isCustomNameVisible()) {
+                    entity.getLocation().getChunk().load();
+                    entity.remove();
+                }
+            }
+        }
+    }
+
     @Override
     public void onEnable() {
         Bukkit.getLogger().info("Loading game ...");
+        removeInvisibleArmorStands();
         deleteVillagerPersistants();
         game = new Game();
+
+        CitizensAPI.getNPCRegistries().forEach(n ->{
+                    n.sorted().forEach(npc -> {
+                        npc.despawn();
+                        npc.destroy();
+                        npc.getTrait(Owner.class).onRemove();
+                    });
+                    n.deregisterAll();
+                    n.saveToStore();
+                }
+        );
 
         settingsFile = new File(getDataFolder(), "settings.yml");
         dataFile = new File(getDataFolder(), "game_better_survival_data.yml");
@@ -93,6 +120,7 @@ public class Main extends JavaPlugin {
         BucksCommand buckCommand = new BucksCommand(this, game);
         SpawnCommand spawnCommand = new SpawnCommand(this, game);
         CompassCommand compassCommand = new CompassCommand(this, game);
+        LeaderboardCommand leaderboardCommand = new LeaderboardCommand(this, game);
         fr.louisbillaut.bettersurvival.commands.HelpCommand helpCommand = new HelpCommand();
         Tab completer = new Tab(game);
         Objects.requireNonNull(getCommand("bshelp")).setExecutor(helpCommand);
@@ -106,6 +134,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("spawn")).setExecutor(spawnCommand);
         Objects.requireNonNull(getCommand("compass")).setExecutor(compassCommand);
         Objects.requireNonNull(getCommand("compass")).setTabCompleter(completer);
+        Objects.requireNonNull(getCommand("leaderboard")).setExecutor(leaderboardCommand);
 
         initializeListeners();
         initializeRunnables();
@@ -113,6 +142,18 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        Bukkit.getLogger().info("disabling...");
+        removeInvisibleArmorStands();
+        CitizensAPI.getNPCRegistries().forEach(n ->{
+                    n.sorted().forEach(npc -> {
+                        npc.despawn();
+                        npc.destroy();
+                        npc.getTrait(Owner.class).onRemove();
+                    });
+            n.deregisterAll();
+            n.saveToStore();
+                }
+        );
         Bukkit.getLogger().info("Saving game ...");
         game.saveToConfig(dataConfig);
         game.cancelAllVillagersTasks();
@@ -122,7 +163,6 @@ public class Main extends JavaPlugin {
         } else {
             settings.set("webhookUrl", webhook.getUrl());
         }
-
         try {
             settings.save(settingsFile);
             dataConfig.save(dataFile);

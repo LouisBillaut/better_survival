@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
+import static fr.louisbillaut.bettersurvival.listeners.PlayerListener.computeNumberOfBlocks;
 
 public class Player {
     private List<Plot> plots;
@@ -41,6 +42,10 @@ public class Player {
     private static final Map<Integer, Integer> REWARD_MAPPING = new HashMap<>();
 
     private BukkitTask teleportRunnable;
+
+    private long playedTime = 0;
+
+    private int deaths = 0;
 
     static {
         REWARD_MAPPING.put(2, 100);
@@ -83,6 +88,21 @@ public class Player {
         }
 
         lastLoginDate = currentDate;
+    }
+
+    public long getPlayedTime() {
+        if (bukkitPlayer != null) {
+            var ticksPlayed = bukkitPlayer.getStatistic(Statistic.PLAY_ONE_MINUTE);
+            playedTime = ticksPlayed / (20 * 60);
+        }
+        return playedTime;
+    }
+
+    public int getDeaths() {
+        if (bukkitPlayer != null) {
+            deaths = bukkitPlayer.getStatistic(Statistic.DEATHS);
+        }
+        return deaths;
     }
 
     public void sendRewardMessage(org.bukkit.entity.Player player, int consecutiveLoginDays) {
@@ -236,6 +256,35 @@ public class Player {
         return bsBucks;
     }
 
+    public int getTotalBlocks() {
+        int total = 0;
+        for(Plot p: plots) {
+            total += computeNumberOfBlocks(p.getLocation1(), p.getLocation2(), p.getHeight());
+        }
+
+        return total;
+    }
+
+    public int getTotalEstimatedFortune() {
+        int bsInPlots = 0;
+        int nbOfBlocInPlots = 0;
+        double increasedPricePercent = BsBucks.blockPrice;
+        for (Plot p: plots) {
+            var computedBlocks = computeNumberOfBlocks(p.getLocation1(), p.getLocation2(), p.getHeight());
+            bsInPlots += computedBlocks * increasedPricePercent;
+            if (nbOfBlocInPlots + computedBlocks >= BsBucks.PlotNbOfBlocToIncreasePrice) {
+                int nbOfPlotOfPlateau = (int) ((nbOfBlocInPlots + computedBlocks) / BsBucks.PlotNbOfBlocToIncreasePrice);
+                int remainingBlocks = (int) ((nbOfBlocInPlots + computedBlocks) % BsBucks.PlotNbOfBlocToIncreasePrice);
+                for (var i = 0; i < nbOfPlotOfPlateau; i++) {
+                    increasedPricePercent += increasedPricePercent * BsBucks.PercentageAugmentation;
+                }
+                nbOfBlocInPlots = remainingBlocks;
+            }
+        }
+
+        return bsInPlots + bsBucks;
+    }
+
     public void setBsBucks(int bsBucks) {
         this.bsBucks = bsBucks;
     }
@@ -292,6 +341,12 @@ public class Player {
         ConfigurationSection c = getPlayerConfigByName(this.playerName, config);
         if (c == null) {
             return;
+        }
+        if (c.contains("deaths")) {
+            this.deaths = c.getInt("deaths");
+        }
+        if (c.contains("playedTime")) {
+            this.playedTime = c.getInt("playedTime");
         }
         if (c.contains("bsBucks")) {
             this.bsBucks = c.getInt("bsBucks");
@@ -351,6 +406,8 @@ public class Player {
 
         config.set("claims", claims);
         config.set("bsBucks", bsBucks);
+        config.set("playedTime", playedTime);
+        config.set("deaths", deaths);
     }
 
     public void displayAllTrades(Main instance, Game game) {

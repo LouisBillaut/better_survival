@@ -4,8 +4,14 @@ author: Louis BILLAUT
 website: https://github.com/LouisBillaut
 main: fr.louisbillaut.bettersurvival.Main
 api-version: 1.19
+softdepend: [Citizens]
 
 commands:
+  leaderboard:
+    usage: /leaderboard <setpnj|sethologram> <leaderboard type>
+    tab-completions:
+      setpnj: [1, 2, 3]
+      sethologram: [1, 2, 3]
   compass:
     usage: /compass clear
     tab-completions:
