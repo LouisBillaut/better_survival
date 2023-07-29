@@ -256,6 +256,7 @@ public class LeaderBoard {
             for (int i = 0; i < Math.min(playersSortedByBsBucks.size(), 10); i++) {
                 fr.louisbillaut.bettersurvival.game.Player player = playersSortedByBsBucks.get(i);
                 String playerName = player.getPlayerName();
+                if(playerName.equals("betterSurvival")) continue; // betterSurvival pseudo is used to create spawn area
                 String displayName = ChatColor.GOLD + String.valueOf((i + 1)) + ". " + ChatColor.YELLOW + playerName + ChatColor.GRAY + " - " + ChatColor.YELLOW + playersSortedByBsBucks.get(i).getTotalEstimatedFortune();
                 spawnArmorStand(bsBucksLeaderBoard.clone().add(0, 3 + -i * 0.3 - 0.6, 0), displayName);
             }
@@ -266,6 +267,7 @@ public class LeaderBoard {
             for (int i = 0; i < Math.min(playersSortedByPlayedTime.size(), 10); i++) {
                 fr.louisbillaut.bettersurvival.game.Player player = playersSortedByPlayedTime.get(i);
                 String playerName = player.getPlayerName();
+                if(playerName.equals("betterSurvival")) continue;
                 String displayName = ChatColor.GOLD + String.valueOf((i + 1)) + ". " + ChatColor.YELLOW + playerName + ChatColor.GRAY + " - " + ChatColor.YELLOW + formatPlayTime(playersSortedByPlayedTime.get(i).getPlayedTime());
                 spawnArmorStand(timePlayedLeaderBoard.clone().add(0, 3 + -i * 0.3 - 0.6, 0), displayName);
             }
@@ -276,6 +278,7 @@ public class LeaderBoard {
             for (int i = 0; i < Math.min(playersSortedByTotalBlocks.size(), 10); i++) {
                 fr.louisbillaut.bettersurvival.game.Player player = playersSortedByTotalBlocks.get(i);
                 String playerName = player.getPlayerName();
+                if(playerName.equals("betterSurvival")) continue;
                 String displayName = ChatColor.GOLD + String.valueOf((i + 1)) + ". " + ChatColor.YELLOW + playerName + ChatColor.GRAY + " - " + ChatColor.YELLOW + playersSortedByTotalBlocks.get(i).getTotalBlocks();
                 spawnArmorStand(totalBlocksLeaderBoard.clone().add(0, 3 + -i * 0.3 - 0.6, 0), displayName);
             }
@@ -286,6 +289,7 @@ public class LeaderBoard {
             for (int i = 0; i < Math.min(playersSortedByTotalDeaths.size(), 10); i++) {
                 fr.louisbillaut.bettersurvival.game.Player player = playersSortedByTotalDeaths.get(i);
                 String playerName = player.getPlayerName();
+                if(playerName.equals("betterSurvival")) continue;
                 String displayName = ChatColor.GOLD + String.valueOf((i + 1)) + ". " + ChatColor.YELLOW + playerName + ChatColor.GRAY + " - " + ChatColor.YELLOW + playersSortedByTotalDeaths.get(i).getDeaths();
                 spawnArmorStand(totalDeathsLeaderBoard.clone().add(0, 3 + -i * 0.3 - 0.6, 0), displayName);
             }
@@ -379,6 +383,7 @@ public class LeaderBoard {
                             n.saveToStore();
                         }
                 );
+                instance.removeInvisibleArmorStands();
                 loadLeaderboards(instance, game, true);
             }
         }.runTaskTimer(instance, 20 * 60 * 15, 20 * 60 * 15);

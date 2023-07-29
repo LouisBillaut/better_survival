@@ -77,7 +77,7 @@ public class Main extends JavaPlugin {
         });
     }
 
-    private void removeInvisibleArmorStands() {
+    public void removeInvisibleArmorStands() {
         for (World world : Bukkit.getWorlds()) {
             for (Entity entity : world.getEntities()) {
                 if (entity.getType() == EntityType.ARMOR_STAND && entity.isCustomNameVisible()) {

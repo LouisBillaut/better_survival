@@ -184,27 +184,55 @@ public class Game implements Serializable {
         return gold;
     }
     public List<Player> getSortedPlayersByTotalDeaths() {
-        Collections.sort(players, Comparator.comparingInt(Player::getDeaths));
-        Collections.reverse(players);
-        return players;
+        List<Player> clonedList = new ArrayList<>();
+
+        for (Player player : players) {
+            if (!player.getPlayerName().equalsIgnoreCase("betterSurvival")) {
+                clonedList.add(player);
+            }
+        }
+        Collections.sort(clonedList, Comparator.comparingInt(Player::getDeaths));
+        Collections.reverse(clonedList);
+        return clonedList;
     }
 
     public List<Player> getSortedPlayersByTotalBlocks() {
-        Collections.sort(players, Comparator.comparingInt(Player::getTotalBlocks));
-        Collections.reverse(players);
-        return players;
+        List<Player> clonedList = new ArrayList<>();
+
+        for (Player player : players) {
+            if (!player.getPlayerName().equalsIgnoreCase("betterSurvival")) {
+                clonedList.add(player);
+            }
+        }
+        Collections.sort(clonedList, Comparator.comparingInt(Player::getTotalBlocks));
+        Collections.reverse(clonedList);
+        return clonedList;
     }
 
     public List<Player> getSortedPlayersByBsBucks() {
-        Collections.sort(players, Comparator.comparingInt(Player::getTotalEstimatedFortune));
-        Collections.reverse(players);
-        return players;
+        List<Player> clonedList = new ArrayList<>();
+
+        for (Player player : players) {
+            if (!player.getPlayerName().equalsIgnoreCase("betterSurvival")) {
+                clonedList.add(player);
+            }
+        }
+        Collections.sort(clonedList, Comparator.comparingInt(Player::getTotalEstimatedFortune));
+        Collections.reverse(clonedList);
+        return clonedList;
     }
 
     public List<Player> getSortedPlayersByPlayedTime() {
-        Collections.sort(players, Comparator.comparingLong(Player::getPlayedTime));
-        Collections.reverse(players);
-        return players;
+        List<Player> clonedList = new ArrayList<>();
+
+        for (Player player : players) {
+            if (!player.getPlayerName().equalsIgnoreCase("betterSurvival")) {
+                clonedList.add(player);
+            }
+        }
+        Collections.sort(clonedList, Comparator.comparingLong(Player::getPlayedTime));
+        Collections.reverse(clonedList);
+        return clonedList;
     }
 
     public void loadFromConfig(Main instance, ConfigurationSection config) {
