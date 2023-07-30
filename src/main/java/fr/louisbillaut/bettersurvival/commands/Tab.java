@@ -35,6 +35,9 @@ public class Tab implements TabCompleter {
                 if (playerIG == null) return null;
                 return playerIG.getPlots().stream().map(Plot::getName).collect(Collectors.toCollection(ArrayList::new));
             }
+            if (args.length == 5 && (args[3].equals("add") || args[3].equals("remove"))) {
+                return game.getPlayers().stream().map(fr.louisbillaut.bettersurvival.game.Player::getPlayerName).collect(Collectors.toCollection(ArrayList::new));
+            }
         } else if (command.getName().equalsIgnoreCase("shop")) {
             if (args.length == 1) {
                 return Arrays.asList("claim", "new", "list", "add", "trade");
