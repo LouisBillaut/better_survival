@@ -183,7 +183,8 @@ public class Game implements Serializable {
 
         return gold;
     }
-    public List<Player> getSortedPlayersByTotalDeaths() {
+
+    private List<Player> getPlayersWithoutSettingPlayer() {
         List<Player> clonedList = new ArrayList<>();
 
         for (Player player : players) {
@@ -191,45 +192,32 @@ public class Game implements Serializable {
                 clonedList.add(player);
             }
         }
+
+        return clonedList;
+    }
+    public List<Player> getSortedPlayersByTotalDeaths() {
+        var clonedList = getPlayersWithoutSettingPlayer();
         Collections.sort(clonedList, Comparator.comparingInt(Player::getDeaths));
         Collections.reverse(clonedList);
         return clonedList;
     }
 
     public List<Player> getSortedPlayersByTotalBlocks() {
-        List<Player> clonedList = new ArrayList<>();
-
-        for (Player player : players) {
-            if (!player.getPlayerName().equalsIgnoreCase("betterSurvival")) {
-                clonedList.add(player);
-            }
-        }
+        var clonedList = getPlayersWithoutSettingPlayer();
         Collections.sort(clonedList, Comparator.comparingInt(Player::getTotalBlocks));
         Collections.reverse(clonedList);
         return clonedList;
     }
 
     public List<Player> getSortedPlayersByBsBucks() {
-        List<Player> clonedList = new ArrayList<>();
-
-        for (Player player : players) {
-            if (!player.getPlayerName().equalsIgnoreCase("betterSurvival")) {
-                clonedList.add(player);
-            }
-        }
+        var clonedList = getPlayersWithoutSettingPlayer();
         Collections.sort(clonedList, Comparator.comparingInt(Player::getTotalEstimatedFortune));
         Collections.reverse(clonedList);
         return clonedList;
     }
 
     public List<Player> getSortedPlayersByPlayedTime() {
-        List<Player> clonedList = new ArrayList<>();
-
-        for (Player player : players) {
-            if (!player.getPlayerName().equalsIgnoreCase("betterSurvival")) {
-                clonedList.add(player);
-            }
-        }
+        var clonedList = getPlayersWithoutSettingPlayer();
         Collections.sort(clonedList, Comparator.comparingLong(Player::getPlayedTime));
         Collections.reverse(clonedList);
         return clonedList;
