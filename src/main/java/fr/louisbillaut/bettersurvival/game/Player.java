@@ -30,6 +30,7 @@ public class Player {
     private List<Plot> plots;
     private List<Shop> shops = new ArrayList<>();
     private List<ItemStack> claims = new ArrayList<>();
+    private Map<String, Long> lastWelcomeTimes = new HashMap<>();
     private Compass compass = new Compass();
     private String playerName;
     private static int maxShops = 5;
@@ -200,6 +201,20 @@ public class Player {
     }
     public void clearCompass() {
         compass.clear(bukkitPlayer);
+    }
+
+    public void sendWelcomeTitle(org.bukkit.entity.Player player, String playerName, String plotName) {
+        long currentTime = System.currentTimeMillis();
+
+        String uniqueKey = plotName;
+        int minuteDelay = 2 * 60000;
+        if (!lastWelcomeTimes.containsKey(uniqueKey) || currentTime - lastWelcomeTimes.get(uniqueKey) >= minuteDelay) {
+            String title = ChatColor.GREEN + Main.sendLocalizedMessage("welcome");
+            String subtitle = plotName + " " + Main.sendLocalizedMessage("of") + " " + playerName;
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+            player.sendTitle(title, subtitle, 10, 70, 20);
+            lastWelcomeTimes.put(uniqueKey, currentTime);
+        }
     }
 
     public Shop getShop(String name) {

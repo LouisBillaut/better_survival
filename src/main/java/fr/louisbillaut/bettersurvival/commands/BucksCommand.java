@@ -35,7 +35,7 @@ public class BucksCommand implements CommandExecutor {
 
             String subCommand = args[0].toLowerCase();
             switch (subCommand) {
-                case "buy" -> {
+                case "sell" -> {
                     game.displayBsBucksInventoryToPlayer(instance, player);
                 }
                 case "show" -> {

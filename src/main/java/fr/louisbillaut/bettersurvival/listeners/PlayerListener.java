@@ -6,7 +6,6 @@ import fr.louisbillaut.bettersurvival.game.Player;
 import fr.louisbillaut.bettersurvival.utils.ActionBar;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import fr.louisbillaut.bettersurvival.utils.Selector;
-import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -26,7 +25,6 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -353,12 +351,6 @@ public class PlayerListener implements Listener {
         return messages.get(index);
     }
 
-    private void sendWelcomeTitle(org.bukkit.entity.Player player, String playerName, String plotName) {
-        String title = ChatColor.GREEN + Main.sendLocalizedMessage("welcome");
-        String subtitle = plotName + " " + Main.sendLocalizedMessage("of") + " " + playerName;
-        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
-        player.sendTitle(title, subtitle, 10, 70, 20);
-    }
     private void enterWhitelistDetector(PlayerMoveEvent event) {
         var playersInGame = game.getPlayers();
         for(Player playerIG: playersInGame) {
@@ -369,7 +361,7 @@ public class PlayerListener implements Listener {
                 if(p.getPlayerEnter().equals(Plot.PlotSetting.ACTIVATED)) {
                     if(Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight()) && !event.getPlayer().hasMetadata(p.getName())) {
                         event.getPlayer().setMetadata(p.getName(), new FixedMetadataValue(instance, true));
-                        sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
+                        playerIG.sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
                     } else if (!Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight()) && event.getPlayer().hasMetadata(p.getName())){
                         if(event.getPlayer().hasMetadata(p.getName())) {
                             event.getPlayer().removeMetadata(p.getName(), instance);
@@ -416,7 +408,7 @@ public class PlayerListener implements Listener {
                         && p.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)
                         && Detector.isInWhiteList(event.getPlayer(), p.getPlayerEnterWhitelist())) {
                     event.getPlayer().setMetadata(p.getName(), new FixedMetadataValue(instance, true));
-                    sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
+                    playerIG.sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
                 }
                 if (!Detector.isInZone(event.getTo(), p.getLocation1(), p.getLocation2(), p.getHeight())
                         && event.getPlayer().hasMetadata(p.getName())
@@ -873,6 +865,23 @@ public class PlayerListener implements Listener {
         return false;
     }
 
+    public int removeAllItemFromPlayerInventory(org.bukkit.entity.Player player, ItemStack itemStack) {
+        Inventory inventory = player.getInventory();
+        ItemStack[] contents = inventory.getContents();
+
+        int totalRemoved = 0;
+
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack currentItem = contents[i];
+            if (currentItem != null && currentItem.isSimilar(itemStack)) {
+                totalRemoved += currentItem.getAmount();
+                inventory.setItem(i, null);
+            }
+        }
+
+        return totalRemoved;
+    }
+
 
     private void giveOrDropItem(org.bukkit.entity.Player player, ItemStack item) {
         if (player.getInventory().firstEmpty() == -1) {
@@ -1045,6 +1054,12 @@ public class PlayerListener implements Listener {
         Villager villager = (Villager) clickedInventory.getHolder();
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType().isAir()) return;
+        if(!villager.isCustomNameVisible() && villager.getCustomName() == null) {
+            if(game.getBs().containsItem(clickedItem)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
         Shop shop = findShopByVillager(game.getAllShops(), villager);
         if(shop == null) return;
         if (event.isShiftClick()) {
@@ -1140,7 +1155,7 @@ public class PlayerListener implements Listener {
             game.displayBsBucksInventoryToPlayer(instance, player);
         }
 
-        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "buy")) {
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "sell")) {
             String strippedInput = ChatColor.stripColor(event.getClickedInventory().getItem(event.getSlot() - 2).getItemMeta().getDisplayName());
             int price = 0;
             try {
@@ -1154,6 +1169,25 @@ public class PlayerListener implements Listener {
                 return;
             }
             playerInGame.addBsBucks(price);
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.GREEN + "You have now " + ChatColor.GOLD + playerInGame.getBsBucks() + " bsBucks");
+        }
+
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "sell all")) {
+            String strippedInput = ChatColor.stripColor(event.getClickedInventory().getItem(event.getSlot() - 3).getItemMeta().getDisplayName());
+            int price = 0;
+            try {
+                price = Integer.parseInt(strippedInput);
+            } catch (NumberFormatException e){
+                return;
+            }
+            if(price == 0) return;
+            ItemStack itemNeeded = event.getClickedInventory().getItem(event.getSlot() - 5);
+            var nbSell = removeAllItemFromPlayerInventory(player, itemNeeded);
+            if (nbSell == 0) {
+                return;
+            }
+            playerInGame.addBsBucks(price * nbSell);
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
             player.sendMessage(ChatColor.GREEN + "You have now " + ChatColor.GOLD + playerInGame.getBsBucks() + " bsBucks");
         }

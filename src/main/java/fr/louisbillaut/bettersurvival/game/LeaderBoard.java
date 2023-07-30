@@ -15,6 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class LeaderBoard {
     private Location number3PNJBsBucks;
@@ -359,6 +360,7 @@ public class LeaderBoard {
                     Location npcLocation = npc.getEntity().getLocation();
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         Location playerLocation = player.getLocation();
+                        if(!Objects.equals(npcLocation.getWorld(), playerLocation.getWorld())) continue;
                         double distanceSquared = npcLocation.distanceSquared(playerLocation);
                         if (distanceSquared <= 20 * 20) {
                             npc.faceLocation(playerLocation);

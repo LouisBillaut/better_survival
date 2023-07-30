@@ -39,7 +39,7 @@ commands:
     description: Access Better Survival Bucks features
     usage: /bs <buy|show>
     tab-completions:
-      buy: []
+      sell: []
       show: []
   stuck:
     description: Unstuck you

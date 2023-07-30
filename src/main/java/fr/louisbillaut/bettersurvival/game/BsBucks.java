@@ -165,7 +165,7 @@ public class BsBucks {
     }
 
     private List<BSItem> itemsToSale = new ArrayList<>(List.of(
-            new BSItem(new ItemStack(Material.DIAMOND_CHESTPLATE), 325),
+            new BSItem(new ItemStack(Material.DIAMOND_BLOCK), 360),
             new BSItem(getSpeedPotion(), 50),
             new BSItem(new ItemStack(Material.ELYTRA), 6000),
             new BSItem(new ItemStack(Material.CREEPER_HEAD), 2000),
@@ -178,7 +178,7 @@ public class BsBucks {
             new BSItem(new ItemStack(Material.SPONGE), 230),
             new BSItem(new ItemStack(Material.BEACON), 5500),
             new BSItem(new ItemStack(Material.GOLDEN_CARROT), 30),
-            new BSItem(new ItemStack(Material.NETHERITE_INGOT), 3200),
+            new BSItem(new ItemStack(Material.NETHERITE_INGOT), 2000),
             new BSItem(new ItemStack(Material.CAKE), 50),
             new BSItem(new ItemStack(Material.EXPERIENCE_BOTTLE), 800),
             new BSItem(new ItemStack(Material.ENDER_PEARL), 10),
@@ -212,6 +212,15 @@ public class BsBucks {
             new BSItem(getFireAspectBook(), 250),
             new BSItem(getSilkTouchBook(), 550)
     ));
+
+    public boolean containsItem(ItemStack itemStack) {
+        for(BSItem bsItem: itemsToSale) {
+            if (bsItem.getItem().getType().equals(itemStack.getType())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public List<BSItem> getItemsToSale() {
         return itemsToSale;
