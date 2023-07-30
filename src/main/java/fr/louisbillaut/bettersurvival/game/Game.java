@@ -7,10 +7,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -158,7 +160,8 @@ public class Game implements Serializable {
             inventory.setItem(i, bs.getItemsToSale().get(p).getItem());
             inventory.setItem(i + 1, Shop.getArrowRight());
             inventory.setItem(i + 2, getBsPrice(bs.getItemsToSale().get(p).getPrice()));
-            inventory.setItem(i + 4, createBuyItem());
+            inventory.setItem(i + 4, createSellItem());
+            inventory.setItem(i + 5, createSellAllItem());
             i += 9;
         }
 
@@ -167,10 +170,21 @@ public class Game implements Serializable {
         player.openInventory(inventory);
     }
 
-    private ItemStack createBuyItem() {
+    private ItemStack createSellItem() {
         ItemStack pageItem = new ItemStack(Material.SLIME_BALL);
         ItemMeta pageMeta = pageItem.getItemMeta();
-        pageMeta.setDisplayName(ChatColor.GREEN + "buy");
+        pageMeta.setDisplayName(ChatColor.GREEN + "sell");
+        pageItem.setItemMeta(pageMeta);
+        return pageItem;
+    }
+
+    private ItemStack createSellAllItem() {
+        ItemStack pageItem = new ItemStack(Material.SLIME_BALL);
+        ItemMeta pageMeta = pageItem.getItemMeta();
+        pageMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+        pageMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        pageMeta.setDisplayName(ChatColor.GREEN + "sell all");
+
         pageItem.setItemMeta(pageMeta);
         return pageItem;
     }

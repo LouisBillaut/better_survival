@@ -873,6 +873,23 @@ public class PlayerListener implements Listener {
         return false;
     }
 
+    public int removeAllItemFromPlayerInventory(org.bukkit.entity.Player player, ItemStack itemStack) {
+        Inventory inventory = player.getInventory();
+        ItemStack[] contents = inventory.getContents();
+
+        int totalRemoved = 0;
+
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack currentItem = contents[i];
+            if (currentItem != null && currentItem.isSimilar(itemStack)) {
+                totalRemoved += currentItem.getAmount();
+                inventory.setItem(i, null);
+            }
+        }
+
+        return totalRemoved;
+    }
+
 
     private void giveOrDropItem(org.bukkit.entity.Player player, ItemStack item) {
         if (player.getInventory().firstEmpty() == -1) {
@@ -1140,7 +1157,7 @@ public class PlayerListener implements Listener {
             game.displayBsBucksInventoryToPlayer(instance, player);
         }
 
-        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "buy")) {
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "sell")) {
             String strippedInput = ChatColor.stripColor(event.getClickedInventory().getItem(event.getSlot() - 2).getItemMeta().getDisplayName());
             int price = 0;
             try {
@@ -1154,6 +1171,25 @@ public class PlayerListener implements Listener {
                 return;
             }
             playerInGame.addBsBucks(price);
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.GREEN + "You have now " + ChatColor.GOLD + playerInGame.getBsBucks() + " bsBucks");
+        }
+
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "sell all")) {
+            String strippedInput = ChatColor.stripColor(event.getClickedInventory().getItem(event.getSlot() - 3).getItemMeta().getDisplayName());
+            int price = 0;
+            try {
+                price = Integer.parseInt(strippedInput);
+            } catch (NumberFormatException e){
+                return;
+            }
+            if(price == 0) return;
+            ItemStack itemNeeded = event.getClickedInventory().getItem(event.getSlot() - 5);
+            var nbSell = removeAllItemFromPlayerInventory(player, itemNeeded);
+            if (nbSell == 0) {
+                return;
+            }
+            playerInGame.addBsBucks(price * nbSell);
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
             player.sendMessage(ChatColor.GREEN + "You have now " + ChatColor.GOLD + playerInGame.getBsBucks() + " bsBucks");
         }
