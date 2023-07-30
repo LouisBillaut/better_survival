@@ -213,6 +213,15 @@ public class BsBucks {
             new BSItem(getSilkTouchBook(), 550)
     ));
 
+    public boolean containsItem(ItemStack itemStack) {
+        for(BSItem bsItem: itemsToSale) {
+            if (bsItem.getItem().getType().equals(itemStack.getType())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public List<BSItem> getItemsToSale() {
         return itemsToSale;
     }

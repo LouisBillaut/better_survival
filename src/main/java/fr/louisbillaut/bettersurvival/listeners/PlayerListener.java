@@ -6,7 +6,6 @@ import fr.louisbillaut.bettersurvival.game.Player;
 import fr.louisbillaut.bettersurvival.utils.ActionBar;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import fr.louisbillaut.bettersurvival.utils.Selector;
-import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -26,7 +25,6 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -1062,6 +1060,12 @@ public class PlayerListener implements Listener {
         Villager villager = (Villager) clickedInventory.getHolder();
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType().isAir()) return;
+        if(!villager.isCustomNameVisible() && villager.getCustomName() == null) {
+            if(game.getBs().containsItem(clickedItem)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
         Shop shop = findShopByVillager(game.getAllShops(), villager);
         if(shop == null) return;
         if (event.isShiftClick()) {

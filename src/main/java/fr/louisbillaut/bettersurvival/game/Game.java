@@ -133,6 +133,10 @@ public class Game implements Serializable {
         return players;
     }
 
+    public BsBucks getBs() {
+        return bs;
+    }
+
     public void displayBsBucksInventoryToPlayer(Main instance, org.bukkit.entity.Player player) {
         int page = 0;
         if(player.hasMetadata("bsBucksPage")) {
