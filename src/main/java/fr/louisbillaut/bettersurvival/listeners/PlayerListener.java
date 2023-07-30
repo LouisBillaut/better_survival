@@ -351,12 +351,6 @@ public class PlayerListener implements Listener {
         return messages.get(index);
     }
 
-    private void sendWelcomeTitle(org.bukkit.entity.Player player, String playerName, String plotName) {
-        String title = ChatColor.GREEN + Main.sendLocalizedMessage("welcome");
-        String subtitle = plotName + " " + Main.sendLocalizedMessage("of") + " " + playerName;
-        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
-        player.sendTitle(title, subtitle, 10, 70, 20);
-    }
     private void enterWhitelistDetector(PlayerMoveEvent event) {
         var playersInGame = game.getPlayers();
         for(Player playerIG: playersInGame) {
@@ -367,7 +361,7 @@ public class PlayerListener implements Listener {
                 if(p.getPlayerEnter().equals(Plot.PlotSetting.ACTIVATED)) {
                     if(Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight()) && !event.getPlayer().hasMetadata(p.getName())) {
                         event.getPlayer().setMetadata(p.getName(), new FixedMetadataValue(instance, true));
-                        sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
+                        playerIG.sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
                     } else if (!Detector.isInZone(playerLocation, p.getLocation1(), p.getLocation2(), p.getHeight()) && event.getPlayer().hasMetadata(p.getName())){
                         if(event.getPlayer().hasMetadata(p.getName())) {
                             event.getPlayer().removeMetadata(p.getName(), instance);
@@ -414,7 +408,7 @@ public class PlayerListener implements Listener {
                         && p.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)
                         && Detector.isInWhiteList(event.getPlayer(), p.getPlayerEnterWhitelist())) {
                     event.getPlayer().setMetadata(p.getName(), new FixedMetadataValue(instance, true));
-                    sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
+                    playerIG.sendWelcomeTitle(event.getPlayer(), playerIG.getPlayerName(), p.getName());
                 }
                 if (!Detector.isInZone(event.getTo(), p.getLocation1(), p.getLocation2(), p.getHeight())
                         && event.getPlayer().hasMetadata(p.getName())
