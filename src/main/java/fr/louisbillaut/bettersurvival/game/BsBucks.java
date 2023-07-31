@@ -215,7 +215,7 @@ public class BsBucks {
 
     public boolean containsItem(ItemStack itemStack) {
         for(BSItem bsItem: itemsToSale) {
-            if (bsItem.getItem().getType().equals(itemStack.getType())) {
+            if (bsItem.getItem().isSimilar(itemStack)) {
                 return true;
             }
         }
