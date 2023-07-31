@@ -10,6 +10,9 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,9 +28,11 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -420,14 +425,70 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void silkTouchEvent(BlockBreakEvent event) {
+        ItemStack tool = event.getPlayer().getInventory().getItemInMainHand();
+        if (hasSilkTouchEnchantment(tool) && event.getBlock().getType() == Material.SPAWNER) {
+            event.setCancelled(true);
+
+            Block spawnerBlock = event.getBlock();
+            ItemStack spawnerItem = new ItemStack(Material.SPAWNER);
+
+            BlockStateMeta meta = (BlockStateMeta) spawnerItem.getItemMeta();
+            CreatureSpawner capturedSpawner = (CreatureSpawner) spawnerBlock.getState();
+            CreatureSpawner newSpawner = (CreatureSpawner) meta.getBlockState();
+            newSpawner.setSpawnedType(capturedSpawner.getSpawnedType());
+            meta.setBlockState(newSpawner);
+
+            meta.getPersistentDataContainer().set(new NamespacedKey(instance, "mobtype"), PersistentDataType.STRING, capturedSpawner.getSpawnedType().toString());
+
+            String displayName = capturedSpawner.getSpawnedType().toString().toLowerCase();
+            if (displayName != null) {
+                meta.setDisplayName(ChatColor.GOLD + displayName + " spawner");
+            }
+
+            spawnerItem.setItemMeta(meta);
+
+            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), spawnerItem);
+
+            spawnerBlock.setType(Material.AIR);
+        }
+    }
+
+    private void spawnerPlace(BlockPlaceEvent event) {
+        ItemStack spawnerItem = event.getItemInHand();
+        if (spawnerItem.getType() == Material.SPAWNER) {
+            Block placedBlock = event.getBlockPlaced();
+            BlockStateMeta meta = (BlockStateMeta) spawnerItem.getItemMeta();
+            CreatureSpawner newSpawner = (CreatureSpawner) meta.getBlockState();
+
+            if (meta.getPersistentDataContainer().has(new NamespacedKey(instance, "mobtype"), PersistentDataType.STRING)) {
+                String mobType = meta.getPersistentDataContainer().get(new NamespacedKey(instance, "mobtype"), PersistentDataType.STRING);
+
+                try {
+                    org.bukkit.entity.EntityType entityType = org.bukkit.entity.EntityType.valueOf(mobType);
+                    newSpawner.setSpawnedType(entityType);
+                    placedBlock.setType(Material.SPAWNER);
+                    CreatureSpawner placedSpawner = (CreatureSpawner) placedBlock.getState();
+                    placedSpawner.setSpawnedType(newSpawner.getSpawnedType());
+                    placedSpawner.update();
+                    spawnerItem.setAmount(spawnerItem.getAmount() - 1);
+                } catch (IllegalArgumentException ex) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         buildPlaceWhitelistDetector(event);
+        spawnerPlace(event);
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         buildBreakWhitelistDetector(event);
+        silkTouchEvent(event);
     }
 
     @EventHandler
@@ -1237,5 +1298,12 @@ public class PlayerListener implements Listener {
                 }
             }
         }
+    }
+
+    private boolean hasSilkTouchEnchantment(ItemStack item) {
+        Bukkit.getLogger().info("enchants: " + item.getEnchantments());
+        Bukkit.getLogger().info("silk touch: " + Enchantment.SILK_TOUCH.getKey().getKey());
+        Enchantment silkTouch = new EnchantmentWrapper(Enchantment.SILK_TOUCH.getKey().getKey());
+        return item.containsEnchantment(silkTouch);
     }
 }
