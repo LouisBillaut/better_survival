@@ -21,7 +21,6 @@ public class Axolotl extends Pet {
         axolotl.setBreed(false);
         axolotl.setAgeLock(true);
         axolotl.setAI(false);
-        axolotl.setVariant(org.bukkit.entity.Axolotl.Variant.LUCY);
 
         axolotl.addScoreboardTag(invulnerableTag);
 
