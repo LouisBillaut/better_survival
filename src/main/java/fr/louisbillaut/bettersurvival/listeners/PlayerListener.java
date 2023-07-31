@@ -1301,8 +1301,6 @@ public class PlayerListener implements Listener {
     }
 
     private boolean hasSilkTouchEnchantment(ItemStack item) {
-        Bukkit.getLogger().info("enchants: " + item.getEnchantments());
-        Bukkit.getLogger().info("silk touch: " + Enchantment.SILK_TOUCH.getKey().getKey());
         Enchantment silkTouch = new EnchantmentWrapper(Enchantment.SILK_TOUCH.getKey().getKey());
         return item.containsEnchantment(silkTouch);
     }
