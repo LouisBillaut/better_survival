@@ -4,15 +4,21 @@ import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.utils.Head;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class LavaGhost extends Pet {
     public LavaGhost(Main instance, Player owner) {
         super(instance, owner);
+        price = 0;
+        ItemStack block = new ItemStack(Material.MAGMA_BLOCK);
+        ItemMeta itemMeta = block.getItemMeta();
+        itemMeta.setDisplayName(ChatColor.GREEN + "Lava Ghost");
+        item = block;
+        isSecret = true;
     }
     @Override
     public void spawn() {

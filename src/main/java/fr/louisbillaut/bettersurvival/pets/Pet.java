@@ -1,11 +1,11 @@
 package fr.louisbillaut.bettersurvival.pets;
 
 import fr.louisbillaut.bettersurvival.Main;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -17,6 +17,9 @@ public abstract class Pet {
     protected final Player owner;
     protected final Main instance;
     protected List<LivingEntity> entities;
+    protected boolean isSecret = false;
+    protected ItemStack item;
+    protected int price;
     protected BukkitTask animation;
     protected BukkitTask followTask;
 
@@ -24,6 +27,14 @@ public abstract class Pet {
         this.owner = owner;
         this.instance = instance;
         this.entities = new ArrayList<>();
+    }
+
+    public ItemStack getItem() {
+        return item;
+    }
+
+    public int getPrice() {
+        return price;
     }
 
     public abstract void spawn();

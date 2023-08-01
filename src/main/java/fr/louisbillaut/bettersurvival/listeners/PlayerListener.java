@@ -3,6 +3,10 @@ package fr.louisbillaut.bettersurvival.listeners;
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.*;
 import fr.louisbillaut.bettersurvival.game.Player;
+import fr.louisbillaut.bettersurvival.pets.*;
+import fr.louisbillaut.bettersurvival.pets.Fox;
+import fr.louisbillaut.bettersurvival.pets.MagmaCube;
+import fr.louisbillaut.bettersurvival.pets.Sheep;
 import fr.louisbillaut.bettersurvival.utils.ActionBar;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import fr.louisbillaut.bettersurvival.utils.Selector;
@@ -14,6 +18,7 @@ import org.bukkit.block.CreatureSpawner;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.*;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -45,6 +50,8 @@ public class PlayerListener implements Listener {
     private Main instance;
     private static int emptyTradeSlot = 12;
     private static int amountSlot = 11;
+
+    private final Map<org.bukkit.entity.Player, Pet> pets = new HashMap<>();
     public PlayerListener(Main instance, Game game) {
         this.game = game;
         this.instance = instance;
@@ -675,6 +682,7 @@ public class PlayerListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         org.bukkit.entity.Player player = event.getPlayer();
         removeAllArmorStandsAndTasks(player);
+        removePet(player);
     }
 
     public void sendClickableMessage(org.bukkit.entity.Player player) {
@@ -706,6 +714,28 @@ public class PlayerListener implements Listener {
             player.login();
         }
         sendClickableMessage(event.getPlayer());
+
+        // pets
+        spawnBabyWolfPet(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
+        //babyWolfPet.handleSneakToggle(event);
+    }
+
+    private void spawnBabyWolfPet(org.bukkit.entity.Player player) {
+        var babyWolfPet = new LavaGhost(instance, player);
+        babyWolfPet.spawn();
+        pets.put(player, babyWolfPet);
+    }
+
+    // TODO onEnable and onDisable
+    private void removePet(org.bukkit.entity.Player player) {
+        Pet pet = pets.remove(player);
+        if (pet != null) {
+            pet.despawn();
+        }
     }
 
     private void plotSettingClickEvent(InventoryClickEvent event) {

@@ -6,6 +6,7 @@ import fr.louisbillaut.bettersurvival.game.Shop;
 import fr.louisbillaut.bettersurvival.game.Trade;
 import fr.louisbillaut.bettersurvival.listeners.EntityListener;
 import fr.louisbillaut.bettersurvival.listeners.PlayerListener;
+import fr.louisbillaut.bettersurvival.pets.listeners.EntityDamage;
 import fr.louisbillaut.bettersurvival.runnables.ClaimRunnable;
 import fr.louisbillaut.bettersurvival.runnables.DailyRewardsRunnable;
 import fr.louisbillaut.bettersurvival.utils.DiscordWebhook;
@@ -37,6 +38,7 @@ public class Main extends JavaPlugin {
     private void initializeListeners() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this, game), this);
         getServer().getPluginManager().registerEvents(new EntityListener(), this);
+        getServer().getPluginManager().registerEvents(new EntityDamage(), this);
     }
 
     private void initializeRunnables() {

@@ -1,13 +1,28 @@
 package fr.louisbillaut.bettersurvival.pets;
 
 import fr.louisbillaut.bettersurvival.Main;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Cat extends Pet {
     public Cat(Main instance, Player owner) {
         super(instance, owner);
+        price = 15000;
+        ItemStack catEgg = new ItemStack(Material.CAT_SPAWN_EGG);
+        ItemMeta itemMeta = catEgg.getItemMeta();
+        itemMeta.setDisplayName(ChatColor.GREEN + "Cat");
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        catEgg.setItemMeta(itemMeta);
+        item = new ItemStack(catEgg);
     }
     @Override
     public void spawn() {
