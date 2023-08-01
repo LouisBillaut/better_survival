@@ -5,6 +5,7 @@ import fr.louisbillaut.bettersurvival.utils.Head;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
@@ -16,6 +17,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
 
@@ -152,7 +154,6 @@ public abstract class Pet {
 
         int index = 10;
         for(var i = 0; i < petsList.size(); i++) {
-            Bukkit.getLogger().info("index: " + (index + i));
             if (petsList.get(i).isSecret) {
                 index --;
                 continue;
@@ -166,5 +167,44 @@ public abstract class Pet {
         }
 
         player.openInventory(inventory);
+    }
+
+    public static Pet getPetFromName(String name) {
+        for(Pet pet: petsList) {
+            if (Objects.requireNonNull(pet.getItem().getItemMeta()).getDisplayName().equals(name)) {
+                return pet;
+            }
+        }
+
+        return null;
+    }
+
+    public static void displayValidatePetBuy(Player player, ItemStack itemStack) {
+        Inventory inventory = Bukkit.createInventory(null, 27, "Pet Validate");
+        for (int slot = 0; slot < 27; slot++) {
+            inventory.setItem(slot, createGlassBlock());
+        }
+
+        inventory.setItem(12, itemStack);
+        inventory.setItem(14, createBuyItem());
+        inventory.setItem(18, backItem());
+        player.openInventory(inventory);
+    }
+
+
+    private static ItemStack backItem() {
+        var head = Head.getCustomHead(Head.quartzArrowLeft);
+        ItemMeta meta = head.getItemMeta();
+        meta.setDisplayName(ChatColor.GRAY + "back");
+        head.setItemMeta(meta);
+
+        return head;
+    }
+    private static ItemStack createBuyItem() {
+        ItemStack pageItem = new ItemStack(Material.SLIME_BALL);
+        ItemMeta pageMeta = pageItem.getItemMeta();
+        pageMeta.setDisplayName(ChatColor.GREEN + "buy");
+        pageItem.setItemMeta(pageMeta);
+        return pageItem;
     }
 }

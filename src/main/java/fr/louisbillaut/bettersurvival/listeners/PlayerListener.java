@@ -1284,6 +1284,58 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void petShopClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (!event.getView().getTitle().contains("Pets shop")) return;
+        event.setCancelled(true);
+        if(event.getClickedInventory().getItem(0) == null)return;
+        ItemStack clickedItem = event.getCurrentItem();
+        if(clickedItem == null) return;
+        ItemMeta clickedMeta = clickedItem.getItemMeta();
+        if (clickedMeta != null && (clickedMeta.getDisplayName().equals(" ") || clickedMeta.getDisplayName().equals(ChatColor.GOLD + "Pets"))) return;
+        player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+        Pet.displayValidatePetBuy(player, clickedItem);
+    }
+
+    private void petValidateClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (!event.getView().getTitle().contains("Pet Validate")) return;
+        event.setCancelled(true);
+        ItemStack clickedItem = event.getCurrentItem();
+        if(clickedItem == null) return;
+        ItemMeta clickedMeta = clickedItem.getItemMeta();
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "buy")) {
+            Player playerInGame = game.getPlayer(player);
+            if (playerInGame == null) return;
+            ItemStack itemStackPet = event.getClickedInventory().getItem(event.getSlot() - 2);
+            Pet pet = Pet.getPetFromName(itemStackPet.getItemMeta().getDisplayName());
+            if (pet == null) return;
+            int price = pet.getPrice();
+            if (playerInGame.getBsBucks() < pet.getPrice()) {
+                player.sendMessage(ChatColor.RED + "You don't have enough bsBucks");
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                return;
+            }
+            playerInGame.setBsBucks(playerInGame.getBsBucks() - price);
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
+            player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.GREEN + "Pet " + pet.getItem().getItemMeta().getDisplayName() + ChatColor.GREEN + " purchased successfully !");
+            player.closeInventory();
+            return;
+        }
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            Pet.displayAllPetsInventory(player);
+            return;
+        }
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         plotSettingClickEvent(event);
@@ -1296,6 +1348,8 @@ public class PlayerListener implements Listener {
         shopAllTradesListClickEvent(event);
         listClaimsClickEvent(event);
         bsItemBuyEvent(event);
+        petShopClickEvent(event);
+        petValidateClickEvent(event);
     }
 
     @EventHandler
