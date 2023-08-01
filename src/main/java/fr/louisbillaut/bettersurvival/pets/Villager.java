@@ -13,16 +13,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Villager extends Pet {
-    public Villager(Main instance, Player owner) {
-        super(instance, owner);
+    private void setFields() {
         price = 10000;
         ItemStack egg = new ItemStack(Material.VILLAGER_SPAWN_EGG);
         ItemMeta itemMeta = egg.getItemMeta();
         itemMeta.setDisplayName(ChatColor.GREEN + "Villager");
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        itemMeta.setLore(lore);
         egg.setItemMeta(itemMeta);
         item = new ItemStack(egg);
+    }
+    public Villager() {
+        setFields();
+    }
+    public Villager(Main instance, Player owner) {
+        super(instance, owner);
+        setFields();
     }
     @Override
     public void spawn() {

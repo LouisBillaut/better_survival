@@ -13,16 +13,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Slime extends Pet {
-    public Slime(Main instance, Player owner) {
-        super(instance, owner);
+    private void setFields() {
         price = 10000;
         ItemStack egg = new ItemStack(Material.SLIME_SPAWN_EGG);
         ItemMeta itemMeta = egg.getItemMeta();
         itemMeta.setDisplayName(ChatColor.GREEN + "Slime");
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        itemMeta.setLore(lore);
         egg.setItemMeta(itemMeta);
         item = new ItemStack(egg);
+    }
+    public Slime() {
+        setFields();
+    }
+    public Slime(Main instance, Player owner) {
+        super(instance, owner);
+        setFields();
     }
     @Override
     public void spawn() {

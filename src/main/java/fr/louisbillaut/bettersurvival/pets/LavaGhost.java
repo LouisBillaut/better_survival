@@ -11,6 +11,15 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class LavaGhost extends Pet {
+    public LavaGhost() {
+        price = 0;
+        ItemStack block = new ItemStack(Material.MAGMA_BLOCK);
+        ItemMeta itemMeta = block.getItemMeta();
+        itemMeta.setDisplayName(ChatColor.GREEN + "Lava Ghost");
+        block.setItemMeta(itemMeta);
+        item = block;
+        isSecret = true;
+    }
     public LavaGhost(Main instance, Player owner) {
         super(instance, owner);
         price = 0;

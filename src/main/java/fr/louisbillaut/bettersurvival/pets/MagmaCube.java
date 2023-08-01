@@ -13,16 +13,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MagmaCube extends Pet {
-    public MagmaCube(Main instance, Player owner) {
-        super(instance, owner);
+
+    private void setFields() {
         price = 10000;
         ItemStack allayEgg = new ItemStack(Material.MAGMA_CUBE_SPAWN_EGG);
         ItemMeta itemMeta = allayEgg.getItemMeta();
         itemMeta.setDisplayName(ChatColor.GREEN + "Magma cube");
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        itemMeta.setLore(lore);
         allayEgg.setItemMeta(itemMeta);
         item = new ItemStack(allayEgg);
+    }
+    public MagmaCube() {
+        setFields();
+    }
+    public MagmaCube(Main instance, Player owner) {
+        super(instance, owner);
+        setFields();
     }
     @Override
     public void spawn() {

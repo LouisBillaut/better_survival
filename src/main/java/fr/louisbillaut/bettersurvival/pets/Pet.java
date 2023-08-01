@@ -1,21 +1,28 @@
 package fr.louisbillaut.bettersurvival.pets;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.utils.Head;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
+
 public abstract class Pet {
     public static final String invulnerableTag = "invulnerable";
-    protected final Player owner;
-    protected final Main instance;
+    protected Player owner;
+    protected Main instance;
     protected List<LivingEntity> entities;
     protected boolean isSecret = false;
     protected ItemStack item;
@@ -23,6 +30,33 @@ public abstract class Pet {
     protected BukkitTask animation;
     protected BukkitTask followTask;
 
+    public static List<Pet> petsList = new ArrayList<>(List.of(
+            new Allay(),
+            new Axolotl(),
+            new Bee(),
+            new Cat(),
+            new Chicken(),
+            new Cow(),
+            new Fox(),
+            new Frog(),
+            new Goat(),
+            new LavaGhost(),
+            new MagmaCube(),
+            new Panda(),
+            new Parrot(),
+            new Pig(),
+            new PolarBear(),
+            new PufferFish(),
+            new Rabbit(),
+            new Sheep(),
+            new Slime(),
+            new Villager(),
+            new Wolf()
+    ));
+
+    public Pet() {
+
+    }
     public Pet(Main instance, Player owner) {
         this.owner = owner;
         this.instance = instance;
@@ -35,6 +69,10 @@ public abstract class Pet {
 
     public int getPrice() {
         return price;
+    }
+
+    public boolean isSecret() {
+        return isSecret;
     }
 
     public abstract void spawn();
@@ -97,5 +135,36 @@ public abstract class Pet {
                 spawn();
             }
         }
+    }
+
+    public static void displayAllPetsInventory(Player player) {
+        Inventory inventory = Bukkit.createInventory(null, 54, "Pets shop");
+
+        for (int slot = 0; slot < 54; slot++) {
+            inventory.setItem(slot, createGlassBlock());
+        }
+
+        var sniffer = Head.getCustomHead(Head.snifferEgg);
+        ItemMeta meta = sniffer.getItemMeta();
+        meta.setDisplayName(ChatColor.GOLD + "Pets");
+        sniffer.setItemMeta(meta);
+        inventory.setItem(0, sniffer);
+
+        int index = 10;
+        for(var i = 0; i < petsList.size(); i++) {
+            Bukkit.getLogger().info("index: " + (index + i));
+            if (petsList.get(i).isSecret) {
+                index --;
+                continue;
+            }
+            if((index + i) == 16 || (index + i) == 25 || (index + i) == 34 || (index + i) == 43) {
+                inventory.setItem(index + i, petsList.get(i).getItem());
+                index += 2;
+            } else {
+                inventory.setItem(index + i, petsList.get(i).getItem());
+            }
+        }
+
+        player.openInventory(inventory);
     }
 }

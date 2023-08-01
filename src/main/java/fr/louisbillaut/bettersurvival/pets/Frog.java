@@ -13,16 +13,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Frog extends Pet {
-    public Frog(Main instance, Player owner) {
-        super(instance, owner);
+    private void setFields() {
         price = 10000;
         ItemStack frogEgg = new ItemStack(Material.FROG_SPAWN_EGG);
         ItemMeta itemMeta = frogEgg.getItemMeta();
         itemMeta.setDisplayName(ChatColor.GREEN + "Frog");
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        itemMeta.setLore(lore);
         frogEgg.setItemMeta(itemMeta);
         item = new ItemStack(frogEgg);
+    }
+    public Frog() {
+        setFields();
+    }
+    public Frog(Main instance, Player owner) {
+        super(instance, owner);
+        setFields();
     }
     @Override
     public void spawn() {

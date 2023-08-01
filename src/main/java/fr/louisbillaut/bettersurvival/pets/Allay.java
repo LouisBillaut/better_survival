@@ -14,16 +14,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Allay extends Pet {
-    public Allay(Main instance, Player owner) {
-        super(instance, owner);
+
+    private void setFields() {
         price = 10000;
         ItemStack allayEgg = new ItemStack(Material.BLAZE_SPAWN_EGG);
         ItemMeta itemMeta = allayEgg.getItemMeta();
         itemMeta.setDisplayName(ChatColor.GREEN + "Allay");
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        itemMeta.setLore(lore);
         allayEgg.setItemMeta(itemMeta);
         item = new ItemStack(allayEgg);
+    }
+    public Allay() {
+        super();
+        setFields();
+    }
+    public Allay(Main instance, Player owner) {
+        super(instance, owner);
+        setFields();
     }
     @Override
     public void spawn() {

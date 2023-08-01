@@ -13,16 +13,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Panda extends Pet {
-    public Panda(Main instance, Player owner) {
-        super(instance, owner);
+    private void setFields() {
         price = 10000;
         ItemStack allayEgg = new ItemStack(Material.PANDA_SPAWN_EGG);
         ItemMeta itemMeta = allayEgg.getItemMeta();
         itemMeta.setDisplayName(ChatColor.GREEN + "Panda");
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        itemMeta.setLore(lore);
         allayEgg.setItemMeta(itemMeta);
         item = new ItemStack(allayEgg);
+    }
+    public Panda() {
+        setFields();
+    }
+    public Panda(Main instance, Player owner) {
+        super(instance, owner);
+        setFields();
     }
     @Override
     public void spawn() {

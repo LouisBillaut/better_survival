@@ -13,16 +13,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Cat extends Pet {
-    public Cat(Main instance, Player owner) {
-        super(instance, owner);
+
+    private void setFields() {
         price = 15000;
         ItemStack catEgg = new ItemStack(Material.CAT_SPAWN_EGG);
         ItemMeta itemMeta = catEgg.getItemMeta();
         itemMeta.setDisplayName(ChatColor.GREEN + "Cat");
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        itemMeta.setLore(lore);
         catEgg.setItemMeta(itemMeta);
         item = new ItemStack(catEgg);
+    }
+    public Cat() {
+        setFields();
+    }
+    public Cat(Main instance, Player owner) {
+        super(instance, owner);
+        setFields();
     }
     @Override
     public void spawn() {
