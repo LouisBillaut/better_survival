@@ -1,12 +1,13 @@
 package fr.louisbillaut.bettersurvival.pets;
 
 import fr.louisbillaut.bettersurvival.Main;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,8 @@ public abstract class Pet {
     protected final Player owner;
     protected final Main instance;
     protected List<LivingEntity> entities;
+    protected BukkitTask animation;
+    protected BukkitTask followTask;
 
     public Pet(Main instance, Player owner) {
         this.owner = owner;
@@ -31,10 +34,16 @@ public abstract class Pet {
                 entity.remove();
             }
         }
+        if (animation != null) {
+            animation.cancel();
+        }
+        if (followTask != null) {
+            followTask.cancel();
+        }
         entities.clear();
     }
     protected void startFollowTask() {
-        new BukkitRunnable() {
+        followTask = new BukkitRunnable() {
             @Override
             public void run() {
                 if (entities.isEmpty() || owner == null || owner.isDead()) {
