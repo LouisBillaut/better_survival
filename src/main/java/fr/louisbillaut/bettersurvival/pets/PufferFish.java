@@ -32,7 +32,7 @@ public class PufferFish extends Pet {
         setFields();
     }
     @Override
-    public void spawn() {
+    public void spawn(Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.PufferFish pufferFish = (org.bukkit.entity.PufferFish) owner.getWorld().spawnEntity(location, EntityType.PUFFERFISH);
         pufferFish.setInvulnerable(true);
@@ -45,6 +45,6 @@ public class PufferFish extends Pet {
 
         entities.add(pufferFish);
 
-        startFollowTask();
+        startFollowTask(owner);
     }
 }

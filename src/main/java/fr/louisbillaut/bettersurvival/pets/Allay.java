@@ -35,7 +35,7 @@ public class Allay extends Pet {
         setFields();
     }
     @Override
-    public void spawn() {
+    public void spawn(Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.Allay allay = (org.bukkit.entity.Allay) owner.getWorld().spawnEntity(location, EntityType.ALLAY);
         allay.setCanDuplicate(false);
@@ -49,6 +49,6 @@ public class Allay extends Pet {
 
         entities.add(allay);
 
-        startFollowTask();
+        startFollowTask(owner);
     }
 }

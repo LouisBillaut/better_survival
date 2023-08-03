@@ -23,7 +23,6 @@ import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
 
 public abstract class Pet {
     public static final String invulnerableTag = "invulnerable";
-    protected Player owner;
     protected Main instance;
     protected List<LivingEntity> entities;
     protected boolean isSecret = false;
@@ -60,7 +59,6 @@ public abstract class Pet {
 
     }
     public Pet(Main instance, Player owner) {
-        this.owner = owner;
         this.instance = instance;
         this.entities = new ArrayList<>();
     }
@@ -77,7 +75,7 @@ public abstract class Pet {
         return isSecret;
     }
 
-    public abstract void spawn();
+    public abstract void spawn(Player player);
 
     public void despawn() {
         for (LivingEntity entity : entities) {
@@ -93,7 +91,7 @@ public abstract class Pet {
         }
         entities.clear();
     }
-    protected void startFollowTask() {
+    protected void startFollowTask(Player owner) {
         followTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -129,12 +127,12 @@ public abstract class Pet {
         }.runTaskTimerAsynchronously(instance, 0L, 1);
     }
 
-    public void handleSneakToggle(PlayerToggleSneakEvent event) {
+    public void handleSneakToggle(Player owner, PlayerToggleSneakEvent event) {
         if (event.getPlayer().equals(owner)) {
             if (event.isSneaking()) {
                 despawn();
             } else {
-                spawn();
+                spawn(owner);
             }
         }
     }

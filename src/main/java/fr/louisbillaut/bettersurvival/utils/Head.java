@@ -18,6 +18,7 @@ public class Head {
     public static String quartzArrowLeft = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWYxMzNlOTE5MTlkYjBhY2VmZGMyNzJkNjdmZDg3YjRiZTg4ZGM0NGE5NTg5NTg4MjQ0NzRlMjFlMDZkNTNlNiJ9fX0=";
     public static String ghostLava = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGQ0Zjc4YzE1YjM1ZDQ3OWRmYTE3NjRmZWJlMTgzMjdjZDk3NjJlNDc0ZDZhYWVmYmY5OWQ3MDNlZDg1Njg1MCJ9fX0=";
     public static String snifferEgg = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODJjNDAzM2EzMmEwMTM1ZTk3YzJiNWJjOWRiNGZkZWEzM2FkMDhlMGY4ZjNkMTY4YzcxNzkyZjBmOWZhYmFjIn19fQ==";
+    public static String rainCloud = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDY2YjEwYmY2ZWUyY2Q3ZTNhYzk2ZDk3NDllYTYxNmFhOWM3MzAzMGJkY2FlZmZhZWQyNDllNTVjODQ5OTRhYyJ9fX0=";
     public static ItemStack getCustomHead(String texture) {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD, 1, (short) SkullType.PLAYER.ordinal());
         SkullMeta meta = (SkullMeta) head.getItemMeta();

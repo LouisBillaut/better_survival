@@ -34,7 +34,7 @@ public class Fox extends Pet {
         setFields();
     }
     @Override
-    public void spawn() {
+    public void spawn(Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.Fox fox = (org.bukkit.entity.Fox) owner.getWorld().spawnEntity(location, EntityType.FOX);
         fox.setBaby();
@@ -49,6 +49,6 @@ public class Fox extends Pet {
 
         entities.add(fox);
 
-        startFollowTask();
+        startFollowTask(owner);
     }
 }

@@ -32,7 +32,7 @@ public class PolarBear extends Pet {
         setFields();
     }
     @Override
-    public void spawn() {
+    public void spawn(Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.PolarBear polarBear = (org.bukkit.entity.PolarBear) owner.getWorld().spawnEntity(location, EntityType.POLAR_BEAR);
         polarBear.setBaby();
@@ -47,6 +47,6 @@ public class PolarBear extends Pet {
 
         entities.add(polarBear);
 
-        startFollowTask();
+        startFollowTask(owner);
     }
 }

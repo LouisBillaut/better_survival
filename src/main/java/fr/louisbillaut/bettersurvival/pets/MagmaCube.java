@@ -33,7 +33,7 @@ public class MagmaCube extends Pet {
         setFields();
     }
     @Override
-    public void spawn() {
+    public void spawn(Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.MagmaCube magmaCube = (org.bukkit.entity.MagmaCube) owner.getWorld().spawnEntity(location, EntityType.MAGMA_CUBE);
         magmaCube.setInvulnerable(true);
@@ -46,6 +46,6 @@ public class MagmaCube extends Pet {
 
         entities.add(magmaCube);
 
-        startFollowTask();
+        startFollowTask(owner);
     }
 }

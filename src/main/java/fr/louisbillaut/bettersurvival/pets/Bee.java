@@ -34,7 +34,7 @@ public class Bee extends Pet {
         setFields();
     }
     @Override
-    public void spawn() {
+    public void spawn(Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.Bee bee = (org.bukkit.entity.Bee) owner.getWorld().spawnEntity(location, EntityType.BEE);
         bee.setInvulnerable(true);
@@ -49,6 +49,6 @@ public class Bee extends Pet {
 
         entities.add(bee);
 
-        startFollowTask();
+        startFollowTask(owner);
     }
 }
