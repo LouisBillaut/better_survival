@@ -1,20 +1,38 @@
 package fr.louisbillaut.bettersurvival.animations;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.utils.Head;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Heart extends Animation {
     private final Random random = new Random();
+    private void setFields() {
+        price = 10000;
+        var head = Head.getCustomHead(Head.Heart);
+        var meta = head.getItemMeta();
+        meta.setDisplayName(ChatColor.GREEN + "Heart");
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        meta.setLore(lore);
+        head.setItemMeta(meta);
+
+        item = head;
+    }
     public Heart() {
         super();
+        setFields();
     }
     public Heart(Main instance) {
         super(instance);
+        setFields();
     }
 
     private void spawnParticle(Player player) {

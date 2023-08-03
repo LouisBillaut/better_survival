@@ -2,10 +2,7 @@ package fr.louisbillaut.bettersurvival.animations;
 
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.utils.Head;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -14,16 +11,32 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Storm extends Animation {
     private final Random random = new Random();
     private ArmorStand armorStand;
+    private void setFields() {
+        price = 20000;
+        var head = Head.getCustomHead(Head.rainCloud);
+        var meta = head.getItemMeta();
+        meta.setDisplayName(ChatColor.GREEN + "Storm");
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        meta.setLore(lore);
+        head.setItemMeta(meta);
+
+        item = head;
+    }
     public Storm() {
         super();
+        setFields();
     }
     public Storm(Main instance) {
         super(instance);
+        setFields();
     }
 
     private void spawnParticle(Player player) {
@@ -33,7 +46,7 @@ public class Storm extends Animation {
 
         armorStand.teleport(armorStandLocation);
 
-        player.getWorld().spawnParticle(Particle.FALLING_DRIPSTONE_WATER, playerLocation.clone().add(0, 2.5, 0).add(eyeDirection), 1, 0.2, 0, 0.2, 1);
+        player.getWorld().spawnParticle(Particle.FALLING_WATER, playerLocation.clone().add(0, 2.5, 0).add(eyeDirection), 1, 0.2, 0, 0.2, 1);
     }
 
     @Override

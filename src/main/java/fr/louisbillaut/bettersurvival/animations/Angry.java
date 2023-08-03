@@ -1,21 +1,42 @@
 package fr.louisbillaut.bettersurvival.animations;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.utils.Head;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Angry extends Animation {
     private final Random random = new Random();
+
+    private void setFields() {
+        price = 10000;
+        var head = Head.getCustomHead(Head.angry);
+        var meta = head.getItemMeta();
+        meta.setDisplayName(ChatColor.GREEN + "Angry");
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GOLD + "price: " + price + " bsBucks");
+        meta.setLore(lore);
+        head.setItemMeta(meta);
+
+        item = head;
+    }
     public Angry() {
         super();
+
+        setFields();
     }
     public Angry(Main instance) {
         super(instance);
+
+        setFields();
     }
 
     private void spawnParticle(Player player) {

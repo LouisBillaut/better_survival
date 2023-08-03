@@ -1,6 +1,7 @@
 package fr.louisbillaut.bettersurvival.commands;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.animations.Animation;
 import fr.louisbillaut.bettersurvival.game.Game;
 import fr.louisbillaut.bettersurvival.pets.Pet;
 import org.bukkit.command.Command;
@@ -43,7 +44,8 @@ public class BucksCommand implements CommandExecutor {
                     showBsBuck(player);
                 }
                 case "shop" -> {
-                    Pet.displayAllPetsInventory(player);
+                    //Pet.displayAllPetsInventory(player);
+                    Animation.displayAllAnimationsInventory(player);
                 }
             }
         }
