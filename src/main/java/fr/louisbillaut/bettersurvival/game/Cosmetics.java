@@ -158,6 +158,7 @@ public class Cosmetics {
             }
         }
 
+        inventory.setItem(4, createRemovePetItem());
         inventory.setItem(45, backItem());
         player.getBukkitPlayer().openInventory(inventory);
     }
@@ -188,6 +189,7 @@ public class Cosmetics {
             }
         }
 
+        inventory.setItem(4, createRemoveAnimationItem());
         inventory.setItem(45, backItem());
         player.getBukkitPlayer().openInventory(inventory);
     }
@@ -210,6 +212,22 @@ public class Cosmetics {
         itemStack.setItemMeta(itemMeta);
         Inventory inventory = Bukkit.createInventory(null, 27, "Equip pet");
         setEquipInv(player, itemStack, inventory);
+    }
+
+    public static ItemStack createRemovePetItem() {
+        ItemStack pageItem = new ItemStack(Material.BARRIER);
+        ItemMeta pageMeta = pageItem.getItemMeta();
+        pageMeta.setDisplayName(ChatColor.RED + "remove my pet");
+        pageItem.setItemMeta(pageMeta);
+        return pageItem;
+    }
+
+    public static ItemStack createRemoveAnimationItem() {
+        ItemStack pageItem = new ItemStack(Material.BARRIER);
+        ItemMeta pageMeta = pageItem.getItemMeta();
+        pageMeta.setDisplayName(ChatColor.RED + "remove my animation");
+        pageItem.setItemMeta(pageMeta);
+        return pageItem;
     }
 
     private void setEquipInv(Player player, ItemStack itemStack, Inventory inventory) {

@@ -1468,6 +1468,14 @@ public class PlayerListener implements Listener {
                 Profile.displayProfileInventory(playerInGame);
                 return;
             }
+            if (clickedMeta != null && clickedMeta.getDisplayName().contains("remove")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                player.sendMessage(ChatColor.GREEN + "Pet removed.");
+                game.removePet(player);
+                playerInGame.getCosmetics().setActivePet(null);
+                player.closeInventory();
+                return;
+            }
             player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
             playerInGame.getCosmetics().displayEquipPet(playerInGame, clickedItem);
         }
@@ -1482,6 +1490,14 @@ public class PlayerListener implements Listener {
             if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
                 player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
                 Profile.displayProfileInventory(playerInGame);
+                return;
+            }
+            if (clickedMeta != null && clickedMeta.getDisplayName().contains("remove")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                player.sendMessage(ChatColor.GREEN + "Animation removed.");
+                game.removeAnimation(player);
+                playerInGame.getCosmetics().setActiveAnimation(null);
+                player.closeInventory();
                 return;
             }
             player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
@@ -1507,6 +1523,8 @@ public class PlayerListener implements Listener {
                 return;
             }
             if (event.getSlot() == 14) {
+                game.removePet(player);
+                playerInGame.getCosmetics().setActivePet(null);
                 var petItem = event.getClickedInventory().getItem(12);
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                 var pet = Pet.getPetFromName(petItem.getItemMeta().getDisplayName());
@@ -1530,6 +1548,8 @@ public class PlayerListener implements Listener {
                 return;
             }
             if (event.getSlot() == 14) {
+                game.removeAnimation(player);
+                playerInGame.getCosmetics().setActiveAnimation(null);
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                 var animationItem = event.getClickedInventory().getItem(12);
                 var animation = Animation.getAnimationFromName(animationItem.getItemMeta().getDisplayName());
