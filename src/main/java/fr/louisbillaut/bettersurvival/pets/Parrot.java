@@ -34,7 +34,7 @@ public class Parrot extends Pet {
         setFields();
     }
     @Override
-    public void spawn(Player owner) {
+    public void spawn(Main instance, Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.Parrot parrot = (org.bukkit.entity.Parrot) owner.getWorld().spawnEntity(location, EntityType.PARROT);
         parrot.setBaby();
@@ -49,6 +49,6 @@ public class Parrot extends Pet {
 
         entities.add(parrot);
 
-        startFollowTask(owner);
+        startFollowTask(instance, owner);
     }
 }

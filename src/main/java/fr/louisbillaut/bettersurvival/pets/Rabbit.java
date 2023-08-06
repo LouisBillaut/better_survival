@@ -33,7 +33,7 @@ public class Rabbit extends Pet {
         setFields();
     }
     @Override
-    public void spawn(Player owner) {
+    public void spawn(Main instance, Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.Rabbit rabbit = (org.bukkit.entity.Rabbit) owner.getWorld().spawnEntity(location, EntityType.RABBIT);
         rabbit.setInvulnerable(true);
@@ -47,6 +47,6 @@ public class Rabbit extends Pet {
 
         entities.add(rabbit);
 
-        startFollowTask(owner);
+        startFollowTask(instance, owner);
     }
 }

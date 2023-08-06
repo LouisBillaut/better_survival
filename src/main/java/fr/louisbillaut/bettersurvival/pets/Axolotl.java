@@ -35,7 +35,7 @@ public class Axolotl extends Pet {
         setFields();
     }
     @Override
-    public void spawn(Player owner) {
+    public void spawn(Main instance, Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.Axolotl axolotl = (org.bukkit.entity.Axolotl) owner.getWorld().spawnEntity(location, EntityType.AXOLOTL);
         axolotl.setInvulnerable(true);
@@ -51,6 +51,6 @@ public class Axolotl extends Pet {
 
         entities.add(axolotl);
 
-        startFollowTask(owner);
+        startFollowTask(instance, owner);
     }
 }

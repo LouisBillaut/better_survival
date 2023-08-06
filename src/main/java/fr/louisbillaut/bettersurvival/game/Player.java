@@ -1,7 +1,6 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
-import fr.louisbillaut.bettersurvival.utils.ActionBar;
 import fr.louisbillaut.bettersurvival.utils.Head;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -16,9 +15,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.Vector;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -27,6 +24,7 @@ import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
 import static fr.louisbillaut.bettersurvival.listeners.PlayerListener.computeNumberOfBlocks;
 
 public class Player {
+    private Cosmetics cosmetics = new Cosmetics();
     private List<Plot> plots;
     private List<Shop> shops = new ArrayList<>();
     private List<ItemStack> claims = new ArrayList<>();
@@ -104,6 +102,10 @@ public class Player {
             deaths = bukkitPlayer.getStatistic(Statistic.DEATHS);
         }
         return deaths;
+    }
+
+    public Cosmetics getCosmetics() {
+        return cosmetics;
     }
 
     public void sendRewardMessage(org.bukkit.entity.Player player, int consecutiveLoginDays) {
@@ -397,6 +399,12 @@ public class Player {
                 }
             }
         }
+
+        if (c.contains("cosmetics")) {
+            ConfigurationSection cosmeticsSection = c.getConfigurationSection("cosmetics");
+            cosmetics = new Cosmetics();
+            cosmetics.loadFromConfig(instance, cosmeticsSection);
+        }
     }
 
     public void saveToConfig(ConfigurationSection config) {
@@ -418,6 +426,9 @@ public class Player {
             ConfigurationSection shopSection = shopsSection.createSection(String.valueOf(i));
             shop.saveToConfig(shopSection);
         }
+
+        ConfigurationSection cosmeticsSection = config.createSection("cosmetics");
+        cosmetics.saveToConfig(cosmeticsSection);
 
         config.set("claims", claims);
         config.set("bsBucks", bsBucks);

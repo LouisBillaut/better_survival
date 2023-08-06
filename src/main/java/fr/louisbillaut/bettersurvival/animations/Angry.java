@@ -2,6 +2,7 @@ package fr.louisbillaut.bettersurvival.animations;
 
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.utils.Head;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -56,7 +57,7 @@ public class Angry extends Animation {
     }
 
     @Override
-    public void startAnimation(Player player) {
+    public void startAnimation(Main instance, Player player) {
         animation = new BukkitRunnable(){
 
             @Override

@@ -35,7 +35,7 @@ public class Chicken extends Pet {
         setFields();
     }
     @Override
-    public void spawn(Player owner) {
+    public void spawn(Main instance, Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.Chicken chicken = (org.bukkit.entity.Chicken) owner.getWorld().spawnEntity(location, EntityType.CHICKEN);
         chicken.setInvulnerable(true);
@@ -49,6 +49,6 @@ public class Chicken extends Pet {
 
         entities.add(chicken);
 
-        startFollowTask(owner);
+        startFollowTask(instance, owner);
     }
 }

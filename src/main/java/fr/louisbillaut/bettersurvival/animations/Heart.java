@@ -52,7 +52,7 @@ public class Heart extends Animation {
     }
 
     @Override
-    public void startAnimation(Player player) {
+    public void startAnimation(Main instance, Player player) {
         animation = new BukkitRunnable(){
 
             @Override

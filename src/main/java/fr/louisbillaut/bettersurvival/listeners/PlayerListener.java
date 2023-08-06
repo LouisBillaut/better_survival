@@ -1,14 +1,13 @@
 package fr.louisbillaut.bettersurvival.listeners;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.animations.*;
 import fr.louisbillaut.bettersurvival.game.*;
 import fr.louisbillaut.bettersurvival.game.Player;
 import fr.louisbillaut.bettersurvival.pets.*;
-import fr.louisbillaut.bettersurvival.pets.Fox;
-import fr.louisbillaut.bettersurvival.pets.MagmaCube;
-import fr.louisbillaut.bettersurvival.pets.Sheep;
 import fr.louisbillaut.bettersurvival.utils.ActionBar;
 import fr.louisbillaut.bettersurvival.utils.Detector;
+import fr.louisbillaut.bettersurvival.utils.Profile;
 import fr.louisbillaut.bettersurvival.utils.Selector;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -50,8 +49,6 @@ public class PlayerListener implements Listener {
     private Main instance;
     private static int emptyTradeSlot = 12;
     private static int amountSlot = 11;
-
-    private final Map<org.bukkit.entity.Player, Pet> pets = new HashMap<>();
     public PlayerListener(Main instance, Game game) {
         this.game = game;
         this.instance = instance;
@@ -682,7 +679,8 @@ public class PlayerListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         org.bukkit.entity.Player player = event.getPlayer();
         removeAllArmorStandsAndTasks(player);
-        removePet(player);
+        game.removePet(player);
+        game.removeAnimation(player);
     }
 
     public void sendClickableMessage(org.bukkit.entity.Player player) {
@@ -714,27 +712,17 @@ public class PlayerListener implements Listener {
             player.login();
         }
         sendClickableMessage(event.getPlayer());
-
-        // pets
-        spawnBabyWolfPet(event.getPlayer());
     }
 
     @EventHandler
     public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
-        //babyWolfPet.handleSneakToggle(event);
-    }
-
-    private void spawnBabyWolfPet(org.bukkit.entity.Player player) {
-        var babyWolfPet = new LavaGhost(instance, player);
-        babyWolfPet.spawn();
-        pets.put(player, babyWolfPet);
-    }
-
-    // TODO onEnable and onDisable
-    private void removePet(org.bukkit.entity.Player player) {
-        Pet pet = pets.remove(player);
+        var pet = game.getPets().get(event.getPlayer());
         if (pet != null) {
-            pet.despawn();
+            pet.handleSneakToggle(instance, event.getPlayer(), event);
+        }
+        var animation = game.getAnimations().get(event.getPlayer());
+        if (animation != null) {
+            animation.handleSneakToggle(instance, event.getPlayer(), event);
         }
     }
 
@@ -1295,9 +1283,78 @@ public class PlayerListener implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
         if(clickedItem == null) return;
         ItemMeta clickedMeta = clickedItem.getItemMeta();
+        Player playerIG = game.getPlayer(player);
+        if (playerIG == null) return;
+        if (clickedMeta != null && clickedMeta.getDisplayName().contains("OWNED")) return;
         if (clickedMeta != null && (clickedMeta.getDisplayName().equals(" ") || clickedMeta.getDisplayName().equals(ChatColor.GOLD + "Pets"))) return;
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            Cosmetics.displayCosmeticsShop(playerIG);
+            return;
+        }
         player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
         Pet.displayValidatePetBuy(player, clickedItem);
+    }
+
+    private void animationShopClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (!event.getView().getTitle().contains("Animations shop")) return;
+        event.setCancelled(true);
+        if(event.getClickedInventory().getItem(0) == null)return;
+        ItemStack clickedItem = event.getCurrentItem();
+        if(clickedItem == null) return;
+        ItemMeta clickedMeta = clickedItem.getItemMeta();
+        Player playerIG = game.getPlayer(player);
+        if (playerIG == null) return;
+        if (clickedMeta != null && clickedMeta.getDisplayName().contains("OWNED")) return;
+        if (clickedMeta != null && (clickedMeta.getDisplayName().equals(" ") || clickedMeta.getDisplayName().equals(ChatColor.GOLD + "Animations"))) return;
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            Cosmetics.displayCosmeticsShop(playerIG);
+            return;
+        }
+        player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+        Animation.displayValidateAnimationBuy(player, clickedItem);
+    }
+
+    private void animationValidateClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (!event.getView().getTitle().contains("Animation Validate")) return;
+        event.setCancelled(true);
+        ItemStack clickedItem = event.getCurrentItem();
+        if(clickedItem == null) return;
+        ItemMeta clickedMeta = clickedItem.getItemMeta();
+        Player playerInGame = game.getPlayer(player);
+        if (playerInGame == null) return;
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "buy")) {
+            ItemStack itemStackPet = event.getClickedInventory().getItem(event.getSlot() - 2);
+            Animation animation = Animation.getAnimationFromName(itemStackPet.getItemMeta().getDisplayName());
+            if (animation == null) return;
+            int price = animation.getPrice();
+            if (playerInGame.getBsBucks() < animation.getPrice()) {
+                player.sendMessage(ChatColor.RED + "You don't have enough bsBucks");
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                return;
+            }
+            playerInGame.setBsBucks(playerInGame.getBsBucks() - price);
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
+            player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.GREEN + "Animation " + animation.getItem().getItemMeta().getDisplayName() + ChatColor.GREEN + " purchased successfully !");
+            playerInGame.getCosmetics().addAnimation(animation);
+            player.closeInventory();
+            return;
+        }
+        if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            Animation.displayAllAnimationsInventory(playerInGame);
+            return;
+        }
     }
 
     private void petValidateClickEvent(InventoryClickEvent event) {
@@ -1310,9 +1367,9 @@ public class PlayerListener implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
         if(clickedItem == null) return;
         ItemMeta clickedMeta = clickedItem.getItemMeta();
+        Player playerInGame = game.getPlayer(player);
+        if (playerInGame == null) return;
         if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "buy")) {
-            Player playerInGame = game.getPlayer(player);
-            if (playerInGame == null) return;
             ItemStack itemStackPet = event.getClickedInventory().getItem(event.getSlot() - 2);
             Pet pet = Pet.getPetFromName(itemStackPet.getItemMeta().getDisplayName());
             if (pet == null) return;
@@ -1326,13 +1383,152 @@ public class PlayerListener implements Listener {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
             player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.0f, 1.0f);
             player.sendMessage(ChatColor.GREEN + "Pet " + pet.getItem().getItemMeta().getDisplayName() + ChatColor.GREEN + " purchased successfully !");
+            playerInGame.getCosmetics().addPet(pet);
             player.closeInventory();
             return;
         }
         if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
             player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
-            Pet.displayAllPetsInventory(player);
+            Pet.displayAllPetsInventory(playerInGame);
             return;
+        }
+    }
+
+    private void cosmeticsClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (!event.getView().getTitle().contains("bs shop")) return;
+        event.setCancelled(true);
+        ItemStack clickedItem = event.getCurrentItem();
+        if(clickedItem == null) return;
+        ItemMeta clickedMeta = clickedItem.getItemMeta();
+        Player playerInGame = game.getPlayer(player);
+        if (playerInGame == null) return;
+        if (clickedMeta != null && clickedMeta.getDisplayName().contains("Pets")) {
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            Pet.displayAllPetsInventory(playerInGame);
+            return;
+        }
+        if (clickedMeta != null && clickedMeta.getDisplayName().contains("Animations")) {
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            Animation.displayAllAnimationsInventory(playerInGame);
+            return;
+        }
+    }
+
+    private void profileClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (!event.getView().getTitle().contains("Profile")) return;
+        event.setCancelled(true);
+        ItemStack clickedItem = event.getCurrentItem();
+        if(clickedItem == null) return;
+        ItemMeta clickedMeta = clickedItem.getItemMeta();
+        Player playerInGame = game.getPlayer(player);
+        if (playerInGame == null) return;
+        if (clickedMeta != null && clickedMeta.getDisplayName().contains("Pets")) {
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            playerInGame.getCosmetics().displayOwnedPets(playerInGame);
+            return;
+        }
+        if (clickedMeta != null && clickedMeta.getDisplayName().contains("Animations")) {
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            playerInGame.getCosmetics().displayOwnedAnimations(playerInGame);
+            return;
+        }
+    }
+
+    private void profileYourCosmeticsClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (event.getView().getTitle().contains("Your pets")) {
+            event.setCancelled(true);
+            ItemStack clickedItem = event.getCurrentItem();
+            if(clickedItem == null) return;
+            ItemMeta clickedMeta = clickedItem.getItemMeta();
+            Player playerInGame = game.getPlayer(player);
+            if (playerInGame == null) return;
+            if (clickedMeta != null && (clickedMeta.getDisplayName().equals(" ") || clickedMeta.getDisplayName().equals(ChatColor.GOLD + "Pets"))) return;
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Profile.displayProfileInventory(playerInGame);
+                return;
+            }
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            playerInGame.getCosmetics().displayEquipPet(playerInGame, clickedItem);
+        }
+        if (event.getView().getTitle().contains("Your animations")) {
+            event.setCancelled(true);
+            ItemStack clickedItem = event.getCurrentItem();
+            if(clickedItem == null) return;
+            ItemMeta clickedMeta = clickedItem.getItemMeta();
+            Player playerInGame = game.getPlayer(player);
+            if (playerInGame == null) return;
+            if (clickedMeta != null && (clickedMeta.getDisplayName().equals(" ") || clickedMeta.getDisplayName().equals(ChatColor.GOLD + "Animations"))) return;
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Profile.displayProfileInventory(playerInGame);
+                return;
+            }
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            playerInGame.getCosmetics().displayEquipAnimation(playerInGame, clickedItem);
+        }
+    }
+
+    private void profileEquipClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (event.getView().getTitle().contains("Equip pet")) {
+            event.setCancelled(true);
+            ItemStack clickedItem = event.getCurrentItem();
+            if(clickedItem == null) return;
+            ItemMeta clickedMeta = clickedItem.getItemMeta();
+            Player playerInGame = game.getPlayer(player);
+            if (playerInGame == null) return;
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                playerInGame.getCosmetics().displayOwnedPets(playerInGame);
+                return;
+            }
+            if (event.getSlot() == 14) {
+                var petItem = event.getClickedInventory().getItem(12);
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                var pet = Pet.getPetFromName(petItem.getItemMeta().getDisplayName());
+                pet.spawn(instance, player);
+                game.getPets().put(player, pet);
+                player.closeInventory();
+                player.sendMessage(petItem.getItemMeta().getDisplayName() + ChatColor.GREEN + " equiped !");
+            }
+        }
+        if (event.getView().getTitle().contains("Equip animation")) {
+            event.setCancelled(true);
+            ItemStack clickedItem = event.getCurrentItem();
+            if(clickedItem == null) return;
+            ItemMeta clickedMeta = clickedItem.getItemMeta();
+            Player playerInGame = game.getPlayer(player);
+            if (playerInGame == null) return;
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                playerInGame.getCosmetics().displayOwnedAnimations(playerInGame);
+                return;
+            }
+            if (event.getSlot() == 14) {
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                var animationItem = event.getClickedInventory().getItem(12);
+                var animation = Animation.getAnimationFromName(animationItem.getItemMeta().getDisplayName());
+                animation.startAnimation(instance, player);
+                game.getAnimations().put(player, animation);
+                player.closeInventory();
+                player.sendMessage(animationItem.getItemMeta().getDisplayName() + ChatColor.GREEN + " equiped !");
+            }
         }
     }
 
@@ -1350,6 +1546,12 @@ public class PlayerListener implements Listener {
         bsItemBuyEvent(event);
         petShopClickEvent(event);
         petValidateClickEvent(event);
+        animationShopClickEvent(event);
+        animationValidateClickEvent(event);
+        cosmeticsClickEvent(event);
+        profileClickEvent(event);
+        profileYourCosmeticsClickEvent(event);
+        profileEquipClickEvent(event);
     }
 
     @EventHandler

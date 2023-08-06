@@ -1,6 +1,9 @@
 package fr.louisbillaut.bettersurvival.utils;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.SkullType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -49,6 +52,16 @@ public class Head {
             }
         }
         head.setItemMeta(meta);
+        return head;
+    }
+
+    public static ItemStack getPlayerHead(Player player) {
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+
+        var b = headMeta.setOwningPlayer(player);
+        head.setItemMeta(headMeta);
+
         return head;
     }
 }

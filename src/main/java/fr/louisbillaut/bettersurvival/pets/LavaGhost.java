@@ -32,7 +32,7 @@ public class LavaGhost extends Pet {
         name = "lavaGhost";
     }
     @Override
-    public void spawn(Player owner) {
+    public void spawn(Main instance, Player owner) {
         ItemStack redLeatherLegging = new ItemStack(Material.LEATHER_LEGGINGS);
         LeatherArmorMeta helmetMeta = (LeatherArmorMeta) redLeatherLegging.getItemMeta();
         helmetMeta.setColor(Color.RED);
@@ -78,7 +78,7 @@ public class LavaGhost extends Pet {
             }
         }.runTaskTimerAsynchronously(instance, 0L, 20);
 
-        startFollowTask(owner);
+        startFollowTask(instance, owner);
     }
 
     private void showParticleAnimation() throws InterruptedException {

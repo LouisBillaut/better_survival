@@ -33,7 +33,7 @@ public class Slime extends Pet {
         setFields();
     }
     @Override
-    public void spawn(Player owner) {
+    public void spawn(Main instance, Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.Slime slime = (org.bukkit.entity.Slime) owner.getWorld().spawnEntity(location, EntityType.SLIME);
         slime.setInvulnerable(true);
@@ -46,6 +46,6 @@ public class Slime extends Pet {
 
         entities.add(slime);
 
-        startFollowTask(owner);
+        startFollowTask(instance, owner);
     }
 }

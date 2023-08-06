@@ -33,7 +33,7 @@ public class Panda extends Pet {
         setFields();
     }
     @Override
-    public void spawn(Player owner) {
+    public void spawn(Main instance, Player owner) {
         Location location = owner.getLocation();
         org.bukkit.entity.Panda panda = (org.bukkit.entity.Panda) owner.getWorld().spawnEntity(location, EntityType.PANDA);
         panda.setBaby();
@@ -48,6 +48,6 @@ public class Panda extends Pet {
 
         entities.add(panda);
 
-        startFollowTask(owner);
+        startFollowTask(instance, owner);
     }
 }

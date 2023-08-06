@@ -63,7 +63,7 @@ public class Tab implements TabCompleter {
             }
         } else if (command.getName().equalsIgnoreCase("bs")) {
             if (args.length == 1) {
-                return Arrays.asList("sell", "show");
+                return Arrays.asList("sell", "show", "shop");
             }
         } else if (command.getName().equalsIgnoreCase("compass")) {
             if (args.length == 1) {

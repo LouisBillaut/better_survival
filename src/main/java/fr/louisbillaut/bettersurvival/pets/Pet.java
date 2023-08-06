@@ -24,7 +24,7 @@ import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
 public abstract class Pet {
     public static final String invulnerableTag = "invulnerable";
     protected Main instance;
-    protected List<LivingEntity> entities;
+    protected List<LivingEntity> entities = new ArrayList<>();
     protected boolean isSecret = false;
     protected String name;
     protected ItemStack item;
@@ -80,7 +80,7 @@ public abstract class Pet {
         return isSecret;
     }
 
-    public abstract void spawn(Player player);
+    public abstract void spawn(Main instance, Player player);
 
     public void despawn() {
         for (LivingEntity entity : entities) {
@@ -96,7 +96,7 @@ public abstract class Pet {
         }
         entities.clear();
     }
-    protected void startFollowTask(Player owner) {
+    protected void startFollowTask(Main instance, Player owner) {
         followTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -104,7 +104,6 @@ public abstract class Pet {
                     this.cancel();
                     return;
                 }
-
 
                 Location ownerLocation = owner.getLocation();
                 double playerYaw = Math.toRadians(ownerLocation.getYaw());
@@ -132,12 +131,12 @@ public abstract class Pet {
         }.runTaskTimerAsynchronously(instance, 0L, 1);
     }
 
-    public void handleSneakToggle(Player owner, PlayerToggleSneakEvent event) {
+    public void handleSneakToggle(Main instance, Player owner, PlayerToggleSneakEvent event) {
         if (event.getPlayer().equals(owner)) {
             if (event.isSneaking()) {
                 despawn();
             } else {
-                spawn(owner);
+                spawn(instance, owner);
             }
         }
     }
@@ -212,7 +211,7 @@ public abstract class Pet {
     }
 
 
-    private static ItemStack backItem() {
+    public static ItemStack backItem() {
         var head = Head.getCustomHead(Head.quartzArrowLeft);
         ItemMeta meta = head.getItemMeta();
         meta.setDisplayName(ChatColor.GRAY + "back");

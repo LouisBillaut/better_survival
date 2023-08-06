@@ -51,7 +51,7 @@ public class Storm extends Animation {
     }
 
     @Override
-    public void startAnimation(Player player) {
+    public void startAnimation(Main instance, Player player) {
         Location playerLocation = player.getLocation();
         Location armorStandLocation = playerLocation.clone().add(0, 2, 0);
         armorStand = (ArmorStand) player.getWorld().spawnEntity(armorStandLocation, EntityType.ARMOR_STAND);

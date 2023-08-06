@@ -53,18 +53,18 @@ public abstract class Animation {
         return price;
     }
 
-    public abstract void startAnimation(Player player);
+    public abstract void startAnimation(Main instance, Player player);
 
     public void stopAnimation() {
         animation.cancel();
     }
 
-    public void handleSneakToggle(Player owner, PlayerToggleSneakEvent event) {
+    public void handleSneakToggle(Main instance, Player owner, PlayerToggleSneakEvent event) {
         if (event.getPlayer().equals(owner)) {
             if (event.isSneaking()) {
                 stopAnimation();
             } else {
-                startAnimation(owner);
+                startAnimation(instance, owner);
             }
         }
     }

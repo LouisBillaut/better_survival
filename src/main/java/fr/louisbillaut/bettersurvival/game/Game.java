@@ -1,6 +1,8 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.animations.Animation;
+import fr.louisbillaut.bettersurvival.pets.Pet;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -29,6 +31,8 @@ public class Game implements Serializable {
     private List<Player> players;
     public Map<UUID, ArrayList<ArmorStand>> armorStands = new HashMap<>();
     public Map<UUID, ArrayList<BukkitRunnable>> armorStandsRotationTasks = new HashMap<>();
+    private final Map<org.bukkit.entity.Player, Pet> pets = new HashMap<>();
+    private final Map<org.bukkit.entity.Player, Animation> animations = new HashMap<>();
 
     public BsBucks bs = new BsBucks();
     private LeaderBoard leaderBoard = new LeaderBoard();
@@ -65,6 +69,14 @@ public class Game implements Serializable {
         }
 
         return null;
+    }
+
+    public Map<org.bukkit.entity.Player, Pet> getPets() {
+        return pets;
+    }
+
+    public Map<org.bukkit.entity.Player, Animation> getAnimations() {
+        return animations;
     }
 
     public LeaderBoard getLeaderBoard() {
@@ -285,5 +297,19 @@ public class Game implements Serializable {
                 }
             }
         });
+    }
+
+    public void removePet(org.bukkit.entity.Player player) {
+        Pet pet = pets.remove(player);
+        if (pet != null) {
+            pet.despawn();
+        }
+    }
+
+    public void removeAnimation(org.bukkit.entity.Player player) {
+        var animation = animations.remove(player);
+        if (animation != null) {
+            animation.stopAnimation();
+        }
     }
 }

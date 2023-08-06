@@ -123,6 +123,7 @@ public class Main extends JavaPlugin {
         SpawnCommand spawnCommand = new SpawnCommand(this, game);
         CompassCommand compassCommand = new CompassCommand(this, game);
         LeaderboardCommand leaderboardCommand = new LeaderboardCommand(this, game);
+        ProfileCommand profileCommand = new ProfileCommand(this, game);
         fr.louisbillaut.bettersurvival.commands.HelpCommand helpCommand = new HelpCommand();
         Tab completer = new Tab(game);
         Objects.requireNonNull(getCommand("bshelp")).setExecutor(helpCommand);
@@ -137,6 +138,8 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("compass")).setExecutor(compassCommand);
         Objects.requireNonNull(getCommand("compass")).setTabCompleter(completer);
         Objects.requireNonNull(getCommand("leaderboard")).setExecutor(leaderboardCommand);
+        Objects.requireNonNull(getCommand("profile")).setExecutor(profileCommand);
+        Objects.requireNonNull(getCommand("profile")).setTabCompleter(completer);
 
         initializeListeners();
         initializeRunnables();
@@ -156,6 +159,12 @@ public class Main extends JavaPlugin {
             n.saveToStore();
                 }
         );
+        game.getPlayers().forEach(p -> {
+            if (p.getBukkitPlayer() != null) {
+                game.removeAnimation(p.getBukkitPlayer());
+                game.removePet(p.getBukkitPlayer());
+            }
+        });
         Bukkit.getLogger().info("Saving game ...");
         game.saveToConfig(dataConfig);
         game.cancelAllVillagersTasks();

@@ -1,9 +1,8 @@
 package fr.louisbillaut.bettersurvival.commands;
 
 import fr.louisbillaut.bettersurvival.Main;
-import fr.louisbillaut.bettersurvival.animations.Animation;
+import fr.louisbillaut.bettersurvival.game.Cosmetics;
 import fr.louisbillaut.bettersurvival.game.Game;
-import fr.louisbillaut.bettersurvival.pets.Pet;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -46,8 +45,7 @@ public class BucksCommand implements CommandExecutor {
                 case "shop" -> {
                     var playerIG = game.getPlayer(player);
                     if (playerIG == null) return true;
-                    //Pet.displayAllPetsInventory(playerIG);
-                    Animation.displayAllAnimationsInventory(playerIG);
+                    Cosmetics.displayCosmeticsShop(playerIG);
                 }
             }
         }
