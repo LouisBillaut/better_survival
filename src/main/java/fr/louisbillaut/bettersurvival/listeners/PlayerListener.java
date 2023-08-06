@@ -710,6 +710,14 @@ public class PlayerListener implements Listener {
             player.setBukkitPlayer(event.getPlayer());
             displayTitle(event.getPlayer(), true);
             player.login();
+            if (player.getCosmetics().getActiveAnimation() != null) {
+                player.getCosmetics().getActiveAnimation().startAnimation(instance, player.getBukkitPlayer());
+                game.getAnimations().put(player.getBukkitPlayer(), player.getCosmetics().getActiveAnimation());
+            }
+            if (player.getCosmetics().getActivePet() != null) {
+                player.getCosmetics().getActivePet().spawn(instance, player.getBukkitPlayer());
+                game.getPets().put(player.getBukkitPlayer(), player.getCosmetics().getActivePet());
+            }
         }
         sendClickableMessage(event.getPlayer());
     }
@@ -1504,6 +1512,7 @@ public class PlayerListener implements Listener {
                 var pet = Pet.getPetFromName(petItem.getItemMeta().getDisplayName());
                 pet.spawn(instance, player);
                 game.getPets().put(player, pet);
+                playerInGame.getCosmetics().setActivePet(pet);
                 player.closeInventory();
                 player.sendMessage(petItem.getItemMeta().getDisplayName() + ChatColor.GREEN + " equiped !");
             }
@@ -1526,6 +1535,7 @@ public class PlayerListener implements Listener {
                 var animation = Animation.getAnimationFromName(animationItem.getItemMeta().getDisplayName());
                 animation.startAnimation(instance, player);
                 game.getAnimations().put(player, animation);
+                playerInGame.getCosmetics().setActiveAnimation(animation);
                 player.closeInventory();
                 player.sendMessage(animationItem.getItemMeta().getDisplayName() + ChatColor.GREEN + " equiped !");
             }

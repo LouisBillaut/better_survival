@@ -42,6 +42,22 @@ public class Cosmetics {
         return animations;
     }
 
+    public void setActiveAnimation(Animation activeAnimation) {
+        this.activeAnimation = activeAnimation;
+    }
+
+    public void setActivePet(Pet activePet) {
+        this.activePet = activePet;
+    }
+
+    public Animation getActiveAnimation() {
+        return activeAnimation;
+    }
+
+    public Pet getActivePet() {
+        return activePet;
+    }
+
     public void saveToConfig(ConfigurationSection config) {
         List<String> configPets = new ArrayList<>();
         for(Pet p: pets) {
@@ -54,6 +70,12 @@ public class Cosmetics {
             configAnimations.add(p.getName());
         }
         config.set("animations", configAnimations);
+        if (activeAnimation != null) {
+            config.set("activeAnimation", activeAnimation.getName());
+        }
+        if (activePet != null) {
+            config.set("activePet", activePet.getName());
+        }
     }
 
     public void loadFromConfig(Main instance, ConfigurationSection config) {
@@ -71,6 +93,20 @@ public class Cosmetics {
                 Animation p = Animation.getAnimationFromOriginalName(name);
                 if (p == null) continue;
                 animations.add(p);
+            }
+        }
+        if (config.contains("activeAnimation")) {
+            String name = config.getString("activeAnimation");
+            Animation p = Animation.getAnimationFromOriginalName(name);
+            if (p != null) {
+                activeAnimation = p;
+            }
+        }
+        if (config.contains("activePet")) {
+            String name = config.getString("activePet");
+            Pet p = Pet.getPetFromOriginalName(name);
+            if (p != null) {
+                activePet = p;
             }
         }
     }
