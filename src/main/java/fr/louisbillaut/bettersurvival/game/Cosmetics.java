@@ -3,10 +3,16 @@ package fr.louisbillaut.bettersurvival.game;
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.animations.Animation;
 import fr.louisbillaut.bettersurvival.pets.Pet;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static fr.louisbillaut.bettersurvival.animations.Animation.createAnimationItem;
+import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
+import static fr.louisbillaut.bettersurvival.pets.Pet.createPetItem;
 
 public class Cosmetics {
     List<Pet> pets = new ArrayList<>();
@@ -60,5 +66,22 @@ public class Cosmetics {
                 animations.add(p);
             }
         }
+    }
+
+    public static void displayCosmeticsShop(Player player) {
+        if (player.getBukkitPlayer() == null) return;
+        Inventory inventory = Bukkit.createInventory(null, 27, "bs shop");
+
+        for (int slot = 0; slot < 27; slot++) {
+            inventory.setItem(slot, createGlassBlock());
+        }
+
+        var animationsHead = createAnimationItem();
+        var sniffer = createPetItem();
+
+        inventory.setItem(12, animationsHead);
+        inventory.setItem(14, sniffer);
+
+        player.getBukkitPlayer().openInventory(inventory);
     }
 }

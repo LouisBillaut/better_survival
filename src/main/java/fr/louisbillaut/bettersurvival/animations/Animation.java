@@ -119,6 +119,7 @@ public abstract class Animation {
             }
         }
 
+        inventory.setItem(45, backItem());
         player.getBukkitPlayer().openInventory(inventory);
     }
 
@@ -151,7 +152,7 @@ public abstract class Animation {
         return pageItem;
     }
 
-    private static ItemStack createAnimationItem() {
+    public static ItemStack createAnimationItem() {
         var head = Head.getCustomHead(Head.star);
         var meta = head.getItemMeta();
         meta.setDisplayName(ChatColor.GOLD + "Animations");

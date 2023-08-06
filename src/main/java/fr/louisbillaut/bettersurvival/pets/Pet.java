@@ -150,10 +150,7 @@ public abstract class Pet {
         }
 
         var ownedPets = player.getCosmetics().getPets();
-        var sniffer = Head.getCustomHead(Head.snifferEgg);
-        ItemMeta meta = sniffer.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "Pets");
-        sniffer.setItemMeta(meta);
+        var sniffer = createPetItem();
         inventory.setItem(0, sniffer);
 
         int index = 10;
@@ -178,6 +175,7 @@ public abstract class Pet {
             }
         }
 
+        inventory.setItem(45, backItem());
         player.getBukkitPlayer().openInventory(inventory);
     }
 
@@ -228,5 +226,13 @@ public abstract class Pet {
         pageMeta.setDisplayName(ChatColor.GREEN + "buy");
         pageItem.setItemMeta(pageMeta);
         return pageItem;
+    }
+
+    public static ItemStack createPetItem() {
+        var sniffer = Head.getCustomHead(Head.snifferEgg);
+        ItemMeta meta = sniffer.getItemMeta();
+        meta.setDisplayName(ChatColor.GOLD + "Pets");
+        sniffer.setItemMeta(meta);
+        return sniffer;
     }
 }
