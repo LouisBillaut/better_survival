@@ -23,6 +23,7 @@ public class Panda extends Pet {
         itemMeta.setLore(lore);
         allayEgg.setItemMeta(itemMeta);
         item = new ItemStack(allayEgg);
+        name = "panda";
     }
     public Panda() {
         setFields();

@@ -26,6 +26,7 @@ public class Happy extends Animation {
         head.setItemMeta(meta);
 
         item = head;
+        name = "happy";
     }
     public Happy() {
         super();

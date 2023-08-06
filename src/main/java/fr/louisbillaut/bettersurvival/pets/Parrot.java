@@ -24,6 +24,7 @@ public class Parrot extends Pet {
         itemMeta.setLore(lore);
         egg.setItemMeta(itemMeta);
         item = new ItemStack(egg);
+        name = "parrot";
     }
     public Parrot() {
         setFields();

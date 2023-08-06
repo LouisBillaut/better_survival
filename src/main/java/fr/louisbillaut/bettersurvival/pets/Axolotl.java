@@ -24,6 +24,7 @@ public class Axolotl extends Pet {
         itemMeta.setLore(lore);
         axolotlEgg.setItemMeta(itemMeta);
         item = new ItemStack(axolotlEgg);
+        name = "axolotl";
     }
     public Axolotl() {
         super();

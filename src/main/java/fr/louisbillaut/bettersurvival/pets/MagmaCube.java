@@ -24,6 +24,7 @@ public class MagmaCube extends Pet {
         itemMeta.setLore(lore);
         allayEgg.setItemMeta(itemMeta);
         item = new ItemStack(allayEgg);
+        name = "magmaCube";
     }
     public MagmaCube() {
         setFields();

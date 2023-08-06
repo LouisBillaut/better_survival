@@ -26,6 +26,7 @@ public class Smoke extends Animation {
         head.setItemMeta(meta);
 
         item = head;
+        name = "smoke";
     }
     public Smoke() {
         super();

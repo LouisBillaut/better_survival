@@ -24,6 +24,7 @@ public class Bee extends Pet {
         itemMeta.setLore(lore);
         beeEgg.setItemMeta(itemMeta);
         item = new ItemStack(beeEgg);
+        name = "bee";
     }
     public Bee() {
         super();

@@ -25,6 +25,7 @@ public class Spell extends Animation {
         head.setItemMeta(meta);
 
         item = head;
+        name = "spell";
     }
     public Spell() {
         super();

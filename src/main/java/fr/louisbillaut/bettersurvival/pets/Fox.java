@@ -24,6 +24,7 @@ public class Fox extends Pet {
         itemMeta.setLore(lore);
         foxEgg.setItemMeta(itemMeta);
         item = new ItemStack(foxEgg);
+        name = "fox";
     }
     public Fox() {
         super();

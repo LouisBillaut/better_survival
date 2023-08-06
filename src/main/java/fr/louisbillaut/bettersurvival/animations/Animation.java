@@ -23,6 +23,7 @@ public abstract class Animation {
     protected BukkitTask animation;
     protected ItemStack item;
     protected int price;
+    protected String name;
 
     public static List<Animation> animationsList = new ArrayList<>(List.of(
             new Angry(),
@@ -38,6 +39,10 @@ public abstract class Animation {
     public Animation(){}
     public Animation(Main instance) {
         this.instance = instance;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public ItemStack getItem() {
@@ -74,8 +79,20 @@ public abstract class Animation {
         return null;
     }
 
-    public static void displayAllAnimationsInventory(Player player) {
+    public static Animation getAnimationFromOriginalName(String name) {
+        for (Animation animation: animationsList) {
+            if (animation.getName().equals(name)) {
+                return animation;
+            }
+        }
+
+        return null;
+    }
+
+    public static void displayAllAnimationsInventory(fr.louisbillaut.bettersurvival.game.Player player) {
+        if (player.getBukkitPlayer() == null) return;
         Inventory inventory = Bukkit.createInventory(null, 54, "Animations shop");
+        var ownedAnimations = player.getCosmetics().getAnimations();
 
         for (int slot = 0; slot < 54; slot++) {
             inventory.setItem(slot, createGlassBlock());
@@ -86,15 +103,23 @@ public abstract class Animation {
 
         int index = 10;
         for(var i = 0; i < animationsList.size(); i++) {
+            var item = animationsList.get(i);
+            var itemStack = item.getItem().clone();
+            if (ownedAnimations.contains(item)) {
+                var meta = itemStack.getItemMeta();
+                meta.setDisplayName(ChatColor.RED + "OWNED " + meta.getDisplayName());
+                meta.setLore(new ArrayList<>());
+                itemStack.setItemMeta(meta);
+            }
             if((index + i) == 16 || (index + i) == 25 || (index + i) == 34 || (index + i) == 43) {
-                inventory.setItem(index + i, animationsList.get(i).getItem());
+                inventory.setItem(index + i, itemStack);
                 index += 2;
             } else {
-                inventory.setItem(index + i, animationsList.get(i).getItem());
+                inventory.setItem(index + i, itemStack);
             }
         }
 
-        player.openInventory(inventory);
+        player.getBukkitPlayer().openInventory(inventory);
     }
 
     public static void displayValidateAnimationBuy(Player player, ItemStack itemStack) {

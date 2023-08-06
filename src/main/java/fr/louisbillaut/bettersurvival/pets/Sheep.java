@@ -23,6 +23,7 @@ public class Sheep extends Pet {
         itemMeta.setLore(lore);
         egg.setItemMeta(itemMeta);
         item = new ItemStack(egg);
+        name = "sheep";
     }
     public Sheep() {
         setFields();

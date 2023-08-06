@@ -44,8 +44,10 @@ public class BucksCommand implements CommandExecutor {
                     showBsBuck(player);
                 }
                 case "shop" -> {
-                    //Pet.displayAllPetsInventory(player);
-                    Animation.displayAllAnimationsInventory(player);
+                    var playerIG = game.getPlayer(player);
+                    if (playerIG == null) return true;
+                    //Pet.displayAllPetsInventory(playerIG);
+                    Animation.displayAllAnimationsInventory(playerIG);
                 }
             }
         }

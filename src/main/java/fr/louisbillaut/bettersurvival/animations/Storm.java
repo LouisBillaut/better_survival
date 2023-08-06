@@ -29,6 +29,7 @@ public class Storm extends Animation {
         head.setItemMeta(meta);
 
         item = head;
+        name = "storm";
     }
     public Storm() {
         super();

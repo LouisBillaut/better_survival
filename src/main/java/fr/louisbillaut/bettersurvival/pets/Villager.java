@@ -23,6 +23,7 @@ public class Villager extends Pet {
         itemMeta.setLore(lore);
         egg.setItemMeta(itemMeta);
         item = new ItemStack(egg);
+        name = "villager";
     }
     public Villager() {
         setFields();

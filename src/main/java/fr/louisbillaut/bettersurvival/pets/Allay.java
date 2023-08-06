@@ -25,6 +25,7 @@ public class Allay extends Pet {
         itemMeta.setLore(lore);
         allayEgg.setItemMeta(itemMeta);
         item = new ItemStack(allayEgg);
+        name = "allay";
     }
     public Allay() {
         super();

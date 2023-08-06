@@ -23,6 +23,7 @@ public class Frog extends Pet {
         itemMeta.setLore(lore);
         frogEgg.setItemMeta(itemMeta);
         item = new ItemStack(frogEgg);
+        name = "frog";
     }
     public Frog() {
         setFields();

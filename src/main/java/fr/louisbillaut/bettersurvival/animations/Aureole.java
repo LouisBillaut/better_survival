@@ -28,6 +28,7 @@ public class Aureole extends Animation {
         head.setItemMeta(meta);
 
         item = head;
+        name = "aureole";
     }
     public Aureole() {
         super();

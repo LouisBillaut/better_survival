@@ -23,6 +23,7 @@ public class Slime extends Pet {
         itemMeta.setLore(lore);
         egg.setItemMeta(itemMeta);
         item = new ItemStack(egg);
+        name = "slime";
     }
     public Slime() {
         setFields();

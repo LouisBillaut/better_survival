@@ -24,6 +24,7 @@ public class Cat extends Pet {
         itemMeta.setLore(lore);
         catEgg.setItemMeta(itemMeta);
         item = new ItemStack(catEgg);
+        name = "cat";
     }
     public Cat() {
         setFields();

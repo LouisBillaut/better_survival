@@ -26,6 +26,7 @@ public abstract class Pet {
     protected Main instance;
     protected List<LivingEntity> entities;
     protected boolean isSecret = false;
+    protected String name;
     protected ItemStack item;
     protected int price;
     protected BukkitTask animation;
@@ -61,6 +62,10 @@ public abstract class Pet {
     public Pet(Main instance, Player owner) {
         this.instance = instance;
         this.entities = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
     }
 
     public ItemStack getItem() {
@@ -137,13 +142,14 @@ public abstract class Pet {
         }
     }
 
-    public static void displayAllPetsInventory(Player player) {
+    public static void displayAllPetsInventory(fr.louisbillaut.bettersurvival.game.Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54, "Pets shop");
 
         for (int slot = 0; slot < 54; slot++) {
             inventory.setItem(slot, createGlassBlock());
         }
 
+        var ownedPets = player.getCosmetics().getPets();
         var sniffer = Head.getCustomHead(Head.snifferEgg);
         ItemMeta meta = sniffer.getItemMeta();
         meta.setDisplayName(ChatColor.GOLD + "Pets");
@@ -156,21 +162,39 @@ public abstract class Pet {
                 index --;
                 continue;
             }
+            var item = petsList.get(i);
+            var itemStack = item.getItem().clone();
+            if (ownedPets.contains(item)) {
+                var itemMeta = itemStack.getItemMeta();
+                itemMeta.setDisplayName(ChatColor.RED + "OWNED " + itemMeta.getDisplayName());
+                itemMeta.setLore(new ArrayList<>());
+                itemStack.setItemMeta(itemMeta);
+            }
             if((index + i) == 16 || (index + i) == 25 || (index + i) == 34 || (index + i) == 43) {
-                inventory.setItem(index + i, petsList.get(i).getItem());
+                inventory.setItem(index + i, itemStack);
                 index += 2;
             } else {
-                inventory.setItem(index + i, petsList.get(i).getItem());
+                inventory.setItem(index + i, itemStack);
             }
         }
 
-        player.openInventory(inventory);
+        player.getBukkitPlayer().openInventory(inventory);
     }
 
     public static Pet getPetFromName(String name) {
         for(Pet pet: petsList) {
             if (Objects.requireNonNull(pet.getItem().getItemMeta()).getDisplayName().equals(name)) {
                 return pet;
+            }
+        }
+
+        return null;
+    }
+
+    public static Pet getPetFromOriginalName(String name) {
+        for (Pet p: petsList) {
+            if (p.getName().equals(name)) {
+                return p;
             }
         }
 

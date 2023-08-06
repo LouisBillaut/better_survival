@@ -23,6 +23,7 @@ public class PolarBear extends Pet {
         itemMeta.setLore(lore);
         egg.setItemMeta(itemMeta);
         item = new ItemStack(egg);
+        name = "polarBear";
     }
     public PolarBear() {
         setFields();

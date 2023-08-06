@@ -26,6 +26,7 @@ public class Music extends Animation {
         head.setItemMeta(meta);
 
         item = head;
+        name = "music";
     }
     public Music() {
         super();

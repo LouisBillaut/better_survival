@@ -25,6 +25,7 @@ public class Heart extends Animation {
         head.setItemMeta(meta);
 
         item = head;
+        name = "heart";
     }
     public Heart() {
         super();

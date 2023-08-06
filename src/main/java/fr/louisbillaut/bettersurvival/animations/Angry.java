@@ -27,6 +27,7 @@ public class Angry extends Animation {
         head.setItemMeta(meta);
 
         item = head;
+        name = "angry";
     }
     public Angry() {
         super();

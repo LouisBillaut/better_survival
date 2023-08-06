@@ -19,6 +19,7 @@ public class LavaGhost extends Pet {
         block.setItemMeta(itemMeta);
         item = block;
         isSecret = true;
+        name = "lavaGhost";
     }
     public LavaGhost(Main instance, Player owner) {
         super(instance, owner);
@@ -28,6 +29,7 @@ public class LavaGhost extends Pet {
         itemMeta.setDisplayName(ChatColor.GREEN + "Lava Ghost");
         item = block;
         isSecret = true;
+        name = "lavaGhost";
     }
     @Override
     public void spawn(Player owner) {
