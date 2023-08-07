@@ -124,6 +124,7 @@ public class Main extends JavaPlugin {
         CompassCommand compassCommand = new CompassCommand(this, game);
         LeaderboardCommand leaderboardCommand = new LeaderboardCommand(this, game);
         ProfileCommand profileCommand = new ProfileCommand(this, game);
+        RenameCommand renameCommand = new RenameCommand(this, game);
         fr.louisbillaut.bettersurvival.commands.HelpCommand helpCommand = new HelpCommand();
         Tab completer = new Tab(game);
         Objects.requireNonNull(getCommand("bshelp")).setExecutor(helpCommand);
@@ -140,6 +141,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("leaderboard")).setExecutor(leaderboardCommand);
         Objects.requireNonNull(getCommand("profile")).setExecutor(profileCommand);
         Objects.requireNonNull(getCommand("profile")).setTabCompleter(completer);
+        Objects.requireNonNull(getCommand("rename")).setExecutor(renameCommand);
 
         initializeListeners();
         initializeRunnables();

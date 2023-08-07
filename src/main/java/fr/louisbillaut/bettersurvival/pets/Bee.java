@@ -45,6 +45,10 @@ public class Bee extends Pet {
         bee.setBreed(false);
         bee.setAgeLock(true);
         bee.setAI(false);
+        if (customName != null) {
+            bee.setCustomName(customName);
+            bee.setCustomNameVisible(true);
+        }
 
         bee.addScoreboardTag(invulnerableTag);
 

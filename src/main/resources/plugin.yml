@@ -7,6 +7,8 @@ api-version: 1.19
 softdepend: [Citizens]
 
 commands:
+  rename:
+    usage: /rename <pet> <name>
   leaderboard:
     usage: /leaderboard <setpnj|sethologram> <leaderboard type>
     tab-completions:

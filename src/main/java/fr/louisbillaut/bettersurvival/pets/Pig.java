@@ -43,6 +43,10 @@ public class Pig extends Pet {
         pig.setBreed(false);
         pig.setAgeLock(true);
         pig.setAI(false);
+        if (customName != null) {
+            pig.setCustomName(customName);
+            pig.setCustomNameVisible(true);
+        }
 
         pig.addScoreboardTag(invulnerableTag);
 

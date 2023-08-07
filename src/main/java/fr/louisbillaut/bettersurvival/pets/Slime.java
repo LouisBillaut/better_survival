@@ -41,6 +41,10 @@ public class Slime extends Pet {
         slime.setSilent(true);
         slime.setSize(1);
         slime.setAI(false);
+        if (customName != null) {
+            slime.setCustomName(customName);
+            slime.setCustomNameVisible(true);
+        }
 
         slime.addScoreboardTag(invulnerableTag);
 

@@ -5,10 +5,7 @@ import fr.louisbillaut.bettersurvival.animations.*;
 import fr.louisbillaut.bettersurvival.game.*;
 import fr.louisbillaut.bettersurvival.game.Player;
 import fr.louisbillaut.bettersurvival.pets.*;
-import fr.louisbillaut.bettersurvival.utils.ActionBar;
-import fr.louisbillaut.bettersurvival.utils.Detector;
-import fr.louisbillaut.bettersurvival.utils.Profile;
-import fr.louisbillaut.bettersurvival.utils.Selector;
+import fr.louisbillaut.bettersurvival.utils.*;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -27,8 +24,11 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -43,6 +43,8 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static fr.louisbillaut.bettersurvival.game.Cosmetics.renamePetPrice;
 
 public class PlayerListener implements Listener {
     private Game game;
@@ -1476,6 +1478,11 @@ public class PlayerListener implements Listener {
                 player.closeInventory();
                 return;
             }
+            if (clickedMeta != null && clickedMeta.getDisplayName().contains("rename")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                playerInGame.getCosmetics().displayOwnedRenamePets(playerInGame);
+                return;
+            }
             player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
             playerInGame.getCosmetics().displayEquipPet(playerInGame, clickedItem);
         }
@@ -1562,6 +1569,44 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void sendRenamePetCommand(org.bukkit.entity.Player player, String petName) {
+        String command = "/rename " + petName + " ";
+        String addPlayerMessage = ChatColor.GOLD + "[rename pet]";
+        player.spigot().sendMessage(
+                Messages.createClickableMessage(addPlayerMessage, command)
+        );
+    }
+
+    private void profileRenamePetClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (event.getView().getTitle().contains("Rename your pets")) {
+            event.setCancelled(true);
+            ItemStack clickedItem = event.getCurrentItem();
+            if(clickedItem == null) return;
+            ItemMeta clickedMeta = clickedItem.getItemMeta();
+            Player playerInGame = game.getPlayer(player);
+            if (playerInGame == null) return;
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                playerInGame.getCosmetics().displayOwnedPets(playerInGame);
+                return;
+            }
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(" ") || clickedMeta != null && clickedMeta.getDisplayName().contains("rename")) return;
+            Pet pet = Pet.getPetFromName(event.getCurrentItem().getItemMeta().getDisplayName());
+            if (pet == null) return;
+            if((playerInGame.getBsBucks() - renamePetPrice) < 0) {
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                player.sendMessage(ChatColor.RED + "You don't have enough bsBucks");
+                return;
+            }
+            sendRenamePetCommand(player, pet.getName());
+            player.closeInventory();
+        }
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         plotSettingClickEvent(event);
@@ -1582,6 +1627,7 @@ public class PlayerListener implements Listener {
         profileClickEvent(event);
         profileYourCosmeticsClickEvent(event);
         profileEquipClickEvent(event);
+        profileRenamePetClickEvent(event);
     }
 
     @EventHandler

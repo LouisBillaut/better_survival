@@ -43,6 +43,10 @@ public class Panda extends Pet {
         panda.setBreed(false);
         panda.setAgeLock(true);
         panda.setAI(false);
+        if (customName != null) {
+            panda.setCustomName(customName);
+            panda.setCustomNameVisible(true);
+        }
 
         panda.addScoreboardTag(invulnerableTag);
 

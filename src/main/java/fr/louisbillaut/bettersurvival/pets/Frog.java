@@ -43,6 +43,10 @@ public class Frog extends Pet {
         frog.setBreed(false);
         frog.setAgeLock(true);
         frog.setAI(false);
+        if (customName != null) {
+            frog.setCustomName(customName);
+            frog.setCustomNameVisible(true);
+        }
 
         frog.addScoreboardTag(invulnerableTag);
 

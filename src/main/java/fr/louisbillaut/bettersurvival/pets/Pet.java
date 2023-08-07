@@ -27,6 +27,7 @@ public abstract class Pet {
     protected List<LivingEntity> entities = new ArrayList<>();
     protected boolean isSecret = false;
     protected String name;
+    protected String customName;
     protected ItemStack item;
     protected int price;
     protected BukkitTask animation;
@@ -78,6 +79,14 @@ public abstract class Pet {
 
     public boolean isSecret() {
         return isSecret;
+    }
+
+    public void setCustomName(String customName) {
+        this.customName = customName;
+    }
+
+    public String getCustomName() {
+        return customName;
     }
 
     public abstract void spawn(Main instance, Player player);

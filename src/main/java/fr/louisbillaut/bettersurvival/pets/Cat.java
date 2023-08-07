@@ -45,6 +45,11 @@ public class Cat extends Pet {
         cat.setAI(false);
         cat.setAgeLock(true);
 
+        if (customName != null) {
+            cat.setCustomName(customName);
+            cat.setCustomNameVisible(true);
+        }
+
         cat.addScoreboardTag(invulnerableTag);
 
         entities.add(cat);

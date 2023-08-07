@@ -43,6 +43,10 @@ public class Goat extends Pet {
         goat.setBreed(false);
         goat.setAgeLock(true);
         goat.setAI(false);
+        if (customName != null) {
+            goat.setCustomName(customName);
+            goat.setCustomNameVisible(true);
+        }
 
         goat.addScoreboardTag(invulnerableTag);
 

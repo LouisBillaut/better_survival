@@ -45,6 +45,10 @@ public class Allay extends Pet {
         allay.setSilent(true);
         allay.setCanPickupItems(false);
         allay.setAI(false);
+        if (customName != null) {
+            allay.setCustomName(customName);
+            allay.setCustomNameVisible(true);
+        }
 
         allay.addScoreboardTag(invulnerableTag);
 

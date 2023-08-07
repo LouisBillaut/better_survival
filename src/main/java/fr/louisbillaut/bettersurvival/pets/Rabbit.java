@@ -42,6 +42,10 @@ public class Rabbit extends Pet {
         rabbit.setBreed(false);
         rabbit.setAgeLock(true);
         rabbit.setAI(false);
+        if (customName != null) {
+            rabbit.setCustomName(customName);
+            rabbit.setCustomNameVisible(true);
+        }
 
         rabbit.addScoreboardTag(invulnerableTag);
 

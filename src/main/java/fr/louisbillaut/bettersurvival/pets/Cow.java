@@ -46,6 +46,11 @@ public class Cow extends Pet {
         cow.setAgeLock(true);
         cow.setAI(false);
 
+        if (customName != null) {
+            cow.setCustomName(customName);
+            cow.setCustomNameVisible(true);
+        }
+
         cow.addScoreboardTag(invulnerableTag);
 
         entities.add(cow);

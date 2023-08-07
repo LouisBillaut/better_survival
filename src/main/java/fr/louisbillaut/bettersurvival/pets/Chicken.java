@@ -45,6 +45,11 @@ public class Chicken extends Pet {
         chicken.setAgeLock(true);
         chicken.setAI(false);
 
+        if (customName != null) {
+            chicken.setCustomName(customName);
+            chicken.setCustomNameVisible(true);
+        }
+
         chicken.addScoreboardTag(invulnerableTag);
 
         entities.add(chicken);

@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -24,6 +25,8 @@ public class Cosmetics {
     List<Animation> animations = new ArrayList<>();
     Animation activeAnimation;
     Pet activePet;
+
+    public static int renamePetPrice = 5000;
 
     public Cosmetics() {}
 
@@ -65,6 +68,16 @@ public class Cosmetics {
         }
         config.set("pets", configPets);
 
+        List<String> configPetsName = new ArrayList<>();
+        for(Pet p: pets) {
+            if (p.getCustomName() == null) {
+                configPetsName.add("");
+            } else {
+                configPetsName.add(p.getCustomName());
+            }
+        }
+        config.set("petsNames", configPetsName);
+
         List<String> configAnimations = new ArrayList<>();
         for(Animation p: animations) {
             configAnimations.add(p.getName());
@@ -85,6 +98,14 @@ public class Cosmetics {
                 Pet p = Pet.getPetFromOriginalName(name);
                 if (p == null) continue;
                 pets.add(p);
+            }
+        }
+        if (config.contains("petsNames")) {
+            List<String> configPetsName = config.getStringList("petsNames");
+            for (var i = 0; i < pets.size() && i < configPetsName.size(); i++) {
+                if (!configPetsName.get(i).equals("")) {
+                    pets.get(i).setCustomName(configPetsName.get(i));
+                }
             }
         }
         if (config.contains("animations")) {
@@ -132,7 +153,6 @@ public class Cosmetics {
         if (player.getBukkitPlayer() == null) return;
 
         Inventory inventory = Bukkit.createInventory(null, 54, "Your pets");
-
         for (int slot = 0; slot < 54; slot++) {
             inventory.setItem(slot, createGlassBlock());
         }
@@ -159,8 +179,54 @@ public class Cosmetics {
         }
 
         inventory.setItem(4, createRemovePetItem());
+        inventory.setItem(8, createRenamePetItem());
         inventory.setItem(45, backItem());
         player.getBukkitPlayer().openInventory(inventory);
+    }
+
+    public void displayOwnedRenamePets(Player player) {
+        if (player.getBukkitPlayer() == null) return;
+
+        Inventory inventory = Bukkit.createInventory(null, 54, "Rename your pets");
+        for (int slot = 0; slot < 54; slot++) {
+            inventory.setItem(slot, createGlassBlock());
+        }
+        var sniffer = createPetItem();
+        inventory.setItem(0, sniffer);
+
+        int index = 10;
+        for(var i = 0; i < pets.size(); i++) {
+            if (pets.get(i).isSecret()) {
+                index --;
+                continue;
+            }
+            var item = pets.get(i);
+            var itemStack = item.getItem().clone();
+            var itemMeta = itemStack.getItemMeta();
+            itemMeta.setLore(new ArrayList<>());
+            itemStack.setItemMeta(itemMeta);
+            if((index + i) == 16 || (index + i) == 25 || (index + i) == 34 || (index + i) == 43) {
+                inventory.setItem(index + i, itemStack);
+                index += 2;
+            } else {
+                inventory.setItem(index + i, itemStack);
+            }
+        }
+
+        inventory.setItem(0, createRenamePetItem());
+        inventory.setItem(45, backItem());
+        player.getBukkitPlayer().openInventory(inventory);
+    }
+
+    public boolean renamePet(String pet, String name) {
+        for (Pet p: pets) {
+            if (pet.equals(p.getName())) {
+                p.setCustomName(name);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void displayOwnedAnimations(Player player) {
@@ -218,6 +284,16 @@ public class Cosmetics {
         ItemStack pageItem = new ItemStack(Material.BARRIER);
         ItemMeta pageMeta = pageItem.getItemMeta();
         pageMeta.setDisplayName(ChatColor.RED + "remove my pet");
+        pageItem.setItemMeta(pageMeta);
+        return pageItem;
+    }
+
+    public static ItemStack createRenamePetItem() {
+        ItemStack pageItem = new ItemStack(Material.NAME_TAG);
+        ItemMeta pageMeta = pageItem.getItemMeta();
+        List<String> lore = new ArrayList<>(List.of(ChatColor.GOLD + "price: " + renamePetPrice + " bsBucks"));
+        pageMeta.setDisplayName(ChatColor.GREEN + "rename pet");
+        pageMeta.setLore(lore);
         pageItem.setItemMeta(pageMeta);
         return pageItem;
     }

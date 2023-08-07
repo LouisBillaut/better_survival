@@ -58,6 +58,10 @@ public class LavaGhost extends Pet {
         armorStand.setGravity(false);
         armorStand.setSilent(true);
         armorStand.setAI(false);
+        if (customName != null) {
+            armorStand.setCustomName(customName);
+            armorStand.setCustomNameVisible(true);
+        }
 
         armorStand.getEquipment().setLeggings(redLeatherLegging);
         armorStand.getEquipment().setChestplate(redLeatherChestplate);

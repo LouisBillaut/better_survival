@@ -46,6 +46,10 @@ public class Axolotl extends Pet {
         axolotl.setBreed(false);
         axolotl.setAgeLock(true);
         axolotl.setAI(false);
+        if (customName != null) {
+            axolotl.setCustomName(customName);
+            axolotl.setCustomNameVisible(true);
+        }
 
         axolotl.addScoreboardTag(invulnerableTag);
 

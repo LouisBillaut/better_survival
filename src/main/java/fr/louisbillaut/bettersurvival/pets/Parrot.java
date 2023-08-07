@@ -44,6 +44,10 @@ public class Parrot extends Pet {
         parrot.setBreed(false);
         parrot.setAgeLock(true);
         parrot.setAI(false);
+        if (customName != null) {
+            parrot.setCustomName(customName);
+            parrot.setCustomNameVisible(true);
+        }
 
         parrot.addScoreboardTag(invulnerableTag);
 

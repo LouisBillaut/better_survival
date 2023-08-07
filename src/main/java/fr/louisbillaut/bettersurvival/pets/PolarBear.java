@@ -43,6 +43,10 @@ public class PolarBear extends Pet {
         polarBear.setBreed(false);
         polarBear.setAgeLock(true);
         polarBear.setAI(false);
+        if (customName != null) {
+            polarBear.setCustomName(customName);
+            polarBear.setCustomNameVisible(true);
+        }
 
         polarBear.addScoreboardTag(invulnerableTag);
 

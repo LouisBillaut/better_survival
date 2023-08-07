@@ -43,6 +43,10 @@ public class Wolf extends Pet {
         wolf.setBreed(false);
         wolf.setAgeLock(true);
         wolf.setAI(false);
+        if (customName != null) {
+            wolf.setCustomName(customName);
+            wolf.setCustomNameVisible(true);
+        }
 
         wolf.addScoreboardTag(invulnerableTag);
 

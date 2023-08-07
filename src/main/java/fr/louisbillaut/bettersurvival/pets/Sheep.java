@@ -43,6 +43,10 @@ public class Sheep extends Pet {
         sheep.setBreed(false);
         sheep.setAgeLock(true);
         sheep.setAI(false);
+        if (customName != null) {
+            sheep.setCustomName(customName);
+            sheep.setCustomNameVisible(true);
+        }
 
         sheep.addScoreboardTag(invulnerableTag);
 

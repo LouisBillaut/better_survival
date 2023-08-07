@@ -42,6 +42,10 @@ public class MagmaCube extends Pet {
         magmaCube.setSilent(true);
         magmaCube.setSize(1);
         magmaCube.setAI(false);
+        if (customName != null) {
+            magmaCube.setCustomName(customName);
+            magmaCube.setCustomNameVisible(true);
+        }
 
         magmaCube.addScoreboardTag(invulnerableTag);
 

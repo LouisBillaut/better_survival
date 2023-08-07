@@ -46,6 +46,11 @@ public class Fox extends Pet {
         fox.setAgeLock(true);
         fox.setAI(false);
 
+        if (customName != null) {
+            fox.setCustomName(customName);
+            fox.setCustomNameVisible(true);
+        }
+
         fox.addScoreboardTag(invulnerableTag);
 
         entities.add(fox);

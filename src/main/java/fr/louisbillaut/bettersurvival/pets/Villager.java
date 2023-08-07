@@ -43,6 +43,10 @@ public class Villager extends Pet {
         villager.setBreed(false);
         villager.setAgeLock(true);
         villager.setAI(false);
+        if (customName != null) {
+            villager.setCustomName(customName);
+            villager.setCustomNameVisible(true);
+        }
 
         villager.addScoreboardTag(invulnerableTag);
 

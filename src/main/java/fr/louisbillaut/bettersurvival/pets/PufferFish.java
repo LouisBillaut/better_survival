@@ -41,6 +41,10 @@ public class PufferFish extends Pet {
         pufferFish.setSilent(true);
         pufferFish.setAI(false);
         pufferFish.setPuffState(3);
+        if (customName != null) {
+            pufferFish.setCustomName(customName);
+            pufferFish.setCustomNameVisible(true);
+        }
 
         pufferFish.addScoreboardTag(invulnerableTag);
 
