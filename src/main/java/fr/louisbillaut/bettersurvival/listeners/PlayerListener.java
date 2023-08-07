@@ -1356,6 +1356,7 @@ public class PlayerListener implements Listener {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
             player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.0f, 1.0f);
             player.sendMessage(ChatColor.GREEN + "Animation " + animation.getItem().getItemMeta().getDisplayName() + ChatColor.GREEN + " purchased successfully !");
+            player.sendMessage(ChatColor.GREEN + "You have now " + ChatColor.GOLD + playerInGame.getBsBucks() + " bsBucks");
             playerInGame.getCosmetics().addAnimation(animation);
             player.closeInventory();
             return;
@@ -1393,6 +1394,7 @@ public class PlayerListener implements Listener {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1.0f, 1.0f);
             player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.0f, 1.0f);
             player.sendMessage(ChatColor.GREEN + "Pet " + pet.getItem().getItemMeta().getDisplayName() + ChatColor.GREEN + " purchased successfully !");
+            player.sendMessage(ChatColor.GREEN + "You have now " + ChatColor.GOLD + playerInGame.getBsBucks() + " bsBucks");
             playerInGame.getCosmetics().addPet(pet);
             player.closeInventory();
             return;

@@ -27,6 +27,7 @@ public class Cosmetics {
     Pet activePet;
 
     public static int renamePetPrice = 5000;
+    private int renamesNumber = 0;
 
     public Cosmetics() {}
 
@@ -61,6 +62,10 @@ public class Cosmetics {
         return activePet;
     }
 
+    public int getRenamesNumber() {
+        return renamesNumber;
+    }
+
     public void saveToConfig(ConfigurationSection config) {
         List<String> configPets = new ArrayList<>();
         for(Pet p: pets) {
@@ -89,6 +94,7 @@ public class Cosmetics {
         if (activePet != null) {
             config.set("activePet", activePet.getName());
         }
+        config.set("renamesNumber", renamesNumber);
     }
 
     public void loadFromConfig(Main instance, ConfigurationSection config) {
@@ -129,6 +135,9 @@ public class Cosmetics {
             if (p != null) {
                 activePet = p;
             }
+        }
+        if (config.contains("renamesNumber")) {
+            renamesNumber = config.getInt("renamesNumber");
         }
     }
 
@@ -222,6 +231,7 @@ public class Cosmetics {
         for (Pet p: pets) {
             if (pet.equals(p.getName())) {
                 p.setCustomName(name);
+                renamesNumber++;
                 return true;
             }
         }
