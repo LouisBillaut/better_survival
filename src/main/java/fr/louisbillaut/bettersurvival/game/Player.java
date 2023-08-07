@@ -49,6 +49,8 @@ public class Player {
 
     private int deaths = 0;
 
+    private fr.louisbillaut.bettersurvival.game.Scoreboard customScoreboard;
+
     static {
         REWARD_MAPPING.put(2, 100);
         REWARD_MAPPING.put(3, 120);
@@ -58,7 +60,7 @@ public class Player {
 
     private org.bukkit.entity.Player bukkitPlayer;
 
-    public Player(String playerName) {
+    public Player(Main instance, Game game, String playerName) {
         this.playerName = playerName;
         plots = new ArrayList<>();
         for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers()) {
@@ -66,6 +68,11 @@ public class Player {
                 bukkitPlayer = p;
             }
         }
+        customScoreboard = new fr.louisbillaut.bettersurvival.game.Scoreboard(instance, this);
+    }
+
+    public Scoreboard getCustomScoreboard() {
+        return customScoreboard;
     }
 
     public void login() {

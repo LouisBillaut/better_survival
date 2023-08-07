@@ -253,13 +253,13 @@ public class Game implements Serializable {
         return clonedList;
     }
 
-    public void loadFromConfig(Main instance, ConfigurationSection config) {
+    public void loadFromConfig(Main instance, Game game, ConfigurationSection config) {
         if (config.contains("players")) {
             ConfigurationSection playersSection = config.getConfigurationSection("players");
             for (String playerKey : Objects.requireNonNull(playersSection).getKeys(false)) {
                 ConfigurationSection playerConfig = playersSection.getConfigurationSection(playerKey);
 
-                Player player = new Player(Objects.requireNonNull(playerConfig).getString("name"));
+                Player player = new Player(instance, game, Objects.requireNonNull(playerConfig).getString("name"));
                 player.loadFromConfig(instance, playersSection);
                 players.add(player);
             }

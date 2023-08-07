@@ -698,8 +698,7 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = game.getPlayer(event.getPlayer());
         if (player == null) {
-            Bukkit.getLogger().info("player not found, creating new player ...");
-            player = new Player(event.getPlayer().getDisplayName());
+            player = new Player(instance, game, event.getPlayer().getDisplayName());
             game.addPlayer(player);
             displayTitle(event.getPlayer(), false);
             player = game.getPlayer(event.getPlayer());
@@ -722,6 +721,7 @@ public class PlayerListener implements Listener {
             }
         }
         sendClickableMessage(event.getPlayer());
+        player.getCustomScoreboard().updateScoreboard(player);
     }
 
     @EventHandler

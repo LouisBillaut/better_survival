@@ -114,7 +114,7 @@ public class Main extends JavaPlugin {
         settings = YamlConfiguration.loadConfiguration(settingsFile);
         String webhookUrl = settings.getString("webhookUrl");
         webhook = new DiscordWebhook(webhookUrl);
-        game.loadFromConfig(this, dataConfig);
+        game.loadFromConfig(this, game, dataConfig);
 
         PlotCommand plotCommand = new PlotCommand(this, game);
         StuckCommand stuckCommand = new StuckCommand(game);
