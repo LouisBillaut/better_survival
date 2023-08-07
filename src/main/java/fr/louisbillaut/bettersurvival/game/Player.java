@@ -1,6 +1,8 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.animations.Animation;
+import fr.louisbillaut.bettersurvival.pets.Pet;
 import fr.louisbillaut.bettersurvival.utils.Head;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -20,6 +22,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.time.LocalDate;
 import java.util.*;
 
+import static fr.louisbillaut.bettersurvival.game.Cosmetics.renamePetPrice;
 import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
 import static fr.louisbillaut.bettersurvival.listeners.PlayerListener.computeNumberOfBlocks;
 
@@ -299,7 +302,16 @@ public class Player {
             }
         }
 
-        return bsInPlots + bsBucks;
+        int petsPrice = 0;
+        for (Pet p: cosmetics.getPets()) {
+            petsPrice += p.getPrice();
+        }
+        int animationsPrice = 0;
+        for (Animation a: cosmetics.getAnimations()) {
+            animationsPrice += a.getPrice();
+        }
+        int renamePrices = cosmetics.getRenamesNumber() * renamePetPrice;
+        return bsInPlots + bsBucks + petsPrice + animationsPrice + renamePrices;
     }
 
     public void setBsBucks(int bsBucks) {
