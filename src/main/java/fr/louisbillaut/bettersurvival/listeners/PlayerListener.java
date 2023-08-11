@@ -1452,6 +1452,44 @@ public class PlayerListener implements Listener {
             playerInGame.getCosmetics().displayOwnedAnimations(playerInGame);
             return;
         }
+        if (clickedMeta != null && clickedMeta.getDisplayName().contains("Settings")) {
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            Profile.displaySettingsInventory(playerInGame);
+            return;
+        }
+    }
+
+    private void profileSettingsClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (!event.getView().getTitle().contains("Settings")) return;
+        event.setCancelled(true);
+        ItemStack clickedItem = event.getCurrentItem();
+        if(clickedItem == null) return;
+        ItemMeta clickedMeta = clickedItem.getItemMeta();
+        Player playerInGame = game.getPlayer(player);
+        if (playerInGame == null) return;
+        if (clickedMeta != null && clickedMeta.getDisplayName().contains("back")) {
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+            Profile.displayProfileInventory(playerInGame);
+            return;
+        }
+        if (clickedMeta != null && clickedMeta.getDisplayName().contains("Deactivated")) {
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            playerInGame.setShowScoreboard(true);
+            playerInGame.getCustomScoreboard().updateScoreboard(playerInGame);
+            Profile.displaySettingsInventory(playerInGame);
+            return;
+        }
+        if (clickedMeta != null && clickedMeta.getDisplayName().contains("Activated")) {
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            playerInGame.setShowScoreboard(false);
+            playerInGame.getCustomScoreboard().setEmptyScoreboard(playerInGame);
+            Profile.displaySettingsInventory(playerInGame);
+            return;
+        }
     }
 
     private void profileYourCosmeticsClickEvent(InventoryClickEvent event) {
@@ -1630,6 +1668,7 @@ public class PlayerListener implements Listener {
         profileYourCosmeticsClickEvent(event);
         profileEquipClickEvent(event);
         profileRenamePetClickEvent(event);
+        profileSettingsClickEvent(event);
     }
 
     @EventHandler

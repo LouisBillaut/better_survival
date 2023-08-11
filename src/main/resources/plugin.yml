@@ -7,6 +7,8 @@ api-version: 1.19
 softdepend: [Citizens]
 
 commands:
+  easter:
+    usage: /easter
   rename:
     usage: /rename <pet> <name>
   leaderboard:

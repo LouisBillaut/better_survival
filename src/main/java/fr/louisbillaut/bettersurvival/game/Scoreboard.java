@@ -37,7 +37,18 @@ public class Scoreboard {
         return runnable;
     }
 
+    public void setEmptyScoreboard(Player player) {
+        scoreboard = scoreboardManager.getNewScoreboard();
+        objective = scoreboard.registerNewObjective("empty", "dummy");
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        player.getBukkitPlayer().setScoreboard(scoreboard);
+    }
+
     public void updateScoreboard(Player player) {
+        if (!player.isShowScoreboard()) {
+           setEmptyScoreboard(player);
+           return;
+        }
         scoreboard = scoreboardManager.getNewScoreboard();
         objective = scoreboard.registerNewObjective("BetterSurvival", "dummy", ChatColor.DARK_PURPLE + "Better Survival");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);

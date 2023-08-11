@@ -48,6 +48,7 @@ public class Player {
     private long playedTime = 0;
 
     private int deaths = 0;
+    private boolean showScoreboard = true;
 
     private fr.louisbillaut.bettersurvival.game.Scoreboard customScoreboard;
 
@@ -73,6 +74,14 @@ public class Player {
 
     public Scoreboard getCustomScoreboard() {
         return customScoreboard;
+    }
+
+    public boolean isShowScoreboard() {
+        return showScoreboard;
+    }
+
+    public void setShowScoreboard(boolean value) {
+        this.showScoreboard = value;
     }
 
     public void login() {
@@ -387,6 +396,9 @@ public class Player {
         if (c.contains("bsBucks")) {
             this.bsBucks = c.getInt("bsBucks");
         }
+        if (c.contains("showScoreboard")) {
+            this.showScoreboard = c.getBoolean("showScoreboard");
+        }
         if (c.contains("lastLoginDate")) {
             this.lastLoginDate = LocalDate.parse(c.getString("lastLoginDate"));
         }
@@ -430,6 +442,7 @@ public class Player {
         config.set("name", playerName);
         config.set("lastLoginDate", lastLoginDate.toString());
         config.set("consecutiveLoginDays", consecutiveLoginDays);
+        config.set("showScoreboard", showScoreboard);
 
         ConfigurationSection plotsSection = config.createSection("plots");
         for (int i = 0; i < plots.size(); i++) {

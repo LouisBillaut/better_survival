@@ -30,6 +30,8 @@ public class Head {
     public static String Music = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjJhYTNiNDc4MGI0M2M2ZmRhYThjMDc0ZDI4NzE4N2I2ZjJlNDk3NjJhMDJhNjA3MTdmYTE5NmI4MThkNjYyYyJ9fX0=";
     public static String smoke = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGFiZjA3MWRkNzI4NTRkZTIzNGI0NjNhNzEwMWZiMWQwYTJmODMyOWY4NjVhZTVmNTQzOWNhZjRlMGRhOTJiOCJ9fX0=";
     public static String spell = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTAzMjdmYjM0MzE5Zjg5YWM1YWI0OGI0ZDc5MjUxZjEzZjA2N2ViZWE3ZGE1Zjg4Yjc1ZjQ3OWE3Mzg5OTI0ZSJ9fX0=";
+    public static String settings = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGI0ODk4YzE0NDI4ZGQyZTQwMTFkOWJlMzc2MGVjNmJhYjUyMWFlNTY1MWY2ZTIwYWQ1MzQxYTBmNWFmY2UyOCJ9fX0=";
+    public static String info = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDAxYWZlOTczYzU0ODJmZGM3MWU2YWExMDY5ODgzM2M3OWM0MzdmMjEzMDhlYTlhMWEwOTU3NDZlYzI3NGEwZiJ9fX0=";
     public static ItemStack getCustomHead(String texture) {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD, 1, (short) SkullType.PLAYER.ordinal());
         SkullMeta meta = (SkullMeta) head.getItemMeta();
