@@ -158,6 +158,14 @@ public class Cosmetics {
         player.getBukkitPlayer().openInventory(inventory);
     }
 
+    public boolean hasPet(Pet pet) {
+        for(Pet p: pets) {
+            if (pet.getName().equals(p.getName())) return true;
+        }
+
+        return false;
+    }
+
     public void displayOwnedPets(Player player) {
         if (player.getBukkitPlayer() == null) return;
 
@@ -170,10 +178,6 @@ public class Cosmetics {
 
         int index = 10;
         for(var i = 0; i < pets.size(); i++) {
-            if (pets.get(i).isSecret()) {
-                index --;
-                continue;
-            }
             var item = pets.get(i);
             var itemStack = item.getItem().clone();
             var itemMeta = itemStack.getItemMeta();
@@ -205,10 +209,6 @@ public class Cosmetics {
 
         int index = 10;
         for(var i = 0; i < pets.size(); i++) {
-            if (pets.get(i).isSecret()) {
-                index --;
-                continue;
-            }
             var item = pets.get(i);
             var itemStack = item.getItem().clone();
             var itemMeta = itemStack.getItemMeta();

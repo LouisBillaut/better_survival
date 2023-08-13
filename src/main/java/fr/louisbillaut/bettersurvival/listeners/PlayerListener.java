@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.TileState;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.*;
@@ -24,20 +25,18 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
-import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -51,6 +50,9 @@ public class PlayerListener implements Listener {
     private Main instance;
     private static int emptyTradeSlot = 12;
     private static int amountSlot = 11;
+    private Map<org.bukkit.entity.Player, BukkitRunnable> animationsTasks = new HashMap<>();
+    private Map<org.bukkit.entity.Player, BukkitRunnable> rotationTasks = new HashMap<>();
+    private Map<org.bukkit.entity.Player, ArmorStand> armorStands = new HashMap<>();
     public PlayerListener(Main instance, Game game) {
         this.game = game;
         this.instance = instance;
@@ -460,6 +462,62 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void getLavaGhostBook(org.bukkit.entity.Player player) {
+        ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+        BookMeta bookMeta = (BookMeta) book.getItemMeta();
+        bookMeta.setTitle("Lava Ghost");
+        bookMeta.setAuthor("Ancester");
+        bookMeta.addPage("Dans les terres ancestrales, enfouies sous les voiles du temps, existe un pouvoir oublié. \n Le corps du Lava Ghost, caché au creux des entrailles de la terre, attend celui qui osera révéler son essence.\n");
+        bookMeta.addPage("Arme ta Pioche des Souvenirs, frappe la pierre et libère le corps du Lava Ghost.");
+        bookMeta.addPage("Assemble le Lava Ghost et libère son pouvoir !");
+        book.setItemMeta(bookMeta);
+
+        player.openBook(book);
+    }
+
+    private void lavaGhostHeadEvent(BlockBreakEvent event) {
+        if (event.getBlock() == null || event.getBlock().getState() == null) return;
+        TileState tileState;
+        try {
+            tileState = (TileState) event.getBlock().getState();
+        } catch (ClassCastException e) {
+            return;
+        }
+        PersistentDataContainer dataContainer = tileState.getPersistentDataContainer();
+        if(dataContainer.has(new NamespacedKey(instance, "easter"), PersistentDataType.STRING)) {
+            event.setCancelled(true);
+            Player playerIG = game.getPlayer(event.getPlayer());
+            if (playerIG == null) return;
+            if (playerIG.getCosmetics().hasPet(new LavaGhost())){
+                return;
+            }
+            giveOrDropItem(event.getPlayer(), EasterEgg.getLavaGhostHeadItem());
+            event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_WITHER_SKELETON_DEATH, 1.0f, 1.0f);
+            getLavaGhostBook(event.getPlayer());
+        }
+    }
+
+    private void lavaGhostBodyEvent(BlockBreakEvent event) {
+        org.bukkit.entity.Player player = event.getPlayer();
+        Block brokenBlock = event.getBlock();
+        ItemStack heldItem = player.getInventory().getItemInMainHand();
+        if (heldItem.getType().name().contains("PICKAXE") && heldItem.hasItemMeta() &&
+                heldItem.getItemMeta().hasDisplayName() && heldItem.getItemMeta().getDisplayName().equals("Pioche des Souvenirs") &&
+                brokenBlock.getType() == Material.STONE) {
+            Player playerIG = game.getPlayer(event.getPlayer());
+            if (playerIG == null) return;
+            if (playerIG.getCosmetics().hasPet(new LavaGhost())) return;
+            event.setCancelled(true);
+            event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_WITHER_SKELETON_DEATH, 1.0f, 1.0f);
+            ItemStack magmaBlock = new ItemStack(Material.MAGMA_BLOCK);
+            ItemMeta magmaMeta = magmaBlock.getItemMeta();
+            magmaMeta.setDisplayName(ChatColor.RED + "Lava Ghost Body");
+            magmaBlock.setItemMeta(magmaMeta);
+
+            giveOrDropItem(player, magmaBlock);
+        }
+    }
+
     private void spawnerPlace(BlockPlaceEvent event) {
         ItemStack spawnerItem = event.getItemInHand();
         if (spawnerItem.getType() == Material.SPAWNER) {
@@ -485,16 +543,151 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void placeLavaGhost(BlockPlaceEvent event) {
+        if (event.getItemInHand().getItemMeta() != null && event.getItemInHand().getItemMeta().getDisplayName().contains(ChatColor.RED + "Easter")) {
+            TileState tileState = (TileState) event.getBlockPlaced().getState();
+            PersistentDataContainer dataContainer = tileState.getPersistentDataContainer();
+            dataContainer.set(new NamespacedKey(instance, "easter"), PersistentDataType.STRING, "easter");
+            tileState.update();
+        }
+    }
+
+    private ArmorStand spawnArmorStand(Location location) {
+        Location spawnLocation = new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
+        ArmorStand armorStand = (ArmorStand) spawnLocation.getWorld().spawnEntity(spawnLocation, EntityType.ARMOR_STAND);
+        armorStand.setInvisible(true);
+        armorStand.setBasePlate(false);
+        armorStand.setSmall(true);
+        armorStand.setGravity(false);
+        armorStand.setCanPickupItems(false);
+        armorStand.setCustomNameVisible(false);
+
+        ItemStack redLeatherChestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
+        LeatherArmorMeta chestplateMeta = (LeatherArmorMeta) redLeatherChestplate.getItemMeta();
+        chestplateMeta.setColor(Color.RED);
+        redLeatherChestplate.setItemMeta(chestplateMeta);
+        armorStand.setChestplate(redLeatherChestplate);
+
+        var head = Head.getCustomHead(Head.ghostLava);
+
+        armorStand.setHelmet(head);
+
+        return armorStand;
+    }
+
+    public void spawnFirework(Location location) {
+        Firework firework = (Firework) location.getWorld().spawn(location, Firework.class);
+        FireworkMeta fireworkMeta = firework.getFireworkMeta();
+
+        FireworkEffect effect = FireworkEffect.builder()
+                .withColor(Color.RED)
+                .with(FireworkEffect.Type.BALL)
+                .trail(true)
+                .build();
+
+        fireworkMeta.addEffect(effect);
+        fireworkMeta.setPower(1);
+        firework.setFireworkMeta(fireworkMeta);
+
+        firework.detonate();
+    }
+    public void startAnimation(Player player, Location location) {
+        ArmorStand armorStand = spawnArmorStand(location);
+        armorStands.put(player.getBukkitPlayer(), armorStand);
+
+        var animationTask = new BukkitRunnable() {
+            private final double duration = 5.0;
+            private final double yOffset = 3.0;
+
+            private final Location initialLocation = armorStand.getLocation().clone();
+
+            private final long startTime = System.currentTimeMillis();
+
+            @Override
+            public void run() {
+                if (armorStand.isValid() && !armorStand.isDead()) {
+                    double elapsed = (System.currentTimeMillis() - startTime) / 1000.0;
+                    if (elapsed <= duration) {
+                        double progress = elapsed / duration;
+                        Location currentLocation = initialLocation.clone().add(0, yOffset * progress, 0);
+                        armorStand.teleport(currentLocation);
+                    } else {
+                        armorStands.get(player.getBukkitPlayer()).remove();
+                        animationsTasks.get(player.getBukkitPlayer()).cancel();
+                        rotationTasks.get(player.getBukkitPlayer()).cancel();
+                        player.getBukkitPlayer().playSound(player.getBukkitPlayer(), Sound.ENTITY_PARROT_IMITATE_WITHER, 1.0f, 1.0f);
+                        spawnFirework(initialLocation.clone().add(0, yOffset, 0));
+                    }
+                }else {
+                    animationsTasks.get(player.getBukkitPlayer()).cancel();
+                    rotationTasks.get(player.getBukkitPlayer()).cancel();
+                }
+            }
+        };
+
+        var rotationTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (armorStand.isValid() && !armorStand.isDead()) {
+                    EulerAngle currentRotation = armorStand.getHeadPose();
+                    EulerAngle newRotation = currentRotation.add(0, 0.15, 0);
+                    armorStand.setHeadPose(newRotation);
+                }else {
+                    animationsTasks.get(player.getBukkitPlayer()).cancel();
+                    rotationTasks.get(player.getBukkitPlayer()).cancel();
+                }
+            }
+        };
+
+        animationsTasks.put(player.getBukkitPlayer(), animationTask);
+        rotationTasks.put(player.getBukkitPlayer(), rotationTask);
+        animationTask.runTaskTimer(instance, 0, 1);
+        rotationTask.runTaskTimerAsynchronously(instance, 0, 1);
+    }
+
+    private void placeLavaGhostHead(BlockPlaceEvent event) {
+        if (event.getItemInHand().getItemMeta() != null && event.getItemInHand().getItemMeta().getDisplayName().equals(ChatColor.RED + "Lava Ghost")) {
+            TileState tileState = (TileState) event.getBlockPlaced().getState();
+            PersistentDataContainer dataContainer = tileState.getPersistentDataContainer();
+            dataContainer.set(new NamespacedKey(instance, "lavaGhost"), PersistentDataType.STRING, "lavaGhost");
+            tileState.update();
+            Location blockLocation = event.getBlock().getLocation().clone().add(0, -1, 0);
+            var block = Objects.requireNonNull(event.getBlock().getLocation().getWorld()).getBlockAt(blockLocation);
+            if(block.hasMetadata("lavaGhostBody")) {
+                block.setType(Material.AIR);
+                event.getBlockPlaced().setType(Material.AIR);
+                var playerIG = game.getPlayer(event.getPlayer());
+                if (playerIG == null) return;
+                playerIG.getBukkitPlayer().playSound(playerIG.getBukkitPlayer(), Sound.ENTITY_PARROT_IMITATE_WITHER, 1.0f, 1.0f);
+                startAnimation(playerIG, blockLocation);
+                playerIG.getBukkitPlayer().sendMessage(ChatColor.GREEN + "Vous avez débloqué le familier " + ChatColor.RED + "Lava Ghost" + ChatColor.GREEN +" !");
+                playerIG.getBukkitPlayer().sendMessage(ChatColor.GREEN + "Vous pouvez l'équiper dans les pets de votre /profile");
+                playerIG.getCosmetics().addPet(new LavaGhost());
+            }
+        }
+    }
+
+    private void placeLavaGhostBody(BlockPlaceEvent event) {
+        if (event.getItemInHand().getItemMeta() != null && event.getItemInHand().getItemMeta().getDisplayName().equals(ChatColor.RED + "Lava Ghost Body")) {
+            event.getBlockPlaced().setMetadata("lavaGhostBody", new FixedMetadataValue(instance, true));
+        }
+    }
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         buildPlaceWhitelistDetector(event);
         spawnerPlace(event);
+        placeLavaGhost(event);
+        placeLavaGhostBody(event);
+        placeLavaGhostHead(event);
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         buildBreakWhitelistDetector(event);
         silkTouchEvent(event);
+        lavaGhostHeadEvent(event);
+        lavaGhostBodyEvent(event);
     }
 
     @EventHandler
@@ -972,7 +1165,7 @@ public class PlayerListener implements Listener {
     }
 
 
-    private void giveOrDropItem(org.bukkit.entity.Player player, ItemStack item) {
+    public static void giveOrDropItem(org.bukkit.entity.Player player, ItemStack item) {
         if (player.getInventory().firstEmpty() == -1) {
             Location location = player.getLocation();
             Item droppedItem = location.getWorld().dropItem(location, item);

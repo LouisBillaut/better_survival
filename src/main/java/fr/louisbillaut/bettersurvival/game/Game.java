@@ -2,6 +2,7 @@ package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.animations.Animation;
+import fr.louisbillaut.bettersurvival.npcs.Dave;
 import fr.louisbillaut.bettersurvival.pets.Pet;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import org.bukkit.Bukkit;
@@ -36,6 +37,8 @@ public class Game implements Serializable {
 
     public BsBucks bs = new BsBucks();
     private LeaderBoard leaderBoard = new LeaderBoard();
+
+    private EasterEgg easterEgg = new EasterEgg();
     public Game() {
         players = new ArrayList<>();
     }
@@ -59,6 +62,10 @@ public class Game implements Serializable {
         }
 
         return null;
+    }
+
+    public EasterEgg getEasterEgg() {
+        return easterEgg;
     }
 
     public Player getPlayerFromShop(Shop shop) {
@@ -268,6 +275,14 @@ public class Game implements Serializable {
             ConfigurationSection leaderBoardSection = config.getConfigurationSection("leaderboard");
             leaderBoard.loadFromConfig(instance, this, leaderBoardSection);
         }
+        if (config.contains("easterEgg")) {
+            ConfigurationSection easterEggSection = config.getConfigurationSection("easterEgg");
+            easterEgg.loadFromConfig(instance, this, easterEggSection);
+        }
+
+        if (easterEgg.getDaveLocation() != null) {
+            Dave.spawn(easterEgg.getDaveLocation());
+        }
     }
 
     public void saveToConfig(ConfigurationSection config) {
@@ -279,6 +294,8 @@ public class Game implements Serializable {
         }
         ConfigurationSection leaderBoardSection = config.createSection("leaderboard");
         leaderBoard.saveToConfig(leaderBoardSection);
+        ConfigurationSection easterEggSection = config.createSection("easterEgg");
+        easterEgg.saveToConfig(easterEggSection);
     }
 
     public void cancelAllVillagersTasks() {
