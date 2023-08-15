@@ -1,6 +1,7 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.npcs.Dave;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.trait.Owner;
@@ -387,6 +388,7 @@ public class LeaderBoard {
                 );
                 instance.removeInvisibleArmorStands();
                 loadLeaderboards(instance, game, true);
+                Dave.spawn(game.getEasterEgg().getDaveLocation());
             }
         }.runTaskTimer(instance, 20 * 60 * 15, 20 * 60 * 15);
     }

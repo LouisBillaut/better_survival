@@ -46,7 +46,7 @@ public class Dave {
             if (event.getNPC() == getNPC()) {
                 long currentTime = System.currentTimeMillis();
                 if (!cooldownMap.containsKey(event.getClicker()) || currentTime - cooldownMap.get(event.getClicker()) >= MESSAGE_COOLDOWN) {
-                    int randomNumber = random.nextInt(5) + 1;
+                    int randomNumber = random.nextInt(8) + 1;
                     if (randomNumber == 2) {
                         sendEaster(event);
                     }else {
