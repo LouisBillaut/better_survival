@@ -26,6 +26,11 @@ public class EasterCommand  implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
+            if (!player.isOp()) {
+                player.sendMessage(ChatColor.RED + "You have to be operator to use this command.");
+                return true;
+            }
+
             String subCommand = args[0].toLowerCase();
             switch (subCommand) {
                 case "dave" -> {
