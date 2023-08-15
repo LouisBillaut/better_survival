@@ -2,26 +2,23 @@ package fr.louisbillaut.bettersurvival.commands;
 
 import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.game.Cosmetics;
+import fr.louisbillaut.bettersurvival.game.EasterEgg;
 import fr.louisbillaut.bettersurvival.game.Game;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class BucksCommand implements CommandExecutor {
+import static fr.louisbillaut.bettersurvival.listeners.PlayerListener.giveOrDropItem;
 
+public class EasterCommand  implements CommandExecutor {
     private Game game;
     private Main instance;
 
-    public BucksCommand(Main instance, Game game) {
+    public EasterCommand(Main instance, Game game) {
         this.game = game;
         this.instance = instance;
-    }
-
-    private void showBsBuck(Player player) {
-        fr.louisbillaut.bettersurvival.game.Player playerIG = game.getPlayer(player);
-        if(playerIG == null) return;
-        playerIG.showBsBuck();
     }
 
     @Override
@@ -29,23 +26,19 @@ public class BucksCommand implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            if (args.length < 1) {
-                player.sendMessage("Use : /bs <buy|show>");
+            if (!player.isOp()) {
+                player.sendMessage(ChatColor.RED + "You have to be operator to use this command.");
                 return true;
             }
 
             String subCommand = args[0].toLowerCase();
             switch (subCommand) {
-                case "sell" -> {
-                    game.displayBsBucksInventoryToPlayer(instance, player);
+                case "dave" -> {
+                    game.getEasterEgg().setDaveLocation(player.getLocation());
+                    player.sendMessage(ChatColor.GREEN + "Dave location set !");
                 }
-                case "show" -> {
-                    showBsBuck(player);
-                }
-                case "shop" -> {
-                    var playerIG = game.getPlayer(player);
-                    if (playerIG == null) return true;
-                    Cosmetics.displayCosmeticsShop(playerIG);
+                case "lava" -> {
+                    giveOrDropItem(player, EasterEgg.getLavaGhostHeadItemEaster(instance));
                 }
             }
         }

@@ -6,6 +6,7 @@ import fr.louisbillaut.bettersurvival.game.Shop;
 import fr.louisbillaut.bettersurvival.game.Trade;
 import fr.louisbillaut.bettersurvival.listeners.EntityListener;
 import fr.louisbillaut.bettersurvival.listeners.PlayerListener;
+import fr.louisbillaut.bettersurvival.pets.listeners.EntityDamage;
 import fr.louisbillaut.bettersurvival.runnables.ClaimRunnable;
 import fr.louisbillaut.bettersurvival.runnables.DailyRewardsRunnable;
 import fr.louisbillaut.bettersurvival.utils.DiscordWebhook;
@@ -37,6 +38,7 @@ public class Main extends JavaPlugin {
     private void initializeListeners() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this, game), this);
         getServer().getPluginManager().registerEvents(new EntityListener(), this);
+        getServer().getPluginManager().registerEvents(new EntityDamage(), this);
     }
 
     private void initializeRunnables() {
@@ -112,7 +114,7 @@ public class Main extends JavaPlugin {
         settings = YamlConfiguration.loadConfiguration(settingsFile);
         String webhookUrl = settings.getString("webhookUrl");
         webhook = new DiscordWebhook(webhookUrl);
-        game.loadFromConfig(this, dataConfig);
+        game.loadFromConfig(this, game, dataConfig);
 
         PlotCommand plotCommand = new PlotCommand(this, game);
         StuckCommand stuckCommand = new StuckCommand(game);
@@ -121,6 +123,9 @@ public class Main extends JavaPlugin {
         SpawnCommand spawnCommand = new SpawnCommand(this, game);
         CompassCommand compassCommand = new CompassCommand(this, game);
         LeaderboardCommand leaderboardCommand = new LeaderboardCommand(this, game);
+        ProfileCommand profileCommand = new ProfileCommand(this, game);
+        RenameCommand renameCommand = new RenameCommand(this, game);
+        EasterCommand easterCommand = new EasterCommand(this, game);
         fr.louisbillaut.bettersurvival.commands.HelpCommand helpCommand = new HelpCommand();
         Tab completer = new Tab(game);
         Objects.requireNonNull(getCommand("bshelp")).setExecutor(helpCommand);
@@ -135,6 +140,10 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("compass")).setExecutor(compassCommand);
         Objects.requireNonNull(getCommand("compass")).setTabCompleter(completer);
         Objects.requireNonNull(getCommand("leaderboard")).setExecutor(leaderboardCommand);
+        Objects.requireNonNull(getCommand("profile")).setExecutor(profileCommand);
+        Objects.requireNonNull(getCommand("profile")).setTabCompleter(completer);
+        Objects.requireNonNull(getCommand("rename")).setExecutor(renameCommand);
+        Objects.requireNonNull(getCommand("easter")).setExecutor(easterCommand);
 
         initializeListeners();
         initializeRunnables();
@@ -154,6 +163,12 @@ public class Main extends JavaPlugin {
             n.saveToStore();
                 }
         );
+        game.getPlayers().forEach(p -> {
+            if (p.getBukkitPlayer() != null) {
+                game.removeAnimation(p.getBukkitPlayer());
+                game.removePet(p.getBukkitPlayer());
+            }
+        });
         Bukkit.getLogger().info("Saving game ...");
         game.saveToConfig(dataConfig);
         game.cancelAllVillagersTasks();

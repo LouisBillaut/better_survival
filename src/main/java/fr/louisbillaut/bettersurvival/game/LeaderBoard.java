@@ -193,7 +193,7 @@ public class LeaderBoard {
         config.set("totalDeathsLeaderBoard", totalDeathsLeaderBoard);
     }
 
-    public String formatPlayTime(long playTimeInMinutes) {
+    public static String formatPlayTime(long playTimeInMinutes) {
         long hours = playTimeInMinutes / 60;
         long minutes = playTimeInMinutes % 60;
 

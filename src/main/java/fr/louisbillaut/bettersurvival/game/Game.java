@@ -1,6 +1,9 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.animations.Animation;
+import fr.louisbillaut.bettersurvival.npcs.Dave;
+import fr.louisbillaut.bettersurvival.pets.Pet;
 import fr.louisbillaut.bettersurvival.utils.Detector;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -29,9 +32,13 @@ public class Game implements Serializable {
     private List<Player> players;
     public Map<UUID, ArrayList<ArmorStand>> armorStands = new HashMap<>();
     public Map<UUID, ArrayList<BukkitRunnable>> armorStandsRotationTasks = new HashMap<>();
+    private final Map<org.bukkit.entity.Player, Pet> pets = new HashMap<>();
+    private final Map<org.bukkit.entity.Player, Animation> animations = new HashMap<>();
 
     public BsBucks bs = new BsBucks();
     private LeaderBoard leaderBoard = new LeaderBoard();
+
+    private EasterEgg easterEgg = new EasterEgg();
     public Game() {
         players = new ArrayList<>();
     }
@@ -57,6 +64,10 @@ public class Game implements Serializable {
         return null;
     }
 
+    public EasterEgg getEasterEgg() {
+        return easterEgg;
+    }
+
     public Player getPlayerFromShop(Shop shop) {
         for(Player p: players) {
             for(Shop s: p.getShops()) {
@@ -65,6 +76,14 @@ public class Game implements Serializable {
         }
 
         return null;
+    }
+
+    public Map<org.bukkit.entity.Player, Pet> getPets() {
+        return pets;
+    }
+
+    public Map<org.bukkit.entity.Player, Animation> getAnimations() {
+        return animations;
     }
 
     public LeaderBoard getLeaderBoard() {
@@ -241,13 +260,13 @@ public class Game implements Serializable {
         return clonedList;
     }
 
-    public void loadFromConfig(Main instance, ConfigurationSection config) {
+    public void loadFromConfig(Main instance, Game game, ConfigurationSection config) {
         if (config.contains("players")) {
             ConfigurationSection playersSection = config.getConfigurationSection("players");
             for (String playerKey : Objects.requireNonNull(playersSection).getKeys(false)) {
                 ConfigurationSection playerConfig = playersSection.getConfigurationSection(playerKey);
 
-                Player player = new Player(Objects.requireNonNull(playerConfig).getString("name"));
+                Player player = new Player(instance, game, Objects.requireNonNull(playerConfig).getString("name"));
                 player.loadFromConfig(instance, playersSection);
                 players.add(player);
             }
@@ -255,6 +274,14 @@ public class Game implements Serializable {
         if (config.contains("leaderboard")) {
             ConfigurationSection leaderBoardSection = config.getConfigurationSection("leaderboard");
             leaderBoard.loadFromConfig(instance, this, leaderBoardSection);
+        }
+        if (config.contains("easterEgg")) {
+            ConfigurationSection easterEggSection = config.getConfigurationSection("easterEgg");
+            easterEgg.loadFromConfig(instance, this, easterEggSection);
+        }
+
+        if (easterEgg.getDaveLocation() != null) {
+            Dave.spawn(easterEgg.getDaveLocation());
         }
     }
 
@@ -267,6 +294,8 @@ public class Game implements Serializable {
         }
         ConfigurationSection leaderBoardSection = config.createSection("leaderboard");
         leaderBoard.saveToConfig(leaderBoardSection);
+        ConfigurationSection easterEggSection = config.createSection("easterEgg");
+        easterEgg.saveToConfig(easterEggSection);
     }
 
     public void cancelAllVillagersTasks() {
@@ -285,5 +314,19 @@ public class Game implements Serializable {
                 }
             }
         });
+    }
+
+    public void removePet(org.bukkit.entity.Player player) {
+        Pet pet = pets.remove(player);
+        if (pet != null) {
+            pet.despawn();
+        }
+    }
+
+    public void removeAnimation(org.bukkit.entity.Player player) {
+        var animation = animations.remove(player);
+        if (animation != null) {
+            animation.stopAnimation();
+        }
     }
 }

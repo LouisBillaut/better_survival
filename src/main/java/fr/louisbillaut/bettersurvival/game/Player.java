@@ -1,7 +1,8 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
-import fr.louisbillaut.bettersurvival.utils.ActionBar;
+import fr.louisbillaut.bettersurvival.animations.Animation;
+import fr.louisbillaut.bettersurvival.pets.Pet;
 import fr.louisbillaut.bettersurvival.utils.Head;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -16,17 +17,17 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.Vector;
 
 import java.time.LocalDate;
 import java.util.*;
 
+import static fr.louisbillaut.bettersurvival.game.Cosmetics.renamePetPrice;
 import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
 import static fr.louisbillaut.bettersurvival.listeners.PlayerListener.computeNumberOfBlocks;
 
 public class Player {
+    private Cosmetics cosmetics = new Cosmetics();
     private List<Plot> plots;
     private List<Shop> shops = new ArrayList<>();
     private List<ItemStack> claims = new ArrayList<>();
@@ -47,6 +48,9 @@ public class Player {
     private long playedTime = 0;
 
     private int deaths = 0;
+    private boolean showScoreboard = true;
+
+    private fr.louisbillaut.bettersurvival.game.Scoreboard customScoreboard;
 
     static {
         REWARD_MAPPING.put(2, 100);
@@ -57,7 +61,7 @@ public class Player {
 
     private org.bukkit.entity.Player bukkitPlayer;
 
-    public Player(String playerName) {
+    public Player(Main instance, Game game, String playerName) {
         this.playerName = playerName;
         plots = new ArrayList<>();
         for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers()) {
@@ -65,6 +69,19 @@ public class Player {
                 bukkitPlayer = p;
             }
         }
+        customScoreboard = new fr.louisbillaut.bettersurvival.game.Scoreboard(instance, this);
+    }
+
+    public Scoreboard getCustomScoreboard() {
+        return customScoreboard;
+    }
+
+    public boolean isShowScoreboard() {
+        return showScoreboard;
+    }
+
+    public void setShowScoreboard(boolean value) {
+        this.showScoreboard = value;
     }
 
     public void login() {
@@ -104,6 +121,10 @@ public class Player {
             deaths = bukkitPlayer.getStatistic(Statistic.DEATHS);
         }
         return deaths;
+    }
+
+    public Cosmetics getCosmetics() {
+        return cosmetics;
     }
 
     public void sendRewardMessage(org.bukkit.entity.Player player, int consecutiveLoginDays) {
@@ -297,7 +318,16 @@ public class Player {
             }
         }
 
-        return bsInPlots + bsBucks;
+        int petsPrice = 0;
+        for (Pet p: cosmetics.getPets()) {
+            petsPrice += p.getPrice();
+        }
+        int animationsPrice = 0;
+        for (Animation a: cosmetics.getAnimations()) {
+            animationsPrice += a.getPrice();
+        }
+        int renamePrices = cosmetics.getRenamesNumber() * renamePetPrice;
+        return bsInPlots + bsBucks + petsPrice + animationsPrice + renamePrices;
     }
 
     public void setBsBucks(int bsBucks) {
@@ -366,6 +396,9 @@ public class Player {
         if (c.contains("bsBucks")) {
             this.bsBucks = c.getInt("bsBucks");
         }
+        if (c.contains("showScoreboard")) {
+            this.showScoreboard = c.getBoolean("showScoreboard");
+        }
         if (c.contains("lastLoginDate")) {
             this.lastLoginDate = LocalDate.parse(c.getString("lastLoginDate"));
         }
@@ -397,12 +430,19 @@ public class Player {
                 }
             }
         }
+
+        if (c.contains("cosmetics")) {
+            ConfigurationSection cosmeticsSection = c.getConfigurationSection("cosmetics");
+            cosmetics = new Cosmetics();
+            cosmetics.loadFromConfig(instance, cosmeticsSection);
+        }
     }
 
     public void saveToConfig(ConfigurationSection config) {
         config.set("name", playerName);
         config.set("lastLoginDate", lastLoginDate.toString());
         config.set("consecutiveLoginDays", consecutiveLoginDays);
+        config.set("showScoreboard", showScoreboard);
 
         ConfigurationSection plotsSection = config.createSection("plots");
         for (int i = 0; i < plots.size(); i++) {
@@ -418,6 +458,9 @@ public class Player {
             ConfigurationSection shopSection = shopsSection.createSection(String.valueOf(i));
             shop.saveToConfig(shopSection);
         }
+
+        ConfigurationSection cosmeticsSection = config.createSection("cosmetics");
+        cosmetics.saveToConfig(cosmeticsSection);
 
         config.set("claims", claims);
         config.set("bsBucks", bsBucks);

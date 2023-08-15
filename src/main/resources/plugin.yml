@@ -7,6 +7,10 @@ api-version: 1.19
 softdepend: [Citizens]
 
 commands:
+  easter:
+    usage: /easter
+  rename:
+    usage: /rename <pet> <name>
   leaderboard:
     usage: /leaderboard <setpnj|sethologram> <leaderboard type>
     tab-completions:
@@ -41,9 +45,12 @@ commands:
     tab-completions:
       sell: []
       show: []
+      shop: []
   stuck:
     description: Unstuck you
     usage: /stuck
+  profile:
+    description: Access player profile
 
 
 command-description:
@@ -80,11 +87,16 @@ command-description:
   bs:
     description: Access Better Survival Bucks features
     subcommands:
-      buy:
+      sell:
         description: Open the BS Bucks inventory
-        usage: /bs buy
+        usage: /bs sell
       show:
         description: Show the player's BS Bucks balance
         usage: /bs show
+      shop:
+        description: Show the player's BS Bucks shop
+        usage: /bs shop
+  profile:
+    description: Access player profile
   stuck:
     description: Unstuck you

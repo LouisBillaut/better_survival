@@ -36,7 +36,7 @@ public class Tab implements TabCompleter {
                 return playerIG.getPlots().stream().map(Plot::getName).collect(Collectors.toCollection(ArrayList::new));
             }
             if (args.length == 5 && (args[3].equals("add") || args[3].equals("remove"))) {
-                return game.getPlayers().stream().map(fr.louisbillaut.bettersurvival.game.Player::getPlayerName).collect(Collectors.toCollection(ArrayList::new));
+                return StringUtil.copyPartialMatches(args[4], game.getPlayers().stream().map(fr.louisbillaut.bettersurvival.game.Player::getPlayerName).collect(Collectors.toCollection(ArrayList::new)), new ArrayList<>());
             }
         } else if (command.getName().equalsIgnoreCase("shop")) {
             if (args.length == 1) {
@@ -63,7 +63,7 @@ public class Tab implements TabCompleter {
             }
         } else if (command.getName().equalsIgnoreCase("bs")) {
             if (args.length == 1) {
-                return Arrays.asList("sell", "show");
+                return Arrays.asList("sell", "show", "shop");
             }
         } else if (command.getName().equalsIgnoreCase("compass")) {
             if (args.length == 1) {
