@@ -190,7 +190,6 @@ public class BsBucks {
             new BSItem(new ItemStack(Material.SADDLE), 500),
             new BSItem(new ItemStack(Material.FIRE_CHARGE), 70),
             new BSItem(getRegenerationPotion(), 80),
-            new BSItem(new ItemStack(Material.ICE), 70),
             new BSItem(new ItemStack(Material.GOLDEN_APPLE), 210),
             new BSItem(new ItemStack(Material.ENDER_EYE), 60),
             new BSItem(new ItemStack(Material.HONEY_BOTTLE), 40),
