@@ -1900,4 +1900,41 @@ public class PlayerListener implements Listener {
         Enchantment silkTouch = new EnchantmentWrapper(Enchantment.SILK_TOUCH.getKey().getKey());
         return item.containsEnchantment(silkTouch);
     }
+
+    @EventHandler
+    public void onPlayerEnterBed(PlayerBedEnterEvent event) {
+        org.bukkit.entity.Player player = event.getPlayer();
+        World world = player.getWorld();
+
+        if (event.getBedEnterResult() == PlayerBedEnterEvent.BedEnterResult.OK) {
+            int currentSleeping = game.getSleepingPlayersCount().getOrDefault(world, 0) + 1;
+            game.putSleepingPlayer(world, currentSleeping);
+
+            checkSleepPercentage(world);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerLeaveBed(PlayerBedLeaveEvent event) {
+        org.bukkit.entity.Player player = event.getPlayer();
+        World world = player.getWorld();
+
+        int currentSleeping = game.getSleepingPlayersCount().getOrDefault(world, 0) - 1;
+        if (currentSleeping <= 0) {
+            game.removeSleepingPlayer(world);
+        } else {
+            game.putSleepingPlayer(world, currentSleeping);
+            checkSleepPercentage(world);
+        }
+    }
+
+    private void checkSleepPercentage(World world) {
+        int onlinePlayers = world.getPlayers().size();
+        int currentSleeping = game.getSleepingPlayersCount().getOrDefault(world, 0);
+        double percentageSleeping = (double) currentSleeping / onlinePlayers;
+        if (percentageSleeping >= game.getSleepPercentageThreshold()) {
+            world.setTime(0);
+            game.removeSleepingPlayer(world);
+        }
+    }
 }
