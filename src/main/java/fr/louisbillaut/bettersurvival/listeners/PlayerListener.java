@@ -35,6 +35,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
@@ -1935,6 +1936,19 @@ public class PlayerListener implements Listener {
         if (percentageSleeping >= game.getSleepPercentageThreshold()) {
             world.setTime(0);
             game.removeSleepingPlayer(world);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        org.bukkit.entity.Player player = event.getPlayer();
+        if (player.hasPotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE) && event.getRightClicked() instanceof Villager) {
+            Villager villager = (Villager) event.getRightClicked();
+            if (villager.isCustomNameVisible()) {
+                event.setCancelled(true);
+                event.getPlayer().playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                event.getPlayer().sendMessage(ChatColor.RED + "You can't trade with a villager while in Hero of the village effect.");
+            }
         }
     }
 }
