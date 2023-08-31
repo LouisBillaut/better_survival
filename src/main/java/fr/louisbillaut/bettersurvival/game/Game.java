@@ -4,11 +4,9 @@ import fr.louisbillaut.bettersurvival.Main;
 import fr.louisbillaut.bettersurvival.animations.Animation;
 import fr.louisbillaut.bettersurvival.npcs.Dave;
 import fr.louisbillaut.bettersurvival.pets.Pet;
+import fr.louisbillaut.bettersurvival.pets.Wolf;
 import fr.louisbillaut.bettersurvival.utils.Detector;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
@@ -34,6 +32,8 @@ public class Game implements Serializable {
     public Map<UUID, ArrayList<BukkitRunnable>> armorStandsRotationTasks = new HashMap<>();
     private final Map<org.bukkit.entity.Player, Pet> pets = new HashMap<>();
     private final Map<org.bukkit.entity.Player, Animation> animations = new HashMap<>();
+    private final Map<World, Integer> sleepingPlayersCount = new HashMap<>();
+    private final double sleepPercentageThreshold = 0.5;
 
     public BsBucks bs = new BsBucks();
     private LeaderBoard leaderBoard = new LeaderBoard();
@@ -41,6 +41,22 @@ public class Game implements Serializable {
     private EasterEgg easterEgg = new EasterEgg();
     public Game() {
         players = new ArrayList<>();
+    }
+
+    public double getSleepPercentageThreshold() {
+        return sleepPercentageThreshold;
+    }
+
+    public Map<World, Integer> getSleepingPlayersCount() {
+        return sleepingPlayersCount;
+    }
+
+    public void putSleepingPlayer(World world, Integer integer) {
+        sleepingPlayersCount.put(world, integer);
+    }
+
+    public void removeSleepingPlayer(World world) {
+        sleepingPlayersCount.remove(world);
     }
 
     public void addPlayer(Player player) {

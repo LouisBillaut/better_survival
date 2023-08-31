@@ -73,6 +73,7 @@ public class PlotCommand implements CommandExecutor {
                 }else {
                     player.sendMessage("Invalid whitelist. Whitelist " + whitelistType + " doesn't exist.");
                 }
+                plotSettings(player, plot);
             } else if (action.equalsIgnoreCase("remove")) {
                 if(b) {
                     targetPlot.removePlayerToWhitelist(playerName, whitelistType);
@@ -81,6 +82,7 @@ public class PlotCommand implements CommandExecutor {
                 }else {
                     player.sendMessage("Invalid whitelist. Whitelist " + whitelistType + " doesn't exist.");
                 }
+                plotSettings(player, plot);
             } else {
                 player.sendMessage("Invalid action type. Use 'add' or 'remove' as action.");
             }
