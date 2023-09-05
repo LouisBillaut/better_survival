@@ -35,7 +35,7 @@ public class PlotCommand implements CommandExecutor {
     private void listPlots(Player player) {
         fr.louisbillaut.bettersurvival.game.Player gamePlayer = game.getPlayer(player);
         if (gamePlayer != null) {
-            gamePlayer.displayListPlotInventory();
+            Plot.displayPlotTypeInventory(gamePlayer);
         } else {
             player.sendMessage("You must be connected to use this command.");
         }

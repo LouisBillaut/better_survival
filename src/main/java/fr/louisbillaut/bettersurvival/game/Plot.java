@@ -19,6 +19,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fr.louisbillaut.bettersurvival.game.Shop.createGlassBlock;
+
 public class Plot {
     public enum PlotSetting {
         ACTIVATED("ACTIVATED"), DEACTIVATED("DEACTIVATED"), CUSTOM("CUSTOM");
@@ -74,6 +76,114 @@ public class Plot {
         this.name = name;
         this.height = height;
         successfulCreation(player);
+    }
+
+    public static void displayPlotTypeInventory(fr.louisbillaut.bettersurvival.game.Player player) {
+        if (player.getBukkitPlayer() == null) return;
+        Inventory inventory = Bukkit.createInventory(null, 27, "Select plots");
+
+        for (int slot = 0; slot < 27; slot++) {
+            inventory.setItem(slot, createGlassBlock());
+        }
+
+        var myPlotItem = getMyPlotItem();
+        var whitelistedPlotItem = getWhitelistedPlotItem();
+
+        inventory.setItem(12, myPlotItem);
+        inventory.setItem(14, whitelistedPlotItem);
+
+        player.getBukkitPlayer().openInventory(inventory);
+    }
+
+    public static void displayListPlotInventory(fr.louisbillaut.bettersurvival.game.Player player) {
+        var plots = player.getPlots();
+        int inventorySize = Math.max(9, (int) Math.ceil(plots.size() / 9.0) * 9);
+        Inventory inventory = Bukkit.createInventory(null, inventorySize, "Plots List");
+
+        ItemStack glassPane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta glassPaneMeta = glassPane.getItemMeta();
+        glassPaneMeta.setDisplayName(" ");
+        glassPane.setItemMeta(glassPaneMeta);
+
+        for (int i = 0; i < 9; i++) {
+            inventory.setItem(i, glassPane);
+            inventory.setItem(inventorySize - 9 + i, glassPane);
+        }
+
+        for (int i = 0; i < plots.size(); i++) {
+            Plot plot = plots.get(i);
+
+            ItemStack grassBlock = new ItemStack(Material.GRASS_BLOCK);
+            ItemMeta grassBlockMeta = grassBlock.getItemMeta();
+            grassBlockMeta.setDisplayName(ChatColor.GREEN + "Plot " + plot.getName());
+
+            List<String> lore = new ArrayList<>();
+            lore.add(ChatColor.YELLOW + "Location1: X: " + plot.getLocation1().getX() +
+                    " Y: " + plot.getLocation1().getY() +
+                    " Z: " + plot.getLocation1().getZ());
+            lore.add(ChatColor.YELLOW + "Location2: X: " + plot.getLocation2().getX() +
+                    " Y: " + plot.getLocation2().getY() +
+                    " Z: " + plot.getLocation2().getZ());
+            lore.add(ChatColor.YELLOW + "Height: " + plot.getHeight());
+
+            grassBlockMeta.setLore(lore);
+            grassBlock.setItemMeta(grassBlockMeta);
+
+            int row = i / 9;
+            int column = i % 9;
+
+            inventory.setItem(row * 9 + column, grassBlock);
+        }
+
+        player.getBukkitPlayer().openInventory(inventory);
+    }
+
+    public static void displayWhitelistedPlotInventory(Game game, fr.louisbillaut.bettersurvival.game.Player player) {
+        var plots = player.getWhitelistedPlots(game);
+        int inventorySize = Math.max(9, (int) Math.ceil(plots.size() / 9.0) * 9);
+        Inventory inventory = Bukkit.createInventory(null, inventorySize, "Whitelisted Plots");
+
+        ItemStack glassPane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta glassPaneMeta = glassPane.getItemMeta();
+        glassPaneMeta.setDisplayName(" ");
+        glassPane.setItemMeta(glassPaneMeta);
+
+        for (int i = 0; i < 9; i++) {
+            inventory.setItem(i, glassPane);
+            inventory.setItem(inventorySize - 9 + i, glassPane);
+        }
+
+        var i = 0;
+        for (fr.louisbillaut.bettersurvival.game.Player p: plots.keySet()) {
+            for (Plot plot: plots.get(p)) {
+                ItemStack grassBlock = new ItemStack(Material.WARPED_NYLIUM);
+                ItemMeta grassBlockMeta = grassBlock.getItemMeta();
+                grassBlockMeta.setDisplayName(ChatColor.GREEN + "Plot " + plot.getName());
+
+                List<String> lore = new ArrayList<>();
+                lore.add("\n");
+                lore.add(ChatColor.YELLOW + "Plot of " + ChatColor.WHITE + p.getPlayerName());
+                lore.add(ChatColor.YELLOW + "Location1: X: " + plot.getLocation1().getX() +
+                        " Y: " + plot.getLocation1().getY() +
+                        " Z: " + plot.getLocation1().getZ());
+                lore.add(ChatColor.YELLOW + "Location2: X: " + plot.getLocation2().getX() +
+                        " Y: " + plot.getLocation2().getY() +
+                        " Z: " + plot.getLocation2().getZ());
+                lore.add(ChatColor.YELLOW + "Height: " + plot.getHeight());
+
+                grassBlockMeta.setLore(lore);
+                grassBlock.setItemMeta(grassBlockMeta);
+
+                int row = i / 9;
+                int column = i % 9;
+                i++;
+
+                inventory.setItem(row * 9 + column, grassBlock);
+            }
+        }
+
+
+        player.getBukkitPlayer().openInventory(inventory);
     }
 
     public static void showPlotHeightOptions(Player player) {
@@ -536,5 +646,30 @@ public class Plot {
         );
 
         player.closeInventory();
+    }
+
+    private static ItemStack getMyPlotItem() {
+        ItemStack soilBlock = new ItemStack(Material.GRASS_BLOCK);
+        ItemMeta soilMeta = soilBlock.getItemMeta();
+        soilMeta.setDisplayName(ChatColor.GREEN + "My Plots");
+        var lore = new ArrayList<String>();
+        lore.add(ChatColor.GRAY + "List your plots");
+        soilMeta.setLore(lore);
+        soilBlock.setItemMeta(soilMeta);
+
+        return soilBlock;
+    }
+
+    private static ItemStack getWhitelistedPlotItem() {
+        ItemStack soilBlock = new ItemStack(Material.WARPED_NYLIUM);
+        ItemMeta soilMeta = soilBlock.getItemMeta();
+        soilMeta.setDisplayName(ChatColor.GREEN + "Whitelisted Plots");
+        var lore = new ArrayList<String>();
+        lore.add(ChatColor.GRAY + "List other players plots");
+        lore.add(ChatColor.GRAY + "where you are whitelisted");
+        soilMeta.setLore(lore);
+        soilBlock.setItemMeta(soilMeta);
+
+        return soilBlock;
     }
 }

@@ -1841,6 +1841,67 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void plotTypeClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (event.getView().getTitle().contains("Select plots")) {
+            event.setCancelled(true);
+            ItemStack clickedItem = event.getCurrentItem();
+            if(clickedItem == null) return;
+            ItemMeta clickedMeta = clickedItem.getItemMeta();
+            Player playerInGame = game.getPlayer(player);
+            if (playerInGame == null) return;
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "Whitelisted Plots")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayWhitelistedPlotInventory(game, playerInGame);
+                return;
+            }
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "My Plots")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayListPlotInventory(playerInGame);
+                return;
+            }
+        }
+    }
+
+    private void plotWhitelistClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (event.getView().getTitle().contains("Whitelisted Plots")) {
+            event.setCancelled(true);
+            ItemStack clickedItem = event.getCurrentItem();
+            if(clickedItem == null) return;
+            ItemMeta clickedMeta = clickedItem.getItemMeta();
+            Player playerInGame = game.getPlayer(player);
+            if (playerInGame == null) return;
+
+            if (clickedMeta != null && !clickedMeta.getDisplayName().equals(" ")) {
+                var itemName = event.getClickedInventory().getItem(event.getSlot()).getItemMeta().getDisplayName();
+                var itemLore = event.getClickedInventory().getItem(event.getSlot()).getItemMeta().getLore();
+                var splited = itemName.split(" ");
+                var playerName = "";
+                if (splited.length < 2) return;
+                if (itemLore != null && itemLore.size() > 2) {
+                    var plotOf = itemLore.get(1);
+                    var splitedOf = plotOf.split(" ");
+                    if (splitedOf.length < 3) return;
+                    playerName = ChatColor.stripColor(splitedOf[2]);
+                }
+                Player playerHasPlot = game.getPlayerByName(playerName);
+                if (playerHasPlot == null) return;
+                Plot plot = playerHasPlot.getPlot(splited[1]);
+                if (plot == null) return;
+                playerInGame.addTarget(instance, playerInGame.getBukkitPlayer(), plot.getLocation1(), plot.getName());
+                playerInGame.getBukkitPlayer().closeInventory();
+                return;
+            }
+        }
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         plotSettingClickEvent(event);
@@ -1863,6 +1924,8 @@ public class PlayerListener implements Listener {
         profileEquipClickEvent(event);
         profileRenamePetClickEvent(event);
         profileSettingsClickEvent(event);
+        plotTypeClickEvent(event);
+        plotWhitelistClickEvent(event);
     }
 
     @EventHandler
