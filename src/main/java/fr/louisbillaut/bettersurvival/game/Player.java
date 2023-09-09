@@ -120,6 +120,9 @@ public class Player {
         if (bukkitPlayer != null) {
             deaths = bukkitPlayer.getStatistic(Statistic.DEATHS);
         }
+        if (playerName.equals("Sikapo")) {
+            return deaths - 11;
+        }
         return deaths;
     }
 
