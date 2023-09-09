@@ -946,6 +946,12 @@ public class PlayerListener implements Listener {
                     player.getBukkitPlayer().closeInventory();
                     return;
                 }
+                var clickedMeta = clickedItem.getItemMeta();
+                if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+                    player.getBukkitPlayer().playSound(player.getBukkitPlayer().getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                    Plot.displayListPlotInventory(instance, player);
+                    return;
+                }
                 if(player.getBukkitPlayer().hasMetadata("setting")) {
                     for(MetadataValue mv: player.getBukkitPlayer().getMetadata("setting")) {
                         Plot plot = player.getPlot(mv.asString());
@@ -1004,6 +1010,34 @@ public class PlayerListener implements Listener {
                         plot.openSettingsInventory(instance, player);
                     }
                 }
+            }
+
+            var clickedMeta = clickedItem.getItemMeta();
+            org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+            var playerIG = game.getPlayer(player);
+            if (playerIG == null) return;
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "next")) {
+                int page = 0;
+                if(player.hasMetadata("plotListPage")) {
+                    for (MetadataValue v: player.getMetadata("plotListPage")) {
+                        page = v.asInt();
+                    }
+                }
+                player.setMetadata("plotListPage", new FixedMetadataValue(instance, page + 1));
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayListPlotInventory(instance, playerIG);
+            }
+
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "previous")) {
+                int page = 0;
+                if(player.hasMetadata("plotListPage")) {
+                    for (MetadataValue v: player.getMetadata("plotListPage")) {
+                        page = v.asInt();
+                    }
+                }
+                player.setMetadata("plotListPage", new FixedMetadataValue(instance, page - 1));
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayListPlotInventory(instance, playerIG);
             }
         }
     }
@@ -1855,12 +1889,12 @@ public class PlayerListener implements Listener {
             if (playerInGame == null) return;
             if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "Whitelisted Plots")) {
                 player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
-                Plot.displayWhitelistedPlotInventory(game, playerInGame);
+                Plot.displayWhitelistedPlotInventory(instance, game, playerInGame);
                 return;
             }
             if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "My Plots")) {
                 player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
-                Plot.displayListPlotInventory(playerInGame);
+                Plot.displayListPlotInventory(instance, playerInGame);
                 return;
             }
         }
@@ -1879,6 +1913,29 @@ public class PlayerListener implements Listener {
             Player playerInGame = game.getPlayer(player);
             if (playerInGame == null) return;
 
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "next")) {
+                int page = 0;
+                if(player.hasMetadata("plotWhiteListPage")) {
+                    for (MetadataValue v: player.getMetadata("plotWhiteListPage")) {
+                        page = v.asInt();
+                    }
+                }
+                player.setMetadata("plotWhiteListPage", new FixedMetadataValue(instance, page + 1));
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayWhitelistedPlotInventory(instance, game, playerInGame);
+            }
+
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "previous")) {
+                int page = 0;
+                if(player.hasMetadata("plotWhiteListPage")) {
+                    for (MetadataValue v: player.getMetadata("plotWhiteListPage")) {
+                        page = v.asInt();
+                    }
+                }
+                player.setMetadata("plotWhiteListPage", new FixedMetadataValue(instance, page - 1));
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayWhitelistedPlotInventory(instance, game, playerInGame);
+            }
             if (clickedMeta != null && !clickedMeta.getDisplayName().equals(" ")) {
                 var itemName = event.getClickedInventory().getItem(event.getSlot()).getItemMeta().getDisplayName();
                 var itemLore = event.getClickedInventory().getItem(event.getSlot()).getItemMeta().getLore();

@@ -1,9 +1,8 @@
 package fr.louisbillaut.bettersurvival.game;
 
 import fr.louisbillaut.bettersurvival.Main;
+import fr.louisbillaut.bettersurvival.utils.Head;
 import fr.louisbillaut.bettersurvival.utils.Messages;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
@@ -14,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -95,23 +95,27 @@ public class Plot {
         player.getBukkitPlayer().openInventory(inventory);
     }
 
-    public static void displayListPlotInventory(fr.louisbillaut.bettersurvival.game.Player player) {
+    public static void displayListPlotInventory(Main instance, fr.louisbillaut.bettersurvival.game.Player player) {
         var plots = player.getPlots();
-        int inventorySize = Math.max(9, (int) Math.ceil(plots.size() / 9.0) * 9);
-        Inventory inventory = Bukkit.createInventory(null, inventorySize, "Plots List");
+        Inventory inventory = Bukkit.createInventory(null, 54, "Plots List");
 
-        ItemStack glassPane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta glassPaneMeta = glassPane.getItemMeta();
-        glassPaneMeta.setDisplayName(" ");
-        glassPane.setItemMeta(glassPaneMeta);
-
-        for (int i = 0; i < 9; i++) {
-            inventory.setItem(i, glassPane);
-            inventory.setItem(inventorySize - 9 + i, glassPane);
+        int page = 0;
+        if(player.getBukkitPlayer().hasMetadata("plotListPage")) {
+            for (MetadataValue v: player.getBukkitPlayer().getMetadata("plotListPage")) {
+                page = v.asInt();
+            }
         }
 
-        for (int i = 0; i < plots.size(); i++) {
-            Plot plot = plots.get(i);
+        if (page*5 > player.getPlots().size()) {
+            page = page -1;
+            player.getBukkitPlayer().setMetadata("plotListPage", new FixedMetadataValue(instance, page));
+        }
+        if(page < 0) {
+            page = 0;
+            player.getBukkitPlayer().setMetadata("plotListPage", new FixedMetadataValue(instance, page));
+        }
+        for (int i = 0; i < plots.size() && (page * 54) < plots.size() && i < 44; i++) {
+            Plot plot = plots.get(i + page * 54);
 
             ItemStack grassBlock = new ItemStack(Material.GRASS_BLOCK);
             ItemMeta grassBlockMeta = grassBlock.getItemMeta();
@@ -135,27 +139,36 @@ public class Plot {
             inventory.setItem(row * 9 + column, grassBlock);
         }
 
+        inventory.setItem(45, Shop.getPreviousArrow());
+        inventory.setItem(53, Shop.getNextArrow());
+
         player.getBukkitPlayer().openInventory(inventory);
     }
 
-    public static void displayWhitelistedPlotInventory(Game game, fr.louisbillaut.bettersurvival.game.Player player) {
+    public static void displayWhitelistedPlotInventory(Main instance, Game game, fr.louisbillaut.bettersurvival.game.Player player) {
         var plots = player.getWhitelistedPlots(game);
-        int inventorySize = Math.max(9, (int) Math.ceil(plots.size() / 9.0) * 9);
-        Inventory inventory = Bukkit.createInventory(null, inventorySize, "Whitelisted Plots");
+        Inventory inventory = Bukkit.createInventory(null, 54, "Whitelisted Plots");
 
-        ItemStack glassPane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta glassPaneMeta = glassPane.getItemMeta();
-        glassPaneMeta.setDisplayName(" ");
-        glassPane.setItemMeta(glassPaneMeta);
-
-        for (int i = 0; i < 9; i++) {
-            inventory.setItem(i, glassPane);
-            inventory.setItem(inventorySize - 9 + i, glassPane);
+        int page = 0;
+        if(player.getBukkitPlayer().hasMetadata("plotWhiteListPage")) {
+            for (MetadataValue v: player.getBukkitPlayer().getMetadata("plotWhiteListPage")) {
+                page = v.asInt();
+            }
         }
 
-        var i = 0;
+        if (page*5 > player.getPlots().size()) {
+            page = page -1;
+            player.getBukkitPlayer().setMetadata("plotWhiteListPage", new FixedMetadataValue(instance, page));
+        }
+        if(page < 0) {
+            page = 0;
+            player.getBukkitPlayer().setMetadata("plotWhiteListPage", new FixedMetadataValue(instance, page));
+        }
+
         for (fr.louisbillaut.bettersurvival.game.Player p: plots.keySet()) {
-            for (Plot plot: plots.get(p)) {
+            var plotList = plots.get(p);
+            for (int i = 0; i < plotList.size() && (page * 54) < plotList.size() && i < 44; i++) {
+                var plot = plotList.get(i + page * 54);
                 ItemStack grassBlock = new ItemStack(Material.WARPED_NYLIUM);
                 ItemMeta grassBlockMeta = grassBlock.getItemMeta();
                 grassBlockMeta.setDisplayName(ChatColor.GREEN + "Plot " + plot.getName());
@@ -176,13 +189,13 @@ public class Plot {
 
                 int row = i / 9;
                 int column = i % 9;
-                i++;
 
                 inventory.setItem(row * 9 + column, grassBlock);
             }
         }
 
-
+        inventory.setItem(45, Shop.getPreviousArrow());
+        inventory.setItem(53, Shop.getNextArrow());
         player.getBukkitPlayer().openInventory(inventory);
     }
 
@@ -523,7 +536,7 @@ public class Plot {
 
     public void openSettingsInventory(Main instance, Player player) {
         player.setMetadata("setting", new FixedMetadataValue(instance, name));
-        Inventory inventory = instance.getServer().createInventory(null, 27, name + " plot settings");
+        Inventory inventory = instance.getServer().createInventory(null, 36, name + " plot settings");
 
         ItemStack grassBlock = new ItemStack(Material.GRASS_BLOCK);
         ItemMeta grassBlockMeta = grassBlock.getItemMeta();
@@ -542,6 +555,7 @@ public class Plot {
         grassBlock.setItemMeta(grassBlockMeta);
 
         inventory.setItem(0, grassBlock);
+        inventory.setItem(27, backItem());
 
         // Players Can Interact Option
         setInteractOption(inventory);
@@ -553,6 +567,15 @@ public class Plot {
         setEnterOption(inventory);
 
         player.openInventory(inventory);
+    }
+
+    private ItemStack backItem() {
+        var head = Head.getCustomHead(Head.quartzArrowLeft);
+        ItemMeta meta = head.getItemMeta();
+        meta.setDisplayName(ChatColor.GRAY + "back");
+        head.setItemMeta(meta);
+
+        return head;
     }
 
 
