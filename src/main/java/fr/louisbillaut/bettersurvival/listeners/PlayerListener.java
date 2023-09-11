@@ -946,6 +946,12 @@ public class PlayerListener implements Listener {
                     player.getBukkitPlayer().closeInventory();
                     return;
                 }
+                var clickedMeta = clickedItem.getItemMeta();
+                if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GRAY + "back")) {
+                    player.getBukkitPlayer().playSound(player.getBukkitPlayer().getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                    Plot.displayListPlotInventory(instance, player);
+                    return;
+                }
                 if(player.getBukkitPlayer().hasMetadata("setting")) {
                     for(MetadataValue mv: player.getBukkitPlayer().getMetadata("setting")) {
                         Plot plot = player.getPlot(mv.asString());
@@ -1004,6 +1010,34 @@ public class PlayerListener implements Listener {
                         plot.openSettingsInventory(instance, player);
                     }
                 }
+            }
+
+            var clickedMeta = clickedItem.getItemMeta();
+            org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+            var playerIG = game.getPlayer(player);
+            if (playerIG == null) return;
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "next")) {
+                int page = 0;
+                if(player.hasMetadata("plotListPage")) {
+                    for (MetadataValue v: player.getMetadata("plotListPage")) {
+                        page = v.asInt();
+                    }
+                }
+                player.setMetadata("plotListPage", new FixedMetadataValue(instance, page + 1));
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayListPlotInventory(instance, playerIG);
+            }
+
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "previous")) {
+                int page = 0;
+                if(player.hasMetadata("plotListPage")) {
+                    for (MetadataValue v: player.getMetadata("plotListPage")) {
+                        page = v.asInt();
+                    }
+                }
+                player.setMetadata("plotListPage", new FixedMetadataValue(instance, page - 1));
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayListPlotInventory(instance, playerIG);
             }
         }
     }
@@ -1841,6 +1875,90 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void plotTypeClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (event.getView().getTitle().contains("Select plots")) {
+            event.setCancelled(true);
+            ItemStack clickedItem = event.getCurrentItem();
+            if(clickedItem == null) return;
+            ItemMeta clickedMeta = clickedItem.getItemMeta();
+            Player playerInGame = game.getPlayer(player);
+            if (playerInGame == null) return;
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "Whitelisted Plots")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayWhitelistedPlotInventory(instance, game, playerInGame);
+                return;
+            }
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "My Plots")) {
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayListPlotInventory(instance, playerInGame);
+                return;
+            }
+        }
+    }
+
+    private void plotWhitelistClickEvent(InventoryClickEvent event) {
+        org.bukkit.entity.Player player = (org.bukkit.entity.Player) event.getWhoClicked();
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(player.getInventory())) {
+            return;
+        }
+        if (event.getView().getTitle().contains("Whitelisted Plots")) {
+            event.setCancelled(true);
+            ItemStack clickedItem = event.getCurrentItem();
+            if(clickedItem == null) return;
+            ItemMeta clickedMeta = clickedItem.getItemMeta();
+            Player playerInGame = game.getPlayer(player);
+            if (playerInGame == null) return;
+
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "next")) {
+                int page = 0;
+                if(player.hasMetadata("plotWhiteListPage")) {
+                    for (MetadataValue v: player.getMetadata("plotWhiteListPage")) {
+                        page = v.asInt();
+                    }
+                }
+                player.setMetadata("plotWhiteListPage", new FixedMetadataValue(instance, page + 1));
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayWhitelistedPlotInventory(instance, game, playerInGame);
+            }
+
+            if (clickedMeta != null && clickedMeta.getDisplayName().equals(ChatColor.GREEN + "previous")) {
+                int page = 0;
+                if(player.hasMetadata("plotWhiteListPage")) {
+                    for (MetadataValue v: player.getMetadata("plotWhiteListPage")) {
+                        page = v.asInt();
+                    }
+                }
+                player.setMetadata("plotWhiteListPage", new FixedMetadataValue(instance, page - 1));
+                player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
+                Plot.displayWhitelistedPlotInventory(instance, game, playerInGame);
+            }
+            if (clickedMeta != null && !clickedMeta.getDisplayName().equals(" ")) {
+                var itemName = event.getClickedInventory().getItem(event.getSlot()).getItemMeta().getDisplayName();
+                var itemLore = event.getClickedInventory().getItem(event.getSlot()).getItemMeta().getLore();
+                var splited = itemName.split(" ");
+                var playerName = "";
+                if (splited.length < 2) return;
+                if (itemLore != null && itemLore.size() > 2) {
+                    var plotOf = itemLore.get(1);
+                    var splitedOf = plotOf.split(" ");
+                    if (splitedOf.length < 3) return;
+                    playerName = ChatColor.stripColor(splitedOf[2]);
+                }
+                Player playerHasPlot = game.getPlayerByName(playerName);
+                if (playerHasPlot == null) return;
+                Plot plot = playerHasPlot.getPlot(splited[1]);
+                if (plot == null) return;
+                playerInGame.addTarget(instance, playerInGame.getBukkitPlayer(), plot.getLocation1(), plot.getName());
+                playerInGame.getBukkitPlayer().closeInventory();
+                return;
+            }
+        }
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         plotSettingClickEvent(event);
@@ -1863,6 +1981,8 @@ public class PlayerListener implements Listener {
         profileEquipClickEvent(event);
         profileRenamePetClickEvent(event);
         profileSettingsClickEvent(event);
+        plotTypeClickEvent(event);
+        plotWhitelistClickEvent(event);
     }
 
     @EventHandler
@@ -1949,6 +2069,20 @@ public class PlayerListener implements Listener {
                 event.getPlayer().playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                 event.getPlayer().sendMessage(ChatColor.RED + "You can't trade with a villager while in Hero of the village effect.");
             }
+        }
+    }
+
+    @EventHandler
+    public void onResourcePackStatus(PlayerResourcePackStatusEvent event) {
+        Bukkit.getLogger().info("event: " + event.getStatus());
+        if (event.getStatus() == PlayerResourcePackStatusEvent.Status.DECLINED) {
+            String link = "http://resourcepack.host/dl/fOXGyo9v0Z9iIBGafsY80eN8ZivJ3Jh4/bs.zip";
+            TextComponent message = new TextComponent(ChatColor.GREEN + "To download pack : ");
+            TextComponent linkText = new TextComponent(ChatColor.YELLOW + "Click here");
+            linkText.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link));
+            message.addExtra(linkText);
+            event.getPlayer().sendMessage(ChatColor.RED + "You have declined server texture pack. It can affect your gaming experience.");
+            event.getPlayer().spigot().sendMessage( message);
         }
     }
 }

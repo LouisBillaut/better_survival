@@ -18,7 +18,7 @@ public class Scoreboard {
     private ScoreboardManager scoreboardManager;
     private org.bukkit.scoreboard.Scoreboard scoreboard;
     private Objective objective;
-    private String scoreboardTitle = "Better Survival";
+    private String scoreboardTitle = "\uE001";
     public Scoreboard(Main instance, Player player) {
         scoreboardManager = Bukkit.getScoreboardManager();
         scoreboard = scoreboardManager.getNewScoreboard();
@@ -52,17 +52,17 @@ public class Scoreboard {
         scoreboard = scoreboardManager.getNewScoreboard();
         objective = scoreboard.registerNewObjective("BetterSurvival", "dummy", ChatColor.DARK_PURPLE + "Better Survival");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + scoreboardTitle);
+        objective.setDisplayName(scoreboardTitle);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMM d");
         String currentDate = dateFormat.format(new Date());
 
         objective.getScore(ChatColor.GRAY + "     " + currentDate).setScore(11);
-        objective.getScore("").setScore(10);
+        objective.getScore(" ").setScore(10);
         objective.getScore(ChatColor.AQUA + String.valueOf(ChatColor.BOLD) + player.getPlayerName()).setScore(9);
-        objective.getScore(ChatColor.GRAY + ">>" + ChatColor.WHITE + " PlayTime: " + ChatColor.AQUA + LeaderBoard.formatPlayTime(player.getPlayedTime())).setScore(8);
-        objective.getScore(ChatColor.GRAY + ">>" + ChatColor.WHITE + " Deaths: " + ChatColor.RED + player.getDeaths()).setScore(7);
-        objective.getScore(ChatColor.GRAY + ">>" + ChatColor.WHITE + " bsBucks: " + ChatColor.GOLD + player.getBsBucks()).setScore(6);
+        objective.getScore(ChatColor.GRAY + ">>" + ChatColor.WHITE + " PlayTime: " + ChatColor.AQUA + LeaderBoard.formatPlayTime(player.getPlayedTime()) + " \uE004").setScore(8);
+        objective.getScore(ChatColor.GRAY + ">>" + ChatColor.WHITE + " Deaths: " + ChatColor.RED + player.getDeaths() + " \uE003").setScore(7);
+        objective.getScore(ChatColor.GRAY + ">>" + ChatColor.WHITE + " bsBucks: " + ChatColor.GOLD + player.getBsBucks() + " \uE002").setScore(6);
         objective.getScore("").setScore(5);
         objective.getScore(ChatColor.AQUA + String.valueOf(ChatColor.BOLD) + "Plots").setScore(3);
         objective.getScore(ChatColor.GRAY + ">>" + ChatColor.WHITE + "Nb: " + ChatColor.AQUA + player.getPlots().size()).setScore(2);

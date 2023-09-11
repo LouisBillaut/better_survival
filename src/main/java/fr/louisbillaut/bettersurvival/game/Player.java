@@ -120,11 +120,35 @@ public class Player {
         if (bukkitPlayer != null) {
             deaths = bukkitPlayer.getStatistic(Statistic.DEATHS);
         }
+        if (playerName.equals("Sikapo")) {
+            return deaths - 11;
+        }
         return deaths;
     }
 
     public Cosmetics getCosmetics() {
         return cosmetics;
+    }
+
+    public Map<Player, List<Plot>> getWhitelistedPlots(Game game) {
+        Map<Player, List<Plot>> res = new HashMap<>();
+        for(Player p: game.getPlayers()) {
+            if (p.getPlayerName().equals(getPlayerName())) continue;
+            for(Plot plot: p.getPlots()) {
+                if((plot.getPlayerInteract().equals(Plot.PlotSetting.ACTIVATED) || plot.getPlayerBuild().equals(Plot.PlotSetting.ACTIVATED) || plot.getPlayerEnter().equals(Plot.PlotSetting.ACTIVATED)) ||
+                        (plot.getPlayerEnterWhitelist().contains(getPlayerName()) && plot.getPlayerEnter().equals(Plot.PlotSetting.CUSTOM)) ||
+                        (plot.getPlayerBuildWhitelist().contains(getPlayerName()) && plot.getPlayerBuild().equals(Plot.PlotSetting.CUSTOM)) ||
+                        (plot.getPlayerInteractWhitelist().contains(getPlayerName())) && plot.getPlayerInteract().equals(Plot.PlotSetting.CUSTOM)) {
+                    if(res.containsKey(p)) {
+                       res.get(p).add(plot);
+                    } else {
+                        res.put(p, new ArrayList<>(List.of(plot)));
+                    }
+                }
+            }
+        }
+
+        return res;
     }
 
     public void sendRewardMessage(org.bukkit.entity.Player player, int consecutiveLoginDays) {
@@ -250,7 +274,7 @@ public class Player {
 
     public void showBsBuck() {
         if(bukkitPlayer == null) return;
-        bukkitPlayer.sendMessage(ChatColor.GREEN + "you have " + ChatColor.GOLD + bsBucks + " bsBucks");
+        bukkitPlayer.sendMessage(ChatColor.GREEN + "you have " + ChatColor.GOLD + bsBucks + " bsBucks \uE002");
     }
 
     public void createChestWithClaims(Location location) {
@@ -571,47 +595,4 @@ public class Player {
 
         bukkitPlayer.openInventory(inventory);
     }
-
-    public void displayListPlotInventory() {
-        int inventorySize = Math.max(9, (int) Math.ceil(plots.size() / 9.0) * 9);
-        Inventory inventory = Bukkit.createInventory(null, inventorySize, "Plots List");
-
-        ItemStack glassPane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta glassPaneMeta = glassPane.getItemMeta();
-        glassPaneMeta.setDisplayName(" ");
-        glassPane.setItemMeta(glassPaneMeta);
-
-        for (int i = 0; i < 9; i++) {
-            inventory.setItem(i, glassPane);
-            inventory.setItem(inventorySize - 9 + i, glassPane);
-        }
-
-        for (int i = 0; i < plots.size(); i++) {
-            Plot plot = plots.get(i);
-
-            ItemStack grassBlock = new ItemStack(Material.GRASS_BLOCK);
-            ItemMeta grassBlockMeta = grassBlock.getItemMeta();
-            grassBlockMeta.setDisplayName(ChatColor.GREEN + "Plot " + plot.getName());
-
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.YELLOW + "Location1: X: " + plot.getLocation1().getX() +
-                    " Y: " + plot.getLocation1().getY() +
-                    " Z: " + plot.getLocation1().getZ());
-            lore.add(ChatColor.YELLOW + "Location2: X: " + plot.getLocation2().getX() +
-                    " Y: " + plot.getLocation2().getY() +
-                    " Z: " + plot.getLocation2().getZ());
-            lore.add(ChatColor.YELLOW + "Height: " + plot.getHeight());
-
-            grassBlockMeta.setLore(lore);
-            grassBlock.setItemMeta(grassBlockMeta);
-
-            int row = i / 9;
-            int column = i % 9;
-
-            inventory.setItem(row * 9 + column, grassBlock);
-        }
-
-        bukkitPlayer.openInventory(inventory);
-    }
-
 }
