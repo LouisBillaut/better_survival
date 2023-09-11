@@ -2071,4 +2071,18 @@ public class PlayerListener implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onResourcePackStatus(PlayerResourcePackStatusEvent event) {
+        Bukkit.getLogger().info("event: " + event.getStatus());
+        if (event.getStatus() == PlayerResourcePackStatusEvent.Status.DECLINED) {
+            String link = "http://resourcepack.host/dl/fOXGyo9v0Z9iIBGafsY80eN8ZivJ3Jh4/bs.zip";
+            TextComponent message = new TextComponent(ChatColor.GREEN + "To download pack : ");
+            TextComponent linkText = new TextComponent(ChatColor.YELLOW + "Click here");
+            linkText.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link));
+            message.addExtra(linkText);
+            event.getPlayer().sendMessage(ChatColor.RED + "You have declined server texture pack. It can affect your gaming experience.");
+            event.getPlayer().spigot().sendMessage( message);
+        }
+    }
 }

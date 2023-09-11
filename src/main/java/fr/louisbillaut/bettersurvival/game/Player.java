@@ -274,7 +274,7 @@ public class Player {
 
     public void showBsBuck() {
         if(bukkitPlayer == null) return;
-        bukkitPlayer.sendMessage(ChatColor.GREEN + "you have " + ChatColor.GOLD + bsBucks + " bsBucks");
+        bukkitPlayer.sendMessage(ChatColor.GREEN + "you have " + ChatColor.GOLD + bsBucks + " bsBucks \uE002");
     }
 
     public void createChestWithClaims(Location location) {
